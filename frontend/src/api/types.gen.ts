@@ -4,13 +4,28 @@ export type ClientOptions = {
     baseURL: `${string}://${string}` | (string & {});
 };
 
-export type AuthToken = {
-    readonly token: string;
+/**
+ * Custom JWT serializer that uses email and checks email verification.
+ */
+export type EmailTokenObtainPairRequest = {
+    email: string;
+    password: string;
 };
 
-export type AuthTokenRequest = {
-    username: string;
-    password: string;
+/**
+ * Serializer for OTP email verification.
+ */
+export type OtpVerification = {
+    email: string;
+    code: string;
+};
+
+/**
+ * Serializer for OTP email verification.
+ */
+export type OtpVerificationRequest = {
+    email: string;
+    code: string;
 };
 
 export type PatchedProjectRequest = {
@@ -23,10 +38,12 @@ export type PatchedProjectRequest = {
 };
 
 export type PatchedUserRequest = {
+    first_name?: string;
+    last_name?: string;
     /**
-     * Name of User
+     * Email address
      */
-    name?: string;
+    email?: string;
 };
 
 /**
@@ -41,7 +58,7 @@ export type Project = {
     readonly uuid: string;
     name: string;
     description?: string;
-    readonly owner: number;
+    readonly owner: string;
     readonly owner_email: string;
     status?: StatusEnum;
     priority?: PriorityEnum;
@@ -59,7 +76,7 @@ export type ProjectCreate = {
     readonly uuid: string;
     name: string;
     description?: string;
-    readonly owner: number;
+    readonly owner: string;
     readonly owner_email: string;
     status?: StatusEnum;
     priority?: PriorityEnum;
@@ -99,19 +116,56 @@ export type ProjectRequest = {
  */
 export type StatusEnum = 'draft' | 'active' | 'completed' | 'archived';
 
+export type TokenRefresh = {
+    readonly access: string;
+    refresh: string;
+};
+
+export type TokenRefreshRequest = {
+    refresh: string;
+};
+
 export type User = {
+    first_name: string;
+    last_name: string;
     /**
-     * Name of User
+     * Email address
      */
-    name?: string;
+    email: string;
     readonly url: string;
 };
 
-export type UserRequest = {
+/**
+ * Serializer for user registration with password validation.
+ */
+export type UserRegistration = {
     /**
-     * Name of User
+     * Email address
      */
-    name?: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+};
+
+/**
+ * Serializer for user registration with password validation.
+ */
+export type UserRegistrationRequest = {
+    /**
+     * Email address
+     */
+    email: string;
+    first_name: string;
+    last_name: string;
+};
+
+export type UserRequest = {
+    first_name: string;
+    last_name: string;
+    /**
+     * Email address
+     */
+    email: string;
 };
 
 export type ProjectWritable = {
@@ -135,25 +189,84 @@ export type ProjectCreateWritable = {
     due_date?: string | null;
 };
 
-export type UserWritable = {
-    /**
-     * Name of User
-     */
-    name?: string;
+export type TokenRefreshWritable = {
+    refresh: string;
 };
 
-export type ApiAuthTokenCreateData = {
-    body: AuthTokenRequest;
+export type UserWritable = {
+    first_name: string;
+    last_name: string;
+    /**
+     * Email address
+     */
+    email: string;
+};
+
+/**
+ * Serializer for user registration with password validation.
+ */
+export type UserRegistrationRequestWritable = {
+    /**
+     * Email address
+     */
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+};
+
+export type ApiAuthRegisterCreateData = {
+    body: UserRegistrationRequestWritable;
     path?: never;
     query?: never;
-    url: '/api/auth-token/';
+    url: '/api/auth/register/';
+};
+
+export type ApiAuthRegisterCreateResponses = {
+    201: UserRegistration;
+};
+
+export type ApiAuthRegisterCreateResponse = ApiAuthRegisterCreateResponses[keyof ApiAuthRegisterCreateResponses];
+
+export type ApiAuthTokenCreateData = {
+    body: EmailTokenObtainPairRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/token/';
 };
 
 export type ApiAuthTokenCreateResponses = {
-    200: AuthToken;
+    /**
+     * No response body
+     */
+    200: unknown;
 };
 
-export type ApiAuthTokenCreateResponse = ApiAuthTokenCreateResponses[keyof ApiAuthTokenCreateResponses];
+export type ApiAuthTokenRefreshCreateData = {
+    body: TokenRefreshRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/token/refresh/';
+};
+
+export type ApiAuthTokenRefreshCreateResponses = {
+    200: TokenRefresh;
+};
+
+export type ApiAuthTokenRefreshCreateResponse = ApiAuthTokenRefreshCreateResponses[keyof ApiAuthTokenRefreshCreateResponses];
+
+export type ApiAuthVerifyOtpCreateData = {
+    body: OtpVerificationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/verify-otp/';
+};
+
+export type ApiAuthVerifyOtpCreateResponses = {
+    200: OtpVerification;
+};
+
+export type ApiAuthVerifyOtpCreateResponse = ApiAuthVerifyOtpCreateResponses[keyof ApiAuthVerifyOtpCreateResponses];
 
 export type ApiUsersListData = {
     body?: never;
@@ -172,9 +285,9 @@ export type ApiUsersRetrieveData = {
     body?: never;
     path: {
         /**
-         * A unique integer value identifying this user.
+         * A UUID string identifying this user.
          */
-        id: number;
+        id: string;
     };
     query?: never;
     url: '/api/users/{id}/';
@@ -190,9 +303,9 @@ export type ApiUsersPartialUpdateData = {
     body?: PatchedUserRequest;
     path: {
         /**
-         * A unique integer value identifying this user.
+         * A UUID string identifying this user.
          */
-        id: number;
+        id: string;
     };
     query?: never;
     url: '/api/users/{id}/';
@@ -205,12 +318,12 @@ export type ApiUsersPartialUpdateResponses = {
 export type ApiUsersPartialUpdateResponse = ApiUsersPartialUpdateResponses[keyof ApiUsersPartialUpdateResponses];
 
 export type ApiUsersUpdateData = {
-    body?: UserRequest;
+    body: UserRequest;
     path: {
         /**
-         * A unique integer value identifying this user.
+         * A UUID string identifying this user.
          */
-        id: number;
+        id: string;
     };
     query?: never;
     url: '/api/users/{id}/';

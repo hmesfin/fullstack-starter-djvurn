@@ -7,27 +7,37 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
     "generate:schema": "curl -o ./openapi-schema.json http://django:8000/api/schema/",
-    "generate:schema:local": "curl -o ./openapi-schema.json http://localhost:8000/api/schema/",
-    "generate:schema:docker": "docker compose exec django curl http://localhost:8000/api/schema/",
+    "generate:types": "openapi-ts --input ./openapi-schema.json --output ./src/api --client @hey-api/client-axios",
+    "generate:api": "npm run generate:schema && npm run generate:types",
+    "generate:api:local": "curl -o ./openapi-schema.json http://localhost:8000/api/schema/ && npm run generate:types",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@hey-api/client-axios": "^0.9.1",
     "@tanstack/vue-query": "^5.90.5",
+    "@vee-validate/zod": "^4.15.1",
     "axios": "^1.12.2",
+    "pinia": "^3.0.3",
+    "vee-validate": "^4.15.1",
     "vue": "^3.5.22",
-    "zod": "^4.1.12"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.86.2",
     "@types/node": "^24.9.1",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/ui": "^4.0.2",
     "@vue/tsconfig": "^0.8.1",
+    "jsdom": "^27.0.1",
     "openapi-typescript-codegen": "^0.29.0",
     "sass": "^1.93.2",
     "typescript": "~5.9.3",
     "vite": "^7.1.7",
+    "vitest": "^4.0.2",
     "vue-tsc": "^3.1.0"
   }
 }

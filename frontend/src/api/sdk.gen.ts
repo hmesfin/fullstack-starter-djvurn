@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -18,21 +18,79 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-export const apiAuthTokenCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthTokenCreateData, ThrowOnError>) => {
-    return (options.client ?? client).post<ApiAuthTokenCreateResponses, unknown, ThrowOnError>({
+/**
+ * API endpoint for user registration with OTP email verification.
+ */
+export const apiAuthRegisterCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthRegisterCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthRegisterCreateResponses, unknown, ThrowOnError>({
         responseType: 'json',
         security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
             {
                 in: 'cookie',
                 name: 'sessionid',
                 type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/register/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Custom JWT token obtain view that uses email and checks email verification.
+ */
+export const apiAuthTokenCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthTokenCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthTokenCreateResponses, unknown, ThrowOnError>({
+        url: '/api/auth/token/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * JWT token refresh view (uses default SimpleJWT behavior).
+ */
+export const apiAuthTokenRefreshCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthTokenRefreshCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthTokenRefreshCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
+        url: '/api/auth/token/refresh/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Verify OTP code and mark user email as verified.
+ */
+export const apiAuthVerifyOtpCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthVerifyOtpCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthVerifyOtpCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
-        url: '/api/auth-token/',
+        url: '/api/auth/verify-otp/',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -46,12 +104,12 @@ export const apiUsersList = <ThrowOnError extends boolean = false>(options?: Opt
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -65,12 +123,12 @@ export const apiUsersRetrieve = <ThrowOnError extends boolean = false>(options: 
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -84,12 +142,12 @@ export const apiUsersPartialUpdate = <ThrowOnError extends boolean = false>(opti
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -107,12 +165,12 @@ export const apiUsersUpdate = <ThrowOnError extends boolean = false>(options: Op
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -130,12 +188,12 @@ export const apiUsersMeRetrieve = <ThrowOnError extends boolean = false>(options
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -154,12 +212,12 @@ export const projectsList = <ThrowOnError extends boolean = false>(options?: Opt
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -179,12 +237,12 @@ export const projectsCreate = <ThrowOnError extends boolean = false>(options: Op
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -207,12 +265,12 @@ export const projectsDestroy = <ThrowOnError extends boolean = false>(options: O
     return (options.client ?? client).delete<ProjectsDestroyResponses, unknown, ThrowOnError>({
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -232,12 +290,12 @@ export const projectsRetrieve = <ThrowOnError extends boolean = false>(options: 
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -257,12 +315,12 @@ export const projectsPartialUpdate = <ThrowOnError extends boolean = false>(opti
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],
@@ -286,12 +344,12 @@ export const projectsUpdate = <ThrowOnError extends boolean = false>(options: Op
         responseType: 'json',
         security: [
             {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
+                scheme: 'bearer',
+                type: 'http'
             },
             {
-                name: 'Authorization',
+                in: 'cookie',
+                name: 'sessionid',
                 type: 'apiKey'
             }
         ],

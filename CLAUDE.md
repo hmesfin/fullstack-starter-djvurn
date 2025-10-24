@@ -14,14 +14,37 @@ Full-stack Django + Vue.js starter template with:
 - **Type Safety**: Strict TypeScript config with `noUncheckedIndexedAccess` enabled
 - **Authentication**: Token-based API authentication (no Django templates/forms frontend)
 
+## Core Principles (Non-Negotiable)
+
+These principles are **equally important** and must be followed at all times:
+
+### 1. Test-Driven Development (TDD)
+- **RED-GREEN-REFACTOR** cycle is mandatory
+- Write tests FIRST, implementation SECOND
+- No code exists until there's a failing test that needs it
+- Minimum 85% code coverage (90% for data, 95% for security)
+
+### 2. Fully-Typed Code (Type Safety First)
+- **NO `any` types** - ever. Use `unknown` if type is truly unknown
+- **Explicit return types** on all functions (TypeScript & Python)
+- **mypy strict mode** for Python - all code must pass with no errors
+- **TypeScript strict mode** - `noUncheckedIndexedAccess` enabled
+- **Runtime validation** with Zod schemas (mirrors TypeScript types)
+- Type checking runs BEFORE tests in CI/CD
+
+### 3. Code Quality & Organization
+- **Max 500 lines per file** - split when approaching limit
+- **Domain-driven organization** - group by feature, not by type
+- **Descriptive naming** - `getUserByEmail()` not `getUser()`
+- **No magic numbers** - use named constants
+- **Modular architecture** - each module is self-contained
+
 ## User Preferences
 
-- **Testing**: TDD approach with pytest (Django) and Vitest (Vue - to be configured)
-- **Type Safety**: Full typing, no `any` types allowed
-- **Code Style**: VERY strict TypeScript, explicit return types, no console.log in production
 - **Django Patterns**: Auto-increment PK (default) + UUID for public API exposure
 - **Development**: Docker-first workflow for consistency across environments
 - **Frontend**: Vue.js handles ALL user-facing UI (no Django templates except for emails)
+- **Validation**: Zod schemas for ALL API requests/responses
 
 ## Development Workflow
 
@@ -123,6 +146,80 @@ npm run generate:api  # requires Django running on :8000
 ```
 
 **Note**: The dev server (`npm run dev`) runs automatically in Docker via `docker compose up`. You don't need to run it manually.
+
+### Frontend Testing
+
+**Test Framework**: Vitest (configured in `vite.config.ts`)
+
+**1. Via Docker (recommended for consistency):**
+
+```bash
+# Run tests once
+docker compose run --rm frontend npm run test:run
+
+# Run tests in watch mode
+docker compose run --rm frontend npm test
+
+# Run tests with UI
+docker compose run --rm frontend npm run test:ui
+```
+
+**2. On the host (faster for iteration):**
+
+```bash
+cd frontend
+
+# Run tests once
+npm run test:run
+
+# Run tests in watch mode
+npm test
+
+# Run tests with UI
+npm run test:ui
+```
+
+**Zod Schema Validation Pattern:**
+
+All API request/response data MUST have corresponding Zod schemas for runtime validation:
+
+```typescript
+// frontend/src/schemas/auth.schema.ts
+import { z } from 'zod'
+
+export const userRegistrationSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(1, 'Password is required'),
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
+}).strict()
+
+export type UserRegistrationInput = z.infer<typeof userRegistrationSchema>
+```
+
+**Usage in components:**
+
+```typescript
+import { userRegistrationSchema } from '@/schemas'
+import { apiAuthRegisterCreate } from '@/api/sdk.gen'
+import { apiClient } from '@/lib/api-client'
+
+const result = userRegistrationSchema.safeParse(formData)
+if (result.success) {
+  // Data is validated at runtime
+  await apiAuthRegisterCreate({ client: apiClient, body: result.data })
+} else {
+  // Handle validation errors
+  console.error(result.error.issues)
+}
+```
+
+**TDD for Schemas:**
+
+1. Write schema validation tests FIRST (`__tests__/schema.test.ts`)
+2. Run tests to verify they fail (RED phase)
+3. Implement schema to make tests pass (GREEN phase)
+4. Schemas are stored in `frontend/src/schemas/` grouped by domain
 
 ## Architecture
 
@@ -254,13 +351,26 @@ Test configuration in `pyproject.toml`:
 - `pytest.ini_options`: Django settings module, database reuse
 - `coverage.run`: Coverage includes `apps/**`, omits migrations/tests
 
-**Frontend (Vitest - if configured)**:
+**Frontend (Vitest)**:
 
 ```bash
+# Via Docker (recommended)
+docker compose run --rm frontend npm run test:run    # run once
+docker compose run --rm frontend npm test            # watch mode
+docker compose run --rm frontend npm run test:ui     # with UI
+
+# On host (faster)
 cd frontend
-npm run test         # if test script exists
-npm run test:unit    # if configured
+npm run test:run    # run once
+npm test            # watch mode
+npm run test:ui     # with UI
 ```
+
+Test configuration in `vite.config.ts`:
+
+- `test.globals`: true - enables describe, it, expect globally
+- `test.environment`: jsdom - for DOM testing
+- Schemas tests in `src/schemas/__tests__/` validate Zod schemas
 
 ## Code Quality Tools
 

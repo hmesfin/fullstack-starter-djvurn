@@ -4,32 +4,109 @@ info:
   version: 1.0.0
   description: API with full TypeScript type generation
 paths:
-  /api/auth-token/:
+  /api/auth/register/:
     post:
-      operationId: api_auth_token_create
+      operationId: api_auth_register_create
+      description: API endpoint for user registration with OTP email verification.
       tags:
       - api
       requestBody:
         content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AuthTokenRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AuthTokenRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthTokenRequest'
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/auth/token/:
+    post:
+      operationId: api_auth_token_create
+      description: Custom JWT token obtain view that uses email and checks email verification.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/auth/token/refresh/:
+    post:
+      operationId: api_auth_token_refresh_create
+      description: JWT token refresh view (uses default SimpleJWT behavior).
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/verify-otp/:
+    post:
+      operationId: api_auth_verify_otp_create
+      description: Verify OTP code and mark user email as verified.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTPVerificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OTPVerificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OTPVerificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPVerification'
           description: ''
   /api/users/:
     get:
@@ -37,8 +114,8 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -55,14 +132,15 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
-        description: A unique integer value identifying this user.
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
         required: true
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -76,8 +154,9 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
-        description: A unique integer value identifying this user.
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
         required: true
       tags:
       - api
@@ -92,9 +171,10 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/UserRequest'
+        required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -108,8 +188,9 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
-        description: A unique integer value identifying this user.
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
         required: true
       tags:
       - api
@@ -125,8 +206,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUserRequest'
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -140,8 +221,8 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -180,8 +261,8 @@ paths:
       tags:
       - projects
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -213,8 +294,8 @@ paths:
               $ref: '#/components/schemas/ProjectCreateRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '201':
           content:
@@ -239,8 +320,8 @@ paths:
       tags:
       - projects
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -276,8 +357,8 @@ paths:
               $ref: '#/components/schemas/ProjectRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -312,8 +393,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedProjectRequest'
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '200':
           content:
@@ -337,25 +418,18 @@ paths:
       tags:
       - projects
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - tokenAuth: []
       responses:
         '204':
           description: No response body
 components:
   schemas:
-    AuthToken:
+    EmailTokenObtainPairRequest:
       type: object
+      description: Custom JWT serializer that uses email and checks email verification.
       properties:
-        token:
-          type: string
-          readOnly: true
-      required:
-      - token
-    AuthTokenRequest:
-      type: object
-      properties:
-        username:
+        email:
           type: string
           writeOnly: true
           minLength: 1
@@ -364,8 +438,37 @@ components:
           writeOnly: true
           minLength: 1
       required:
+      - email
       - password
-      - username
+    OTPVerification:
+      type: object
+      description: Serializer for OTP email verification.
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+          maxLength: 6
+          minLength: 6
+      required:
+      - code
+      - email
+    OTPVerificationRequest:
+      type: object
+      description: Serializer for OTP email verification.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+      required:
+      - code
+      - email
     PatchedProjectRequest:
       type: object
       properties:
@@ -393,10 +496,20 @@ components:
     PatchedUserRequest:
       type: object
       properties:
-        name:
+        first_name:
           type: string
-          title: Name of User
-          maxLength: 255
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
     PriorityEnum:
       enum:
       - 1
@@ -422,7 +535,8 @@ components:
         description:
           type: string
         owner:
-          type: integer
+          type: string
+          format: uuid
           readOnly: true
         owner_email:
           type: string
@@ -476,7 +590,8 @@ components:
         description:
           type: string
         owner:
-          type: integer
+          type: string
+          format: uuid
           readOnly: true
         owner_email:
           type: string
@@ -581,33 +696,121 @@ components:
         * `active` - Active
         * `completed` - Completed
         * `archived` - Archived
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
     User:
       type: object
       properties:
-        name:
+        first_name:
           type: string
-          title: Name of User
-          maxLength: 255
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
         url:
           type: string
           format: uri
           readOnly: true
       required:
+      - email
+      - first_name
+      - last_name
       - url
+    UserRegistration:
+      type: object
+      description: Serializer for user registration with password validation.
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - email
+      - first_name
+      - last_name
+    UserRegistrationRequest:
+      type: object
+      description: Serializer for user registration with password validation.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
     UserRequest:
       type: object
       properties:
-        name:
+        first_name:
           type: string
-          title: Name of User
-          maxLength: 255
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+      required:
+      - email
+      - first_name
+      - last_name
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
       name: sessionid
-    tokenAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Token-based authentication with required prefix "Token"
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
