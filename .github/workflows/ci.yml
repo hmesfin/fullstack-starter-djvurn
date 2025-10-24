@@ -48,7 +48,7 @@ jobs:
         with:
           push: false
           load: true
-          files: docker-compose.local.yml
+          files: docker-compose.yml
           targets: django
           set: |
             django.cache-from=type=gha,scope=django-cached-tests
@@ -67,16 +67,16 @@ jobs:
             docs.cache-to=type=gha,scope=cached-docs,mode=max
 
       - name: Check DB Migrations
-        run: docker compose -f docker-compose.local.yml run --rm django python manage.py makemigrations --check
+        run: docker compose run --rm django python manage.py makemigrations --check
 
       - name: Run DB Migrations
-        run: docker compose -f docker-compose.local.yml run --rm django python manage.py migrate
+        run: docker compose run --rm django python manage.py migrate
 
       - name: Run Django Tests
-        run: docker compose -f docker-compose.local.yml run django pytest
+        run: docker compose run django pytest
 
       - name: Tear down the Stack
-        run: docker compose -f docker-compose.local.yml down
+        run: docker compose down
 
   frontend-typecheck:
     runs-on: ubuntu-latest
@@ -93,14 +93,14 @@ jobs:
         with:
           push: false
           load: true
-          files: docker-compose.local.yml
+          files: docker-compose.yml
           targets: frontend
           set: |
             frontend.cache-from=type=gha,scope=frontend-cached-typecheck
             frontend.cache-to=type=gha,scope=frontend-cached-typecheck,mode=max
 
       - name: Run TypeScript Type Check
-        run: docker compose -f docker-compose.local.yml run --rm frontend npm run type-check
+        run: docker compose run --rm frontend npm run type-check
 
       - name: Tear down the Stack
-        run: docker compose -f docker-compose.local.yml down
+        run: docker compose down
