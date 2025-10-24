@@ -4,6 +4,9 @@ ARG APP_HOME=/app
 
 WORKDIR ${APP_HOME}
 
+# Force rebuild to invalidate cache - TODO: remove after tsconfig fix is deployed
+# Last updated: 2025-10-24
+
 # Install system dependencies
 RUN apk add --no-cache \
   bash \
