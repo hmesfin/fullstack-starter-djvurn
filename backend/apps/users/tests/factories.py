@@ -21,7 +21,9 @@ class UserFactory(factory.django.DjangoModelFactory):
         if create:
             # Use Faker for random password or extracted value
             raw_password = extracted or factory.Faker("password").evaluate(
-                None, None, {"locale": None}
+                None,
+                None,
+                {"locale": None},
             )
             self.set_password(raw_password)
             self.save()
