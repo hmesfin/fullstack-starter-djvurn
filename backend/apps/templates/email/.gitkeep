@@ -1,0 +1,2 @@
+# Email templates go here
+# Used by Django for transactional emails (password resets, notifications, etc.)

@@ -1,0 +1,65 @@
+volumes:
+  staging_postgres_data: {}
+  staging_postgres_data_backups: {}
+  staging_traefik: {}
+
+  staging_redis_data: {}
+
+
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+
+    image: project_slug_staging_django
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./.envs/.staging/.django
+      - ./.envs/.staging/.postgres
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: project_slug_staging_postgres
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+      - staging_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.staging/.postgres
+
+  redis:
+    image: docker.io/redis:7.2
+
+    volumes:
+      - staging_redis_data:/data
+
+
+  celeryworker:
+    <<: *django
+    image: project_slug_staging_celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: project_slug_staging_celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: project_slug_staging_flower
+    command: /start-flower
+
+  awscli:
+    build:
+      context: .
+      dockerfile: ./compose/production/aws/Dockerfile
+    env_file:
+      - ./.envs/.staging/.django
+    volumes:
+      - staging_postgres_data_backups:/backups:z
