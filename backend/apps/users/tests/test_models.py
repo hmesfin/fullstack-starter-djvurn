@@ -1,4 +1,5 @@
 """Tests for User model and UserManager."""
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError

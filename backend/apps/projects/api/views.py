@@ -36,6 +36,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         from django.contrib.auth.models import User
+
         user = self.request.user
         assert isinstance(user, User)  # Safe due to IsAuthenticated permission
         return Project.objects.filter(owner=user).select_related("owner")

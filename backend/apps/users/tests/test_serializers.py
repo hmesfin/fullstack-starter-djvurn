@@ -1,4 +1,5 @@
 """Tests for User serializers."""
+
 import pytest
 from django.test import RequestFactory
 

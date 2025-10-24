@@ -31,7 +31,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only_fields = ["uuid", "created_at", "updated_at", "owner"]
 
     def get_is_overdue(self, obj: Project) -> bool:
-
         if obj.due_date and obj.status != Project.Status.COMPLETED:
             return obj.due_date < timezone.now().date()
         return False
