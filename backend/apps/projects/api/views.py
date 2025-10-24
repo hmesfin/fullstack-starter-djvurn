@@ -1,4 +1,5 @@
 # apps/projects/api/views.py
+from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter
@@ -35,8 +36,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     lookup_field = "uuid"
 
     def get_queryset(self):
-        from django.contrib.auth.models import User
-
         user = self.request.user
         assert isinstance(user, User)  # Safe due to IsAuthenticated permission
         return Project.objects.filter(owner=user).select_related("owner")

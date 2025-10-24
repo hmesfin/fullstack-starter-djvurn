@@ -124,11 +124,14 @@ class TestUserModel:
 
     def test_user_has_uuid_primary_key(self) -> None:
         """Test user model uses UUID as primary key."""
+        UUID_STRING_LENGTH = (
+            36  # Standard UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        )
         user = UserFactory()
 
         assert user.id is not None
         assert isinstance(user.id, type(user.id))  # UUID type
-        assert len(str(user.id)) == 36  # UUID string format
+        assert len(str(user.id)) == UUID_STRING_LENGTH  # UUID string format
 
     def test_user_has_timestamps(self) -> None:
         """Test user model has created and modified timestamps."""
