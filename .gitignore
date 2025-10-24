@@ -290,6 +290,8 @@ backend/apps/media/
 .ipython/
 .env
 .envs/*
+!.envs/.testing/
 !.envs/.local.example/
 !.envs/.production.example/
 !.envs/.staging.example/
+!.envs/README.md

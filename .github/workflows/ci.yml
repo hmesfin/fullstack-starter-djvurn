@@ -40,6 +40,13 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v5
 
+      - name: Set up environment files for CI
+        run: |
+          mkdir -p .envs/.local
+          cp .envs/.testing/.django .envs/.local/.django
+          cp .envs/.testing/.postgres .envs/.local/.postgres
+          cp .envs/.testing/.frontend .envs/.local/.frontend
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -84,6 +91,13 @@ jobs:
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v5
+
+      - name: Set up environment files for CI
+        run: |
+          mkdir -p .envs/.local
+          cp .envs/.testing/.django .envs/.local/.django
+          cp .envs/.testing/.postgres .envs/.local/.postgres
+          cp .envs/.testing/.frontend .envs/.local/.frontend
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
