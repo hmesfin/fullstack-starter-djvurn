@@ -18,6 +18,9 @@ eggs/
 lib/
 lib64/
 parts/
+
+# Exception: allow frontend/src/lib (our TypeScript source code)
+!frontend/src/lib/
 sdist/
 var/
 wheels/
