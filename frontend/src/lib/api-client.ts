@@ -1,63 +1,182 @@
-// frontend/src/lib/api-client.ts
-import { createClient, createConfig } from '@/api/client';
-import type { ClientOptions } from '@/api/types.gen';
-import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+/**
+ * API Client Configuration
+ *
+ * Configures axios client with JWT authentication, automatic token refresh,
+ * and request/response interceptors for the Django backend.
+ */
 
-// Configure the client with auth
+import { createClient, createConfig } from '@/api/client'
+import type { ClientOptions } from '@/api/types.gen'
+import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import {
+  getAccessToken,
+  getRefreshToken,
+  setAccessToken,
+  clearTokens,
+} from './token-storage'
+
+// Backend API base URL
+const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:8000'
+
+/**
+ * Flag to prevent multiple simultaneous token refresh requests
+ */
+let isRefreshing = false
+
+/**
+ * Queue of requests waiting for token refresh to complete
+ */
+let failedQueue: Array<{
+  resolve: (token: string) => void
+  reject: (error: Error) => void
+}> = []
+
+/**
+ * Process all queued requests after token refresh
+ */
+function processQueue(error: Error | null, token: string | null = null): void {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error)
+    } else if (token) {
+      promise.resolve(token)
+    }
+  })
+
+  failedQueue = []
+}
+
+/**
+ * Refresh the access token using the refresh token
+ */
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = getRefreshToken()
+
+  if (!refreshToken) {
+    throw new Error('No refresh token available')
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/token/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh: refreshToken }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Token refresh failed')
+    }
+
+    const data = (await response.json()) as { access: string }
+    const newAccessToken = data.access
+    setAccessToken(newAccessToken)
+
+    return newAccessToken
+  } catch (error) {
+    // Refresh failed - clear all tokens
+    clearTokens()
+    throw error
+  }
+}
+
+// Configure the client
 const config = createConfig<ClientOptions>({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
 // Create configured client
-export const apiClient = createClient(config);
+export const apiClient = createClient(config)
 
-// Add auth header dynamically
-apiClient.instance.interceptors.request.use((request: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('access_token');
-  if (token && request.headers) {
-    request.headers.set('Authorization', `Bearer ${token}`);
+/**
+ * Request interceptor: Add JWT token to all requests
+ */
+apiClient.instance.interceptors.request.use(
+  (request: InternalAxiosRequestConfig) => {
+    const token = getAccessToken()
+
+    // Add Authorization header if token exists and not already set
+    if (token && request.headers && !request.headers.Authorization) {
+      request.headers.set('Authorization', `Bearer ${token}`)
+    }
+
+    return request
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error)
   }
-  return request;
-});
+)
 
-// Handle token refresh on 401
+/**
+ * Response interceptor: Handle 401 errors and refresh tokens automatically
+ */
 apiClient.instance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
+    // If error is 401 and we haven't tried refreshing yet
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken) {
-        try {
-          // Note: You'll need to add JWT refresh endpoint to your Django setup
-          const response = await fetch('/api/auth/token/refresh/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh: refreshToken }),
-          });
-
-          if (response.ok) {
-            const data = await response.json() as { access: string };
-            localStorage.setItem('access_token', data.access);
-            if (originalRequest.headers) {
-              originalRequest.headers.set('Authorization', `Bearer ${data.access}`);
-            }
-            return apiClient.instance.request(originalRequest);
-          }
-        } catch {
-          // Refresh failed
-        }
+      // Avoid refreshing token for auth endpoints
+      const isAuthEndpoint = originalRequest.url?.includes('/api/auth/')
+      if (isAuthEndpoint) {
+        return Promise.reject(error)
       }
 
-      // Redirect to login
-      window.location.href = '/login';
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.set('Authorization', `Bearer ${token}`)
+            }
+            return apiClient.instance.request(originalRequest)
+          })
+          .catch((err) => {
+            return Promise.reject(err)
+          })
+      }
+
+      // Mark as retrying
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        // Refresh the token
+        const newAccessToken = await refreshAccessToken()
+
+        // Process queued requests
+        processQueue(null, newAccessToken)
+
+        // Retry original request with new token
+        if (originalRequest.headers) {
+          originalRequest.headers.set('Authorization', `Bearer ${newAccessToken}`)
+        }
+        return apiClient.instance.request(originalRequest)
+      } catch (refreshError) {
+        // Refresh failed - reject all queued requests
+        processQueue(refreshError as Error, null)
+        clearTokens()
+
+        // Redirect to login (customize this based on your routing)
+        window.location.href = '/login'
+
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
+      }
     }
-    return Promise.reject(error);
+
+    // For all other errors, reject
+    return Promise.reject(error)
   }
-);
+)
+
+/**
+ * Export for testing or manual token refresh
+ */
+export { refreshAccessToken }

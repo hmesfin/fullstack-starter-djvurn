@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
@@ -8,6 +9,7 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -84,6 +86,10 @@ class OTPVerificationView(GenericAPIView):
         )
 
 
+@extend_schema(
+    responses={200: TokenObtainPairSerializer},
+    description="Obtain JWT access and refresh tokens using email and password. Email must be verified.",
+)
 class EmailTokenObtainPairView(TokenObtainPairView):
     """Custom JWT token obtain view that uses email and checks email verification."""
 

@@ -116,6 +116,11 @@ export type ProjectRequest = {
  */
 export type StatusEnum = 'draft' | 'active' | 'completed' | 'archived';
 
+export type TokenObtainPair = {
+    readonly access: string;
+    readonly refresh: string;
+};
+
 export type TokenRefresh = {
     readonly access: string;
     refresh: string;
@@ -236,11 +241,10 @@ export type ApiAuthTokenCreateData = {
 };
 
 export type ApiAuthTokenCreateResponses = {
-    /**
-     * No response body
-     */
-    200: unknown;
+    200: TokenObtainPair;
 };
+
+export type ApiAuthTokenCreateResponse = ApiAuthTokenCreateResponses[keyof ApiAuthTokenCreateResponses];
 
 export type ApiAuthTokenRefreshCreateData = {
     body: TokenRefreshRequest;

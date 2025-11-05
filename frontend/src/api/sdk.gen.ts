@@ -45,10 +45,11 @@ export const apiAuthRegisterCreate = <ThrowOnError extends boolean = false>(opti
 };
 
 /**
- * Custom JWT token obtain view that uses email and checks email verification.
+ * Obtain JWT access and refresh tokens using email and password. Email must be verified.
  */
 export const apiAuthTokenCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthTokenCreateData, ThrowOnError>) => {
     return (options.client ?? client).post<ApiAuthTokenCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
         url: '/api/auth/token/',
         ...options,
         headers: {

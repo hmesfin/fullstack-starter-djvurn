@@ -37,3 +37,21 @@ export {
   type PatchedUserRequestInput,
   type UserResponse,
 } from './user.schema'
+
+// Project schemas
+export {
+  projectCreateSchema,
+  projectUpdateSchema,
+  projectPatchSchema,
+  projectFiltersSchema,
+  statusEnum,
+  priorityEnum,
+  ProjectSchema,
+  type ProjectCreateInput,
+  type ProjectUpdateInput,
+  type ProjectPatchInput,
+  type ProjectFiltersInput,
+  type StatusEnum,
+  type PriorityEnum,
+  type ProjectFormData,
+} from './project.schema'
