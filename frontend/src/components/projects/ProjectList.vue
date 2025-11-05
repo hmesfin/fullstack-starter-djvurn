@@ -103,7 +103,7 @@ function handleProjectClick(project: Project): void {
     <div v-if="isFormVisible" class="form-container">
       <ProjectForm
         :project="editingProject"
-        :is-loading="formLoading"
+        :is-loading="formLoading.value"
         @submit="handleFormSubmit"
         @cancel="handleFormCancel"
       />

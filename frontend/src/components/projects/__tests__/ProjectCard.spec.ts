@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { render, screen } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import ProjectCard from '../ProjectCard.vue'
 import type { Project } from '@/api/types.gen'
@@ -23,7 +23,7 @@ describe('ProjectCard.vue', () => {
     priority: 2,
     start_date: '2025-01-15',
     due_date: '2025-12-31',
-    owner: 1,
+    owner: '123e4567-e89b-12d3-a456-426614174001',
     owner_email: 'owner@example.com',
     created_at: '2025-01-01T12:00:00Z',
     updated_at: '2025-01-05T15:30:00Z',
@@ -65,7 +65,7 @@ describe('ProjectCard.vue', () => {
     it('renders "No description" when description is null', () => {
       render(ProjectCard, {
         props: {
-          project: { ...mockProject, description: null },
+          project: { ...mockProject, description: undefined },
         },
       })
 
@@ -168,7 +168,7 @@ describe('ProjectCard.vue', () => {
     it('defaults to medium priority when priority is null', () => {
       render(ProjectCard, {
         props: {
-          project: { ...mockProject, priority: null },
+          project: { ...mockProject, priority: undefined },
         },
       })
 
@@ -278,7 +278,7 @@ describe('ProjectCard.vue', () => {
       await user.click(editButton)
 
       expect(emitted()).toHaveProperty('edit')
-      expect(emitted().edit[0]).toEqual([mockProject])
+      expect(emitted()['edit']?.[0]).toEqual([mockProject])
     })
 
     it('prevents card click event when edit button is clicked', async () => {
@@ -321,7 +321,7 @@ describe('ProjectCard.vue', () => {
       await user.click(deleteButton)
 
       expect(emitted()).toHaveProperty('delete')
-      expect(emitted().delete[0]).toEqual(['123e4567-e89b-12d3-a456-426614174000'])
+      expect(emitted()['delete']?.[0]).toEqual(['123e4567-e89b-12d3-a456-426614174000'])
     })
 
     it('does not emit delete event when cancelled', async () => {
@@ -381,7 +381,7 @@ describe('ProjectCard.vue', () => {
       await user.click(card!)
 
       expect(emitted()).toHaveProperty('click')
-      expect(emitted().click[0]).toEqual([mockProject])
+      expect(emitted()['click']?.[0]).toEqual([mockProject])
     })
 
     it('does not emit click when edit button is clicked', async () => {
@@ -465,12 +465,12 @@ describe('ProjectCard.vue', () => {
       const minimalProject: Project = {
         uuid: '123e4567-e89b-12d3-a456-426614174000',
         name: 'Minimal Project',
-        description: null,
+        description: undefined,
         status: 'draft',
         priority: 2,
         start_date: null,
         due_date: null,
-        owner: 1,
+        owner: '123e4567-e89b-12d3-a456-426614174001',
         owner_email: 'owner@example.com',
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:00Z',
@@ -540,8 +540,8 @@ describe('ProjectCard.vue', () => {
       await user.click(editButton)
 
       // Edit event emitted
-      expect(emitted().edit).toBeTruthy()
-      expect(emitted().edit[0]).toEqual([mockProject])
+      expect(emitted()['edit']).toBeTruthy()
+      expect(emitted()['edit']?.[0]).toEqual([mockProject])
     })
 
     it('displays project and allows user to delete it', async () => {
@@ -560,8 +560,8 @@ describe('ProjectCard.vue', () => {
       expect(global.confirm).toHaveBeenCalledWith('Delete project "Test Project"?')
 
       // Delete event emitted
-      expect(emitted().delete).toBeTruthy()
-      expect(emitted().delete[0]).toEqual([mockProject.uuid])
+      expect(emitted()['delete']).toBeTruthy()
+      expect(emitted()['delete']?.[0]).toEqual([mockProject.uuid])
     })
 
     it('displays project and allows user to view details', async () => {
@@ -575,8 +575,8 @@ describe('ProjectCard.vue', () => {
       await user.click(card!)
 
       // Click event emitted
-      expect(emitted().click).toBeTruthy()
-      expect(emitted().click[0]).toEqual([mockProject])
+      expect(emitted()['click']).toBeTruthy()
+      expect(emitted()['click']?.[0]).toEqual([mockProject])
     })
   })
 })

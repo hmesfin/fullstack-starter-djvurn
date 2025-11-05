@@ -7,6 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { ref } from 'vue'
 import userEvent from '@testing-library/user-event'
 import RegisterForm from '../RegisterForm.vue'
 
@@ -15,7 +16,7 @@ const mockRegister = vi.fn()
 const mockUseAuth = {
   register: mockRegister,
   isRegistering: false,
-  registerError: null,
+  registerError: ref<{ message: string; details?: Record<string, string[]> | null } | null>(null),
 }
 
 vi.mock('@/composables/useAuth', () => ({
@@ -26,7 +27,7 @@ describe('RegisterForm.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseAuth.isRegistering = false
-    mockUseAuth.registerError = null
+    mockUseAuth.registerError.value = null
   })
 
   describe('Component Rendering', () => {
@@ -271,12 +272,13 @@ describe('RegisterForm.vue', () => {
       // Verify success event was emitted
       await waitFor(() => {
         expect(emitted()).toHaveProperty('success')
-        expect(emitted().success[0]).toEqual(['john@example.com'])
+        const successEvents = emitted()['success']
+        expect(successEvents).toBeDefined()
+        expect(successEvents?.[0]).toEqual(['john@example.com'])
       })
     })
 
     it('shows loading state during registration', async () => {
-      const user = userEvent.setup()
       mockUseAuth.isRegistering = true
       mockRegister.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000))
@@ -300,7 +302,7 @@ describe('RegisterForm.vue', () => {
       mockRegister.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.registerError = {
+      mockUseAuth.registerError.value = {
         message: 'Registration failed',
         details: {
           email: ['This email is already registered'],
@@ -336,7 +338,7 @@ describe('RegisterForm.vue', () => {
       mockRegister.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.registerError = {
+      mockUseAuth.registerError.value = {
         message: 'Network error occurred',
         details: null,
       }
@@ -442,8 +444,10 @@ describe('RegisterForm.vue', () => {
 
       // Verify success event
       await waitFor(() => {
-        expect(emitted().success).toBeTruthy()
-        expect(emitted().success[0]).toEqual(['newuser@example.com'])
+        expect(emitted()['success']).toBeTruthy()
+        const successEvents = emitted()['success']
+        expect(successEvents).toBeDefined()
+        expect(successEvents?.[0]).toEqual(['newuser@example.com'])
       })
     })
   })

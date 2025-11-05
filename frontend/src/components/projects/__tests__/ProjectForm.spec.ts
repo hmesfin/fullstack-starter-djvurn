@@ -20,7 +20,7 @@ describe('ProjectForm.vue', () => {
     priority: 3,
     start_date: '2025-01-01',
     due_date: '2025-12-31',
-    owner: 1,
+    owner: '123e4567-e89b-12d3-a456-426614174001',
     owner_email: 'owner@example.com',
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z',
@@ -313,12 +313,16 @@ describe('ProjectForm.vue', () => {
 
       await waitFor(() => {
         expect(emitted()).toHaveProperty('submit')
-        const submitData = emitted().submit[0][0] as Record<string, unknown>
+        const submitEvents = emitted()['submit']
+        expect(submitEvents).toBeTruthy()
+        expect(Array.isArray(submitEvents)).toBe(true)
+        expect(submitEvents![0]).toBeTruthy()
+        const submitData = (submitEvents as unknown[][])[0]![0] as Record<string, unknown>
 
-        expect(submitData.name).toBe('New Project')
-        expect(submitData.description).toBe('Project description')
-        expect(submitData.status).toBe('draft')
-        expect(submitData.priority).toBe(2)
+        expect(submitData['name']).toBe('New Project')
+        expect(submitData['description']).toBe('Project description')
+        expect(submitData['status']).toBe('draft')
+        expect(submitData['priority']).toBe(2)
       })
     })
 
@@ -337,14 +341,18 @@ describe('ProjectForm.vue', () => {
       await user.click(submitButton)
 
       await waitFor(() => {
-        const submitData = emitted().submit[0][0] as Record<string, unknown>
+        const submitEvents = emitted()['submit']
+        expect(submitEvents).toBeTruthy()
+        expect(Array.isArray(submitEvents)).toBe(true)
+        expect(submitEvents![0]).toBeTruthy()
+        const submitData = (submitEvents as unknown[][])[0]![0] as Record<string, unknown>
 
-        expect(submitData.name).toBe('Complete Project')
-        expect(submitData.description).toBe('Full description')
-        expect(submitData.status).toBe('active')
-        expect(submitData.priority).toBe(3)
-        expect(submitData.start_date).toBe('2025-01-15')
-        expect(submitData.due_date).toBe('2025-12-15')
+        expect(submitData['name']).toBe('Complete Project')
+        expect(submitData['description']).toBe('Full description')
+        expect(submitData['status']).toBe('active')
+        expect(submitData['priority']).toBe(3)
+        expect(submitData['start_date']).toBe('2025-01-15')
+        expect(submitData['due_date']).toBe('2025-12-15')
       })
     })
   })
@@ -370,9 +378,13 @@ describe('ProjectForm.vue', () => {
 
       await waitFor(() => {
         expect(emitted()).toHaveProperty('submit')
-        const submitData = emitted().submit[0][0] as Record<string, unknown>
+        const submitEvents = emitted()['submit']
+        expect(submitEvents).toBeTruthy()
+        expect(Array.isArray(submitEvents)).toBe(true)
+        expect(submitEvents![0]).toBeTruthy()
+        const submitData = (submitEvents as unknown[][])[0]![0] as Record<string, unknown>
 
-        expect(submitData.name).toBe('Updated Project Name')
+        expect(submitData['name']).toBe('Updated Project Name')
       })
     })
 
@@ -409,7 +421,7 @@ describe('ProjectForm.vue', () => {
       await user.click(cancelButton)
 
       expect(emitted()).toHaveProperty('cancel')
-      expect(emitted().cancel).toHaveLength(1)
+      expect(emitted()['cancel']).toHaveLength(1)
     })
 
     it('does not submit form when cancel is clicked', async () => {
@@ -520,15 +532,18 @@ describe('ProjectForm.vue', () => {
 
       // Verify submission
       await waitFor(() => {
-        expect(emitted().submit).toBeTruthy()
-        const data = emitted().submit[0][0] as Record<string, unknown>
+        const submitEvents = emitted()['submit']
+        expect(submitEvents).toBeTruthy()
+        expect(Array.isArray(submitEvents)).toBe(true)
+        expect(submitEvents![0]).toBeTruthy()
+        const data = (submitEvents as unknown[][])[0]![0] as Record<string, unknown>
 
-        expect(data.name).toBe('Website Redesign')
-        expect(data.description).toBe('Redesign company website with modern UI')
-        expect(data.status).toBe('active')
-        expect(data.priority).toBe(3)
-        expect(data.start_date).toBe('2025-02-01')
-        expect(data.due_date).toBe('2025-06-30')
+        expect(data['name']).toBe('Website Redesign')
+        expect(data['description']).toBe('Redesign company website with modern UI')
+        expect(data['status']).toBe('active')
+        expect(data['priority']).toBe(3)
+        expect(data['start_date']).toBe('2025-02-01')
+        expect(data['due_date']).toBe('2025-06-30')
       })
     })
 
@@ -550,7 +565,7 @@ describe('ProjectForm.vue', () => {
 
       // Should submit successfully
       await waitFor(() => {
-        expect(emitted().submit).toBeTruthy()
+        expect(emitted()['submit']).toBeTruthy()
       })
     })
   })

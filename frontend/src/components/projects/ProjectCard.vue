@@ -71,7 +71,15 @@ const formatDate = (date: string | null): string => {
     })
   } else {
     // Date-only string (YYYY-MM-DD) - parse as local date
-    const [year, month, day] = date.split('-').map(Number)
+    const parts = date.split('-').map(Number)
+    const year = parts[0]
+    const month = parts[1]
+    const day = parts[2]
+
+    if (year === undefined || month === undefined || day === undefined) {
+      return 'Invalid date'
+    }
+
     return new Date(year, month - 1, day).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

@@ -7,6 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { ref } from 'vue'
 import userEvent from '@testing-library/user-event'
 import OTPVerificationForm from '../OTPVerificationForm.vue'
 
@@ -15,7 +16,7 @@ const mockVerifyOTP = vi.fn()
 const mockUseAuth = {
   verifyOTP: mockVerifyOTP,
   isVerifyingOTP: false,
-  otpError: null,
+  otpError: ref<{ message: string } | null>(null),
 }
 
 vi.mock('@/composables/useAuth', () => ({
@@ -30,7 +31,7 @@ describe('OTPVerificationForm.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseAuth.isVerifyingOTP = false
-    mockUseAuth.otpError = null
+    mockUseAuth.otpError.value = null
   })
 
   describe('Component Rendering', () => {
@@ -222,7 +223,7 @@ describe('OTPVerificationForm.vue', () => {
 
       await waitFor(() => {
         expect(emitted()).toHaveProperty('success')
-        expect(emitted().success).toHaveLength(1)
+        expect(emitted()['success']).toHaveLength(1)
       })
     })
 
@@ -256,7 +257,7 @@ describe('OTPVerificationForm.vue', () => {
       mockVerifyOTP.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.otpError = {
+      mockUseAuth.otpError.value = {
         message: 'Invalid verification code',
       }
 
@@ -278,7 +279,7 @@ describe('OTPVerificationForm.vue', () => {
       mockVerifyOTP.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.otpError = {
+      mockUseAuth.otpError.value = {
         message: 'Verification code has expired',
       }
 
@@ -300,7 +301,7 @@ describe('OTPVerificationForm.vue', () => {
       mockVerifyOTP.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.otpError = {
+      mockUseAuth.otpError.value = {
         message: 'Invalid verification code',
       }
 
@@ -317,7 +318,7 @@ describe('OTPVerificationForm.vue', () => {
       })
 
       // Clear error state for new input
-      mockUseAuth.otpError = null
+      mockUseAuth.otpError.value = null
 
       // User types new code
       await user.clear(codeInput)
@@ -339,7 +340,7 @@ describe('OTPVerificationForm.vue', () => {
       await user.click(backButton)
 
       expect(emitted()).toHaveProperty('back')
-      expect(emitted().back).toHaveLength(1)
+      expect(emitted()['back']).toHaveLength(1)
     })
 
     it('does not submit form when back button is clicked', async () => {
@@ -373,7 +374,7 @@ describe('OTPVerificationForm.vue', () => {
       mockVerifyOTP.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.otpError = {
+      mockUseAuth.otpError.value = {
         message: 'Invalid code',
       }
 
@@ -436,8 +437,8 @@ describe('OTPVerificationForm.vue', () => {
 
       // Verify success event
       await waitFor(() => {
-        expect(emitted().success).toBeTruthy()
-        expect(emitted().success).toHaveLength(1)
+        expect(emitted()['success']).toBeTruthy()
+        expect(emitted()['success']).toHaveLength(1)
       })
     })
 
@@ -448,7 +449,7 @@ describe('OTPVerificationForm.vue', () => {
       mockVerifyOTP.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.otpError = {
+      mockUseAuth.otpError.value = {
         message: 'Invalid verification code',
       }
 
@@ -466,7 +467,7 @@ describe('OTPVerificationForm.vue', () => {
       })
 
       // Reset for retry
-      mockUseAuth.otpError = null
+      mockUseAuth.otpError.value = null
       mockVerifyOTP.mockResolvedValueOnce({
         success: true,
       })
@@ -490,7 +491,7 @@ describe('OTPVerificationForm.vue', () => {
       const backButton = screen.getByRole('button', { name: /back/i })
       await user.click(backButton)
 
-      expect(emitted().back).toBeTruthy()
+      expect(emitted()['back']).toBeTruthy()
       expect(mockVerifyOTP).not.toHaveBeenCalled()
     })
   })

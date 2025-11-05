@@ -7,6 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { ref } from 'vue'
 import userEvent from '@testing-library/user-event'
 import ProjectList from '../ProjectList.vue'
 import type { Project } from '@/api/types.gen'
@@ -63,15 +64,15 @@ const mockDeleteProject = vi.fn()
 const mockRefetch = vi.fn()
 
 const mockUseProjects = {
-  projects: [] as Project[],
-  isLoading: false,
-  error: null,
+  projects: ref<Project[]>([]),
+  isLoading: ref(false),
+  error: ref<Error | null>(null),
   createProject: mockCreateProject,
   updateProject: mockUpdateProject,
   deleteProject: mockDeleteProject,
-  isCreating: false,
-  isUpdating: false,
-  isDeleting: false,
+  isCreating: ref(false),
+  isUpdating: ref(false),
+  isDeleting: ref(false),
   refetch: mockRefetch,
 }
 
@@ -89,7 +90,7 @@ describe('ProjectList.vue', () => {
       priority: 2,
       start_date: '2025-01-01',
       due_date: '2025-12-31',
-      owner: 1,
+      owner: '123e4567-e89b-12d3-a456-426614174010',
       owner_email: 'owner@example.com',
       created_at: '2025-01-01T00:00:00Z',
       updated_at: '2025-01-01T00:00:00Z',
@@ -103,7 +104,7 @@ describe('ProjectList.vue', () => {
       priority: 3,
       start_date: null,
       due_date: null,
-      owner: 1,
+      owner: '123e4567-e89b-12d3-a456-426614174010',
       owner_email: 'owner@example.com',
       created_at: '2025-01-02T00:00:00Z',
       updated_at: '2025-01-02T00:00:00Z',
@@ -113,12 +114,12 @@ describe('ProjectList.vue', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseProjects.projects = []
-    mockUseProjects.isLoading = false
-    mockUseProjects.error = null
-    mockUseProjects.isCreating = false
-    mockUseProjects.isUpdating = false
-    mockUseProjects.isDeleting = false
+    mockUseProjects.projects.value = []
+    mockUseProjects.isLoading.value = false
+    mockUseProjects.error.value = null
+    mockUseProjects.isCreating.value = false
+    mockUseProjects.isUpdating.value = false
+    mockUseProjects.isDeleting.value = false
   })
 
   describe('Component Rendering - Initial State', () => {
@@ -155,7 +156,7 @@ describe('ProjectList.vue', () => {
 
   describe('Loading State', () => {
     it('displays loading spinner and message when loading', () => {
-      mockUseProjects.isLoading = true
+      mockUseProjects.isLoading.value = true
 
       render(ProjectList)
 
@@ -164,7 +165,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('does not show filters during loading', () => {
-      mockUseProjects.isLoading = true
+      mockUseProjects.isLoading.value = true
 
       render(ProjectList)
 
@@ -172,8 +173,8 @@ describe('ProjectList.vue', () => {
     })
 
     it('does not show projects during loading', () => {
-      mockUseProjects.isLoading = true
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.isLoading.value = true
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -183,7 +184,7 @@ describe('ProjectList.vue', () => {
 
   describe('Error State', () => {
     it('displays error message when fetch fails', () => {
-      mockUseProjects.error = new Error('Failed to load')
+      mockUseProjects.error.value = new Error('Failed to load')
 
       render(ProjectList)
 
@@ -191,7 +192,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays try again button on error', () => {
-      mockUseProjects.error = new Error('Failed to load')
+      mockUseProjects.error.value = new Error('Failed to load')
 
       render(ProjectList)
 
@@ -200,7 +201,7 @@ describe('ProjectList.vue', () => {
 
     it('calls refetch when try again is clicked', async () => {
       const user = userEvent.setup()
-      mockUseProjects.error = new Error('Failed to load')
+      mockUseProjects.error.value = new Error('Failed to load')
 
       render(ProjectList)
 
@@ -211,7 +212,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('does not show filters on error', () => {
-      mockUseProjects.error = new Error('Failed to load')
+      mockUseProjects.error.value = new Error('Failed to load')
 
       render(ProjectList)
 
@@ -221,7 +222,7 @@ describe('ProjectList.vue', () => {
 
   describe('Empty State - No Projects', () => {
     it('displays empty state when no projects exist', () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       render(ProjectList)
 
@@ -229,7 +230,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays appropriate message when no filters are active', () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       render(ProjectList)
 
@@ -237,7 +238,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays create project button in empty state', () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       render(ProjectList)
 
@@ -246,7 +247,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays filter-specific message when filters are active', () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       render(ProjectList)
 
@@ -259,7 +260,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('does not show create button when filters are active', async () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       const { container } = render(ProjectList)
 
@@ -272,7 +273,7 @@ describe('ProjectList.vue', () => {
 
   describe('Projects Display', () => {
     it('displays project cards when projects exist', () => {
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -280,7 +281,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays correct project names', () => {
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -289,7 +290,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('displays project count in stats', () => {
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -298,7 +299,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('hides stats when no projects', () => {
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       render(ProjectList)
 
@@ -405,7 +406,7 @@ describe('ProjectList.vue', () => {
   describe('Edit Project Flow', () => {
     it('shows edit form when edit button is clicked on card', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -420,7 +421,7 @@ describe('ProjectList.vue', () => {
 
     it('hides filters when edit form is shown', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -434,7 +435,7 @@ describe('ProjectList.vue', () => {
 
     it('calls updateProject when edit form is submitted', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -454,7 +455,7 @@ describe('ProjectList.vue', () => {
 
     it('hides form after successful update', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -475,7 +476,7 @@ describe('ProjectList.vue', () => {
   describe('Delete Project Flow', () => {
     it('calls deleteProject when delete button is clicked on card', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -489,8 +490,8 @@ describe('ProjectList.vue', () => {
     })
 
     it('passes isDeleting state to project cards', () => {
-      mockUseProjects.projects = mockProjects
-      mockUseProjects.isDeleting = true
+      mockUseProjects.projects.value = mockProjects
+      mockUseProjects.isDeleting.value = true
 
       render(ProjectList)
 
@@ -504,7 +505,7 @@ describe('ProjectList.vue', () => {
     it('logs project uuid when card is clicked', async () => {
       const user = userEvent.setup()
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -543,7 +544,7 @@ describe('ProjectList.vue', () => {
   describe('Form Loading States', () => {
     it('passes isCreating to form during creation', async () => {
       const user = userEvent.setup()
-      mockUseProjects.isCreating = true
+      mockUseProjects.isCreating.value = true
 
       render(ProjectList)
 
@@ -558,8 +559,8 @@ describe('ProjectList.vue', () => {
 
     it('passes isUpdating to form during update', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
-      mockUseProjects.isUpdating = true
+      mockUseProjects.projects.value = mockProjects
+      mockUseProjects.isUpdating.value = true
 
       render(ProjectList)
 
@@ -581,7 +582,7 @@ describe('ProjectList.vue', () => {
     })
 
     it('loading state has implicit status role', () => {
-      mockUseProjects.isLoading = true
+      mockUseProjects.isLoading.value = true
 
       render(ProjectList)
 
@@ -602,7 +603,7 @@ describe('ProjectList.vue', () => {
 
   describe('Edge Cases', () => {
     it('handles single project correctly', () => {
-      mockUseProjects.projects = [mockProjects[0]!]
+      mockUseProjects.projects.value = [mockProjects[0]!]
 
       render(ProjectList)
 
@@ -616,7 +617,7 @@ describe('ProjectList.vue', () => {
         uuid: `uuid-${i}`,
         name: `Project ${i}`,
       }))
-      mockUseProjects.projects = manyProjects
+      mockUseProjects.projects.value = manyProjects
 
       render(ProjectList)
 
@@ -626,7 +627,7 @@ describe('ProjectList.vue', () => {
 
     it('prevents showing both create and edit forms simultaneously', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = mockProjects
+      mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
 
@@ -647,7 +648,7 @@ describe('ProjectList.vue', () => {
   describe('Complete User Flow', () => {
     it('allows complete CRUD workflow', async () => {
       const user = userEvent.setup()
-      mockUseProjects.projects = []
+      mockUseProjects.projects.value = []
 
       const { rerender } = render(ProjectList)
 
@@ -663,7 +664,7 @@ describe('ProjectList.vue', () => {
       expect(mockCreateProject).toHaveBeenCalled()
 
       // Simulate project created
-      mockUseProjects.projects = [mockProjects[0]!]
+      mockUseProjects.projects.value = [mockProjects[0]!]
       rerender({})
 
       await waitFor(() => {

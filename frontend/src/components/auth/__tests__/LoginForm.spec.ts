@@ -7,6 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { ref } from 'vue'
 import userEvent from '@testing-library/user-event'
 import LoginForm from '../LoginForm.vue'
 
@@ -15,7 +16,7 @@ const mockLogin = vi.fn()
 const mockUseAuth = {
   login: mockLogin,
   isLoggingIn: false,
-  loginError: null,
+  loginError: ref<{ message: string; details?: Record<string, string[]> | null } | null>(null),
 }
 
 vi.mock('@/composables/useAuth', () => ({
@@ -26,7 +27,7 @@ describe('LoginForm.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseAuth.isLoggingIn = false
-    mockUseAuth.loginError = null
+    mockUseAuth.loginError.value = null
   })
 
   describe('Component Rendering', () => {
@@ -232,7 +233,7 @@ describe('LoginForm.vue', () => {
 
       await waitFor(() => {
         expect(emitted()).toHaveProperty('success')
-        expect(emitted().success).toHaveLength(1)
+        expect(emitted()['success']).toHaveLength(1)
       })
     })
 
@@ -254,7 +255,7 @@ describe('LoginForm.vue', () => {
       mockLogin.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.loginError = {
+      mockUseAuth.loginError.value = {
         message: 'Login failed',
         details: {
           email: ['Email not found'],
@@ -284,7 +285,7 @@ describe('LoginForm.vue', () => {
       mockLogin.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.loginError = {
+      mockUseAuth.loginError.value = {
         message: 'Invalid credentials',
         details: null,
       }
@@ -310,7 +311,7 @@ describe('LoginForm.vue', () => {
       mockLogin.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.loginError = {
+      mockUseAuth.loginError.value = {
         message: 'Network error: Unable to connect to server',
         details: null,
       }
@@ -404,8 +405,8 @@ describe('LoginForm.vue', () => {
 
       // Verify success event
       await waitFor(() => {
-        expect(emitted().success).toBeTruthy()
-        expect(emitted().success).toHaveLength(1)
+        expect(emitted()['success']).toBeTruthy()
+        expect(emitted()['success']).toHaveLength(1)
       })
     })
 
@@ -416,7 +417,7 @@ describe('LoginForm.vue', () => {
       mockLogin.mockResolvedValueOnce({
         success: false,
       })
-      mockUseAuth.loginError = {
+      mockUseAuth.loginError.value = {
         message: 'Invalid credentials',
         details: null,
       }
@@ -433,7 +434,7 @@ describe('LoginForm.vue', () => {
       })
 
       // Reset mock for second attempt
-      mockUseAuth.loginError = null
+      mockUseAuth.loginError.value = null
       mockLogin.mockResolvedValueOnce({
         success: true,
       })

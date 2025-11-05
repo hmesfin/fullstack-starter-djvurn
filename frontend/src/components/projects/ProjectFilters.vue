@@ -43,7 +43,7 @@ function updateFilters(): void {
 
   // Only include status if it's not "undefined" (which means "All Statuses")
   if (localFilters.value.status && localFilters.value.status !== 'undefined') {
-    filters.status = localFilters.value.status
+    filters.status = localFilters.value.status as 'draft' | 'active' | 'completed' | 'archived'
   }
 
   if (localFilters.value.search) {
