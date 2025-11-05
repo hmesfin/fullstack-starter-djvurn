@@ -150,9 +150,10 @@ function clearFieldError(field: string): void {
         type="submit"
         class="btn btn-primary"
         :disabled="isRegistering"
+        :aria-label="isRegistering ? 'Creating account' : 'Create Account'"
       >
         <span v-if="isRegistering">Creating Account...</span>
-        <span v-else>Create Account</span>
+        <span v-else>Register</span>
       </button>
     </form>
 

@@ -35,7 +35,7 @@ const {
 // Computed
 const hasProjects = computed(() => (projects.value?.length ?? 0) > 0)
 const isFormVisible = computed(() => showCreateForm.value || editingProject.value !== null)
-const formLoading = computed(() => isCreating || isUpdating)
+const formLoading = computed(() => (showCreateForm.value ? isCreating : isUpdating))
 
 // Handlers
 function handleCreateClick(): void {
@@ -103,7 +103,7 @@ function handleProjectClick(project: Project): void {
     <div v-if="isFormVisible" class="form-container">
       <ProjectForm
         :project="editingProject"
-        :is-loading="formLoading.value"
+        :is-loading="formLoading"
         @submit="handleFormSubmit"
         @cancel="handleFormCancel"
       />
@@ -111,13 +111,14 @@ function handleProjectClick(project: Project): void {
 
     <!-- Filters -->
     <ProjectFilters
-      v-if="!isFormVisible"
+      v-if="!isFormVisible && !isLoading && !error"
       v-model="filters"
+      data-testid="project-filters"
     />
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="loading-state">
-      <div class="spinner" />
+    <div v-if="isLoading" class="loading-state" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true" />
       <p>Loading projects...</p>
     </div>
 
@@ -163,6 +164,7 @@ function handleProjectClick(project: Project): void {
         :key="project.uuid"
         :project="project"
         :is-deleting="isDeleting"
+        data-testid="project-card"
         @edit="handleEditProject"
         @delete="handleDeleteProject"
         @click="handleProjectClick"

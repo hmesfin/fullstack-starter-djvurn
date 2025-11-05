@@ -59,11 +59,25 @@ const statusLabel = computed(() => {
 // Format dates
 const formatDate = (date: string | null): string => {
   if (!date) return 'Not set'
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+
+  // Parse date strings as local dates to avoid timezone issues
+  // For ISO date strings (YYYY-MM-DD), create a local date
+  if (date.includes('T')) {
+    // Full ISO datetime - parse normally
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  } else {
+    // Date-only string (YYYY-MM-DD) - parse as local date
+    const [year, month, day] = date.split('-').map(Number)
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
 }
 
 // Handlers

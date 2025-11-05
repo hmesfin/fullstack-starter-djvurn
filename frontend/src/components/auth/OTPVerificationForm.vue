@@ -76,6 +76,17 @@ function formatCode(): void {
 }
 
 /**
+ * Handle paste events to format pasted content
+ */
+function handlePaste(event: ClipboardEvent): void {
+  event.preventDefault()
+  const pastedText = event.clipboardData?.getData('text') || ''
+  const numericOnly = pastedText.replace(/\D/g, '').slice(0, 6)
+  code.value = numericOnly
+  clearError()
+}
+
+/**
  * Go back to registration
  */
 function handleBack(): void {
@@ -103,11 +114,12 @@ function handleBack(): void {
           inputmode="numeric"
           pattern="[0-9]*"
           class="form-input code-input"
-          :class="{ 'input-error': codeError }"
+          :class="{ 'input-error': codeError || otpError }"
           placeholder="123456"
           maxlength="6"
           autocomplete="one-time-code"
           @input="formatCode"
+          @paste="handlePaste"
         />
         <p v-if="codeError" class="error-message">
           {{ codeError }}

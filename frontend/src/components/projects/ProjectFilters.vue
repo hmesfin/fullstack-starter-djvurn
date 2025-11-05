@@ -18,7 +18,7 @@ const emit = defineEmits<{
 
 // Local state
 const localFilters = ref({
-  status: props.modelValue.status,
+  status: props.modelValue.status || 'undefined',
   search: props.modelValue.search || '',
   ordering: props.modelValue.ordering || '-created_at',
 })
@@ -28,7 +28,7 @@ watch(
   () => props.modelValue,
   (newValue) => {
     localFilters.value = {
-      status: newValue.status,
+      status: newValue.status || 'undefined',
       search: newValue.search || '',
       ordering: newValue.ordering || '-created_at',
     }
@@ -41,7 +41,8 @@ function updateFilters(): void {
     ordering: localFilters.value.ordering,
   }
 
-  if (localFilters.value.status) {
+  // Only include status if it's not "undefined" (which means "All Statuses")
+  if (localFilters.value.status && localFilters.value.status !== 'undefined') {
     filters.status = localFilters.value.status
   }
 
@@ -54,12 +55,11 @@ function updateFilters(): void {
 
 // Clear all filters
 function clearFilters(): void {
-  localFilters.value = {
-    status: undefined,
-    search: '',
+  // Emit the cleared filters state - don't update local state directly
+  // The parent component should update props, which will then update local state via the watcher
+  emit('update:modelValue', {
     ordering: '-created_at',
-  }
-  updateFilters()
+  })
 }
 
 // Check if any filters are active
@@ -67,7 +67,8 @@ const hasActiveFilters = ref(false)
 watch(
   localFilters,
   () => {
-    hasActiveFilters.value = !!(localFilters.value.status || localFilters.value.search)
+    const hasStatus = localFilters.value.status && localFilters.value.status !== 'undefined'
+    hasActiveFilters.value = !!(hasStatus || localFilters.value.search)
   },
   { deep: true, immediate: true }
 )
@@ -93,7 +94,7 @@ watch(
         class="filter-select"
         @change="updateFilters"
       >
-        <option :value="undefined">All Statuses</option>
+        <option value="undefined">All Statuses</option>
         <option value="draft">Draft</option>
         <option value="active">Active</option>
         <option value="completed">Completed</option>
@@ -103,9 +104,12 @@ watch(
 
     <!-- Sort By -->
     <div class="filter-group">
+      <label for="ordering-select" class="sr-only">Sort projects</label>
       <select
+        id="ordering-select"
         v-model="localFilters.ordering"
         class="filter-select"
+        aria-label="Sort projects"
         @change="updateFilters"
       >
         <option value="-created_at">Newest First</option>
@@ -131,6 +135,19 @@ watch(
 </template>
 
 <style scoped>
+/* Screen reader only class for accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .project-filters {
   display: flex;
   gap: 0.75rem;
