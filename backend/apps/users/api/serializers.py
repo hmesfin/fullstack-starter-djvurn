@@ -147,7 +147,8 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError(
                 {
                     "email": _(
-                        "Email address is not verified. Please verify your email before logging in.",
+                        "Email address is not verified. "
+                        "Please verify your email before logging in.",
                     ),
                 },
             )

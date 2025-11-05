@@ -1,10 +1,14 @@
 """Tests for User API endpoints."""
 
+from datetime import timedelta
+
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from apps.users.models import EmailVerificationOTP
 from apps.users.models import User
 from apps.users.tests.factories import UserFactory
 
@@ -251,8 +255,6 @@ class TestUserRegistration:
 
     def test_register_user_successful(self, api_client: APIClient) -> None:
         """Test successful user registration creates user and OTP."""
-        from apps.users.models import EmailVerificationOTP
-
         url = reverse("api:auth-register")
         registration_data = {
             "email": "newuser@example.com",
@@ -277,9 +279,10 @@ class TestUserRegistration:
         assert user.check_password("SecurePass123!")  # Password should be hashed
 
         # Verify OTP was created
+        otp_code_length = 6
         otp = EmailVerificationOTP.objects.filter(user=user, is_used=False).first()
         assert otp is not None
-        assert len(otp.code) == 6
+        assert len(otp.code) == otp_code_length
         assert otp.is_valid() is True
 
     def test_register_user_with_duplicate_email_fails(
@@ -287,7 +290,7 @@ class TestUserRegistration:
         api_client: APIClient,
     ) -> None:
         """Test registration with duplicate email returns 400."""
-        existing_user = UserFactory(email="existing@example.com")
+        _existing_user = UserFactory(email="existing@example.com")
 
         url = reverse("api:auth-register")
         registration_data = {
@@ -411,8 +414,6 @@ class TestOTPVerification:
 
     def test_verify_otp_successful(self, api_client: APIClient) -> None:
         """Test successful OTP verification marks user as verified."""
-        from apps.users.models import EmailVerificationOTP
-
         # Create user with OTP
         user = UserFactory(is_email_verified=False)
         otp = EmailVerificationOTP.create_for_user(user)
@@ -438,10 +439,8 @@ class TestOTPVerification:
 
     def test_verify_otp_with_invalid_code_fails(self, api_client: APIClient) -> None:
         """Test OTP verification with invalid code returns 400."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory(is_email_verified=False)
-        otp = EmailVerificationOTP.create_for_user(user)
+        _otp = EmailVerificationOTP.create_for_user(user)
 
         url = reverse("api:auth-verify-otp")
         verification_data = {
@@ -459,12 +458,6 @@ class TestOTPVerification:
 
     def test_verify_otp_with_expired_code_fails(self, api_client: APIClient) -> None:
         """Test OTP verification with expired code returns 400."""
-        from datetime import timedelta
-
-        from django.utils import timezone
-
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory(is_email_verified=False)
         otp = EmailVerificationOTP.create_for_user(user)
 
@@ -488,8 +481,6 @@ class TestOTPVerification:
 
     def test_verify_otp_with_used_code_fails(self, api_client: APIClient) -> None:
         """Test OTP verification with already used code returns 400."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory(is_email_verified=False)
         otp = EmailVerificationOTP.create_for_user(user)
         otp.mark_as_used()
@@ -547,12 +538,10 @@ class TestOTPVerification:
         api_client: APIClient,
     ) -> None:
         """Test OTP verification uses the most recent valid code."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory(is_email_verified=False)
 
         # Create two OTPs
-        old_otp = EmailVerificationOTP.create_for_user(user)
+        _old_otp = EmailVerificationOTP.create_for_user(user)
         new_otp = EmailVerificationOTP.create_for_user(user)
 
         url = reverse("api:auth-verify-otp")

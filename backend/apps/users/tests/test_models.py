@@ -1,10 +1,15 @@
 """Tests for User model and UserManager."""
 
+from datetime import timedelta
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.utils import timezone
 from faker import Faker
 
+from apps.users.models import EmailVerificationOTP
 from apps.users.models import User
 from apps.users.tests.factories import UserFactory
 
@@ -200,20 +205,15 @@ class TestEmailVerificationOTPModel:
 
     def test_generate_code_returns_six_digit_string(self) -> None:
         """Test generate_code returns a 6-digit string."""
-        from apps.users.models import EmailVerificationOTP
-
+        otp_code_length = 6
         code = EmailVerificationOTP.generate_code()
 
         assert isinstance(code, str)
-        assert len(code) == 6
+        assert len(code) == otp_code_length
         assert code.isdigit()
 
     def test_generate_code_pads_with_zeros(self) -> None:
         """Test generate_code pads with leading zeros for small numbers."""
-        from unittest.mock import patch
-
-        from apps.users.models import EmailVerificationOTP
-
         # Mock randbelow to return a small number
         with patch("secrets.randbelow", return_value=42):
             code = EmailVerificationOTP.generate_code()
@@ -222,27 +222,20 @@ class TestEmailVerificationOTPModel:
 
     def test_create_for_user_creates_otp(self) -> None:
         """Test create_for_user creates an OTP for the given user."""
-        from apps.users.models import EmailVerificationOTP
-
+        otp_code_length = 6
         user = UserFactory()
 
         otp = EmailVerificationOTP.create_for_user(user)
 
         assert otp.id is not None
         assert otp.user == user
-        assert len(otp.code) == 6
+        assert len(otp.code) == otp_code_length
         assert otp.code.isdigit()
         assert otp.is_used is False
         assert otp.expires_at is not None
 
     def test_create_for_user_sets_expiry_15_minutes(self) -> None:
         """Test create_for_user sets expiry to 15 minutes from now."""
-        from datetime import timedelta
-
-        from django.utils import timezone
-
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         before_creation = timezone.now()
 
@@ -254,8 +247,6 @@ class TestEmailVerificationOTPModel:
 
     def test_is_valid_returns_true_for_unused_non_expired_otp(self) -> None:
         """Test is_valid returns True for unused and non-expired OTP."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         otp = EmailVerificationOTP.create_for_user(user)
 
@@ -263,8 +254,6 @@ class TestEmailVerificationOTPModel:
 
     def test_is_valid_returns_false_for_used_otp(self) -> None:
         """Test is_valid returns False for used OTP."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         otp = EmailVerificationOTP.create_for_user(user)
         otp.mark_as_used()
@@ -273,12 +262,6 @@ class TestEmailVerificationOTPModel:
 
     def test_is_valid_returns_false_for_expired_otp(self) -> None:
         """Test is_valid returns False for expired OTP."""
-        from datetime import timedelta
-
-        from django.utils import timezone
-
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         otp = EmailVerificationOTP.create_for_user(user)
 
@@ -290,8 +273,6 @@ class TestEmailVerificationOTPModel:
 
     def test_mark_as_used_sets_is_used_to_true(self) -> None:
         """Test mark_as_used sets is_used to True."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         otp = EmailVerificationOTP.create_for_user(user)
 
@@ -303,8 +284,6 @@ class TestEmailVerificationOTPModel:
 
     def test_otp_str_representation(self) -> None:
         """Test EmailVerificationOTP string representation."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
         otp = EmailVerificationOTP.create_for_user(user)
 
@@ -313,8 +292,7 @@ class TestEmailVerificationOTPModel:
 
     def test_user_can_have_multiple_otps(self) -> None:
         """Test user can have multiple OTP codes (for resend functionality)."""
-        from apps.users.models import EmailVerificationOTP
-
+        expected_otp_count = 2
         user = UserFactory()
 
         otp1 = EmailVerificationOTP.create_for_user(user)
@@ -322,12 +300,10 @@ class TestEmailVerificationOTPModel:
 
         assert otp1.id != otp2.id
         assert otp1.code != otp2.code
-        assert user.email_otps.count() == 2
+        assert user.email_otps.count() == expected_otp_count
 
     def test_otp_ordering_by_created_at_descending(self) -> None:
         """Test OTPs are ordered by created_at descending (newest first)."""
-        from apps.users.models import EmailVerificationOTP
-
         user = UserFactory()
 
         otp1 = EmailVerificationOTP.create_for_user(user)

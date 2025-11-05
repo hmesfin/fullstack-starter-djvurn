@@ -88,7 +88,10 @@ class OTPVerificationView(GenericAPIView):
 
 @extend_schema(
     responses={200: TokenObtainPairSerializer},
-    description="Obtain JWT access and refresh tokens using email and password. Email must be verified.",
+    description=(
+        "Obtain JWT access and refresh tokens using email and password. "
+        "Email must be verified."
+    ),
 )
 class EmailTokenObtainPairView(TokenObtainPairView):
     """Custom JWT token obtain view that uses email and checks email verification."""
@@ -98,5 +101,3 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
 class EmailTokenRefreshView(TokenRefreshView):
     """JWT token refresh view (uses default SimpleJWT behavior)."""
-
-    pass

@@ -15,7 +15,8 @@ router.register("users", UserViewSet)
 
 
 app_name = "api"
-urlpatterns = router.urls + [
+urlpatterns = [
+    *router.urls,
     path("auth/register/", UserRegistrationView.as_view(), name="auth-register"),
     path("auth/verify-otp/", OTPVerificationView.as_view(), name="auth-verify-otp"),
     path("auth/token/", EmailTokenObtainPairView.as_view(), name="auth-token"),

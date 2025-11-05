@@ -126,6 +126,9 @@ ignore = [
     # https://github.com/astral-sh/ruff/issues/7871
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["S105"]  # Ignore hardcoded password in test files
+
 [tool.ruff.lint.isort]
 force-single-line = true
 
