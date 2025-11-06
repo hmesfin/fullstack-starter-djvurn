@@ -16,6 +16,7 @@ class UserAdmin(admin.ModelAdmin):
                     "is_active",
                     "is_staff",
                     "is_superuser",
+                    "is_email_verified",
                     "groups",
                     "user_permissions",
                 ),
@@ -23,7 +24,13 @@ class UserAdmin(admin.ModelAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-    list_display = ["email", "first_name", "last_name", "is_superuser"]
+    list_display = [
+        "email",
+        "first_name",
+        "last_name",
+        "is_email_verified",
+        "is_superuser",
+    ]
     search_fields = ["first_name", "last_name"]
     ordering = ["last_name", "first_name"]
     add_fieldsets = (

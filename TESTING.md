@@ -121,6 +121,16 @@ curl http://localhost:8000/api/users/me/ \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
+## Test Projects
+
+The test user has **3 sample projects** pre-created for testing:
+
+1. **Test Project Alpha** - Status: active, Priority: 3 (High)
+2. **Website Redesign** - Status: draft, Priority: 4 (Critical)
+3. **Mobile App Launch** - Status: completed, Priority: 2 (Medium)
+
+You should see these projects immediately after logging in at http://localhost:5173/dashboard
+
 ## Creating Additional Test Users
 
 ```bash
@@ -140,6 +150,30 @@ user = User.objects.create_user(
 )
 print(f'Created: {user.email}')
 ```
+
+## Creating Additional Test Projects
+
+```bash
+# Get access token
+ACCESS_TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "testpass123"}' \
+  | jq -r '.access')
+
+# Create a project
+curl -X POST http://localhost:8000/api/v1/projects/ \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My New Project",
+    "description": "Project description here",
+    "status": "active",
+    "priority": 3
+  }'
+```
+
+**Valid status values**: `draft`, `active`, `completed`, `archived`
+**Valid priority values**: `1` (Low), `2` (Medium), `3` (High), `4` (Critical)
 
 ## Troubleshooting
 

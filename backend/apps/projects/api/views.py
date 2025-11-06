@@ -1,5 +1,4 @@
 # apps/projects/api/views.py
-from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter
@@ -9,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from apps.projects.models import Project
+from apps.users.models import User
 
 from .serializers import ProjectCreateSerializer
 from .serializers import ProjectSerializer
