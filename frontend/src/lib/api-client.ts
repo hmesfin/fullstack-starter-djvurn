@@ -162,8 +162,11 @@ apiClient.instance.interceptors.response.use(
         processQueue(refreshError as Error, null)
         clearTokens()
 
-        // Redirect to login (customize this based on your routing)
-        window.location.href = '/login'
+        // Redirect to login - use window.location to avoid circular dependency with router
+        // The router will handle this redirect properly
+        if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+          window.location.href = '/login'
+        }
 
         return Promise.reject(refreshError)
       } finally {
