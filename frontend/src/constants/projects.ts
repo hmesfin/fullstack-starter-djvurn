@@ -2,22 +2,29 @@
  * Project status and priority configuration constants
  *
  * Centralized source of truth for:
- * - Status/priority values and labels
+ * - Status/priority values and labels (matching API types)
  * - Badge color mappings
  * - Select options for forms
+ *
+ * Note: Values match the backend API enums:
+ * - StatusEnum: 'draft' | 'active' | 'completed' | 'archived'
+ * - PriorityEnum: 1 | 2 | 3 | 4
  */
 
+// Status constants (matching API StatusEnum)
 export const PROJECT_STATUSES = {
-  PLANNING: 'planning',
-  IN_PROGRESS: 'in_progress',
+  DRAFT: 'draft',
+  ACTIVE: 'active',
   COMPLETED: 'completed',
-  ON_HOLD: 'on_hold',
+  ARCHIVED: 'archived',
 } as const
 
+// Priority constants (matching API PriorityEnum)
 export const PROJECT_PRIORITIES = {
-  LOW: 'low',
-  MEDIUM: 'medium',
-  HIGH: 'high',
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  CRITICAL: 4,
 } as const
 
 export type ProjectStatus = (typeof PROJECT_STATUSES)[keyof typeof PROJECT_STATUSES]
@@ -39,14 +46,14 @@ export interface PriorityConfig {
  * Status configuration for labels and badge variants
  */
 export const STATUS_CONFIG: Record<ProjectStatus, StatusConfig> = {
-  [PROJECT_STATUSES.PLANNING]: {
-    value: PROJECT_STATUSES.PLANNING,
-    label: 'Planning',
+  [PROJECT_STATUSES.DRAFT]: {
+    value: PROJECT_STATUSES.DRAFT,
+    label: 'Draft',
     variant: 'secondary',
   },
-  [PROJECT_STATUSES.IN_PROGRESS]: {
-    value: PROJECT_STATUSES.IN_PROGRESS,
-    label: 'In Progress',
+  [PROJECT_STATUSES.ACTIVE]: {
+    value: PROJECT_STATUSES.ACTIVE,
+    label: 'Active',
     variant: 'default',
   },
   [PROJECT_STATUSES.COMPLETED]: {
@@ -54,9 +61,9 @@ export const STATUS_CONFIG: Record<ProjectStatus, StatusConfig> = {
     label: 'Completed',
     variant: 'outline',
   },
-  [PROJECT_STATUSES.ON_HOLD]: {
-    value: PROJECT_STATUSES.ON_HOLD,
-    label: 'On Hold',
+  [PROJECT_STATUSES.ARCHIVED]: {
+    value: PROJECT_STATUSES.ARCHIVED,
+    label: 'Archived',
     variant: 'destructive',
   },
 }
@@ -80,6 +87,11 @@ export const PRIORITY_CONFIG: Record<ProjectPriority, PriorityConfig> = {
     label: 'High',
     variant: 'destructive',
   },
+  [PROJECT_PRIORITIES.CRITICAL]: {
+    value: PROJECT_PRIORITIES.CRITICAL,
+    label: 'Critical',
+    variant: 'destructive',
+  },
 }
 
 /**
@@ -93,15 +105,15 @@ export const STATUS_OPTIONS: StatusConfig[] = Object.values(STATUS_CONFIG)
 export const PRIORITY_OPTIONS: PriorityConfig[] = Object.values(PRIORITY_CONFIG)
 
 /**
- * Get status configuration by value
+ * Get status configuration by value (with fallback to draft)
  */
-export function getStatusConfig(status: ProjectStatus): StatusConfig {
-  return STATUS_CONFIG[status]
+export function getStatusConfig(status: ProjectStatus | undefined): StatusConfig {
+  return STATUS_CONFIG[status || PROJECT_STATUSES.DRAFT]
 }
 
 /**
- * Get priority configuration by value
+ * Get priority configuration by value (with fallback to medium)
  */
-export function getPriorityConfig(priority: ProjectPriority): PriorityConfig {
-  return PRIORITY_CONFIG[priority]
+export function getPriorityConfig(priority: ProjectPriority | undefined): PriorityConfig {
+  return PRIORITY_CONFIG[priority || PROJECT_PRIORITIES.MEDIUM]
 }
