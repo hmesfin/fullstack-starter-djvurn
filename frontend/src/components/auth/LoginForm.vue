@@ -3,6 +3,11 @@ import { ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { emailTokenObtainPairSchema } from '@/schemas'
 import type { ZodIssue } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Checkbox } from '@/components/ui/checkbox'
 
 // Emits
 const emit = defineEmits<{
@@ -68,214 +73,82 @@ function clearFieldError(field: string): void {
 </script>
 
 <template>
-  <div class="login-form">
-    <h2 class="form-title">Welcome Back</h2>
+  <div class="max-w-md mx-auto p-8">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Welcome Back</h2>
+    <p class="mb-8 text-center text-muted-foreground">
+      Sign in to your account to continue
+    </p>
 
-    <form @submit.prevent="handleSubmit" novalidate>
+    <form @submit.prevent="handleSubmit" novalidate class="space-y-4">
       <!-- Email -->
-      <div class="form-group">
-        <label for="email" class="form-label">Email</label>
-        <input
+      <div class="space-y-2">
+        <Label for="email">Email</Label>
+        <Input
           id="email"
           v-model="formData.email"
           type="email"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['email'] }"
           placeholder="john@example.com"
           autocomplete="email"
+          :class="{ 'border-destructive': fieldErrors['email'] }"
           @input="clearFieldError('email')"
         />
-        <p v-if="fieldErrors['email']" class="error-message">
+        <p v-if="fieldErrors['email']" class="text-sm text-destructive">
           {{ fieldErrors['email'] }}
         </p>
       </div>
 
       <!-- Password -->
-      <div class="form-group">
-        <label for="password" class="form-label">
-          Password
-        </label>
-        <input
+      <div class="space-y-2">
+        <Label for="password">Password</Label>
+        <Input
           id="password"
           v-model="formData.password"
           type="password"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['password'] }"
           placeholder="••••••••"
           autocomplete="current-password"
+          :class="{ 'border-destructive': fieldErrors['password'] }"
           @input="clearFieldError('password')"
         />
-        <p v-if="fieldErrors['password']" class="error-message">
+        <p v-if="fieldErrors['password']" class="text-sm text-destructive">
           {{ fieldErrors['password'] }}
         </p>
       </div>
 
       <!-- Remember Me & Forgot Password -->
-      <div class="form-options">
-        <label class="checkbox-label">
-          <input
-            v-model="rememberMe"
-            type="checkbox"
-            class="checkbox-input"
+      <div class="flex items-center justify-between">
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <Checkbox
+            v-model:checked="rememberMe"
+            id="remember"
           />
           <span>Remember me</span>
         </label>
-        <a href="/forgot-password" class="form-link">
+        <a href="/forgot-password" class="text-sm text-primary hover:underline font-medium">
           Forgot password?
         </a>
       </div>
 
       <!-- General Error -->
-      <div v-if="loginError && !loginError.details" class="alert alert-error">
-        {{ loginError.message }}
-      </div>
+      <Alert v-if="loginError && !loginError.details" variant="destructive">
+        <AlertDescription>
+          {{ loginError.message }}
+        </AlertDescription>
+      </Alert>
 
       <!-- Submit Button -->
-      <button
+      <Button
         type="submit"
-        class="btn btn-primary"
+        class="w-full"
         :disabled="isLoggingIn"
       >
         <span v-if="isLoggingIn">Signing In...</span>
         <span v-else>Sign In</span>
-      </button>
+      </Button>
     </form>
 
-    <p class="form-footer">
+    <p class="mt-6 text-center text-sm text-muted-foreground">
       Don't have an account?
-      <a href="/register" class="form-link">Sign up</a>
+      <a href="/register" class="text-primary hover:underline font-medium">Sign up</a>
     </p>
   </div>
 </template>
-
-<style scoped>
-.login-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.input-error {
-  border-color: #ef4444;
-}
-
-.input-error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #ef4444;
-}
-
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.checkbox-input {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-}
-
-.alert {
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.btn-primary:disabled {
-  background-color: #93c5fd;
-  cursor: not-allowed;
-}
-
-.form-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.form-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.form-link:hover {
-  text-decoration: underline;
-}
-</style>

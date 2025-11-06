@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { Button } from '@/components/ui/button'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 
 const router = useRouter()
@@ -13,102 +15,31 @@ function handleLogout(): void {
 </script>
 
 <template>
-  <div class="dashboard-view">
+  <div class="min-h-screen bg-background">
     <!-- Header with user info and logout -->
-    <header class="dashboard-header">
-      <div class="container">
-        <div class="header-content">
-          <h1 class="app-title">Project Manager</h1>
+    <header class="bg-card border-b border-border">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+          <h1 class="text-2xl font-bold text-foreground">Project Manager</h1>
 
-          <div class="user-menu">
-            <span v-if="user" class="user-name">
+          <div class="flex items-center gap-3">
+            <ThemeToggle />
+            <span v-if="user" class="text-sm text-muted-foreground font-medium">
               {{ user.first_name }} {{ user.last_name }}
             </span>
-            <button class="btn btn-secondary btn-sm" @click="handleLogout">
+            <Button variant="secondary" size="sm" @click="handleLogout">
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </div>
     </header>
 
     <!-- Main content -->
-    <main class="dashboard-main">
-      <div class="container">
+    <main class="py-8">
+      <div class="max-w-7xl mx-auto px-4">
         <ProjectList />
       </div>
     </main>
   </div>
 </template>
-
-<style scoped>
-.dashboard-view {
-  min-height: 100vh;
-  background: #f3f4f6;
-}
-
-.dashboard-header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 0;
-}
-
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-name {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background-color: #e5e7eb;
-}
-
-.btn-sm {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
-}
-
-.dashboard-main {
-  padding: 2rem 0;
-}
-</style>
