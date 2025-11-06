@@ -69,9 +69,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         )
 
         # Generate OTP for email verification
-        EmailVerificationOTP.create_for_user(user)
+        otp = EmailVerificationOTP.create_for_user(user)
 
-        # TODO: Send OTP email via Celery task
+        # Send OTP email via Celery task (async)
+        from apps.users.tasks import send_otp_email
+        send_otp_email.delay(user.id, otp.code)
 
         return user
 

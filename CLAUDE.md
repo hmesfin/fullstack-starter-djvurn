@@ -533,6 +533,54 @@ from apps.myapp.tasks import my_task
 my_task.delay()  # async
 ```
 
+## Email Configuration
+
+**Email backend**: Django's email system with Celery for async delivery
+
+**Local Development (Mailpit)**:
+- Service: `mailpit` container in docker-compose
+- SMTP: `mailpit:1025` (captured, not sent)
+- Web UI: http://localhost:8025 (view all sent emails)
+- Config: `EMAIL_HOST=mailpit` in `.envs/.local/.django`
+
+**Production (SendGrid via django-anymail)**:
+- Backend: `anymail.backends.sendgrid.EmailBackend`
+- API Key: Set `SENDGRID_API_KEY` environment variable
+- From address: Set `DJANGO_DEFAULT_FROM_EMAIL`
+
+**Email Templates**:
+- Location: `backend/apps/templates/email/`
+- Format: Both HTML and plain text versions
+- Context: Django template variables (user, otp_code, year, etc.)
+
+**Sending Emails**:
+
+```python
+# Via Celery task (recommended - async)
+from apps.users.tasks import send_otp_email
+send_otp_email.delay(user_id, otp_code)
+
+# Direct send (synchronous - use for testing only)
+from django.core.mail import send_mail
+send_mail(
+    'Subject',
+    'Message body',
+    'from@example.com',
+    ['to@example.com'],
+)
+```
+
+**Viewing Test Emails**:
+1. Run services: `docker compose up`
+2. Trigger email (e.g., register user)
+3. Open Mailpit UI: http://localhost:8025
+4. View rendered HTML and plain text versions
+
+**Email Task Tests**:
+```bash
+docker compose run --rm django pytest apps/users/tests/test_tasks.py -v
+```
+
 ## Deployment Considerations
 
 - Production settings in `config/settings/production.py`

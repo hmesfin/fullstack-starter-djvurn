@@ -1,0 +1,15 @@
+Email Verification
+
+Hello {{ user.first_name }},
+
+Thank you for registering! To complete your account setup, please verify your email address using the One-Time Password (OTP) below:
+
+Your Verification Code: {{ otp_code }}
+
+⏱️ IMPORTANT: This code will expire in 15 minutes.
+
+If you didn't create an account with us, you can safely ignore this email.
+
+---
+This is an automated message, please do not reply to this email.
+© {{ year }} Your Application Name. All rights reserved.
