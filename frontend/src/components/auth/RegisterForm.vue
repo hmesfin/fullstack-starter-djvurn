@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { userRegistrationSchema } from '@/schemas'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 // Emits
 const emit = defineEmits<{
@@ -66,210 +70,98 @@ function clearFieldError(field: string): void {
 </script>
 
 <template>
-  <div class="register-form">
-    <h2 class="form-title">Create Account</h2>
+  <div class="max-w-md mx-auto p-8">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Create Account</h2>
 
-    <form @submit.prevent="handleSubmit" novalidate>
+    <form @submit.prevent="handleSubmit" novalidate class="space-y-4">
       <!-- First Name -->
-      <div class="form-group">
-        <label for="first_name" class="form-label">First Name</label>
-        <input
+      <div class="space-y-2">
+        <Label for="first_name">First Name</Label>
+        <Input
           id="first_name"
           v-model="formData.first_name"
           type="text"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['first_name'] }"
           placeholder="John"
+          :class="{ 'border-destructive': fieldErrors['first_name'] }"
           @input="clearFieldError('first_name')"
         />
-        <p v-if="fieldErrors['first_name']" class="error-message">
+        <p v-if="fieldErrors['first_name']" class="text-sm text-destructive">
           {{ fieldErrors['first_name'] }}
         </p>
       </div>
 
       <!-- Last Name -->
-      <div class="form-group">
-        <label for="last_name" class="form-label">Last Name</label>
-        <input
+      <div class="space-y-2">
+        <Label for="last_name">Last Name</Label>
+        <Input
           id="last_name"
           v-model="formData.last_name"
           type="text"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['last_name'] }"
           placeholder="Doe"
+          :class="{ 'border-destructive': fieldErrors['last_name'] }"
           @input="clearFieldError('last_name')"
         />
-        <p v-if="fieldErrors['last_name']" class="error-message">
+        <p v-if="fieldErrors['last_name']" class="text-sm text-destructive">
           {{ fieldErrors['last_name'] }}
         </p>
       </div>
 
       <!-- Email -->
-      <div class="form-group">
-        <label for="email" class="form-label">Email</label>
-        <input
+      <div class="space-y-2">
+        <Label for="email">Email</Label>
+        <Input
           id="email"
           v-model="formData.email"
           type="email"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['email'] }"
           placeholder="john@example.com"
           autocomplete="email"
+          :class="{ 'border-destructive': fieldErrors['email'] }"
           @input="clearFieldError('email')"
         />
-        <p v-if="fieldErrors['email']" class="error-message">
+        <p v-if="fieldErrors['email']" class="text-sm text-destructive">
           {{ fieldErrors['email'] }}
         </p>
       </div>
 
       <!-- Password -->
-      <div class="form-group">
-        <label for="password" class="form-label">Password</label>
-        <input
+      <div class="space-y-2">
+        <Label for="password">Password</Label>
+        <Input
           id="password"
           v-model="formData.password"
           type="password"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['password'] }"
           placeholder="••••••••"
           autocomplete="new-password"
+          :class="{ 'border-destructive': fieldErrors['password'] }"
           @input="clearFieldError('password')"
         />
-        <p v-if="fieldErrors['password']" class="error-message">
+        <p v-if="fieldErrors['password']" class="text-sm text-destructive">
           {{ fieldErrors['password'] }}
         </p>
       </div>
 
       <!-- General Error -->
-      <div v-if="registerError && !registerError.details" class="alert alert-error">
-        {{ registerError.message }}
-      </div>
+      <Alert v-if="registerError && !registerError.details" variant="destructive">
+        <AlertDescription>
+          {{ registerError.message }}
+        </AlertDescription>
+      </Alert>
 
       <!-- Submit Button -->
-      <button
+      <Button
         type="submit"
-        class="btn btn-primary"
+        class="w-full"
         :disabled="isRegistering"
         :aria-label="isRegistering ? 'Creating account' : 'Create Account'"
       >
         <span v-if="isRegistering">Creating Account...</span>
         <span v-else>Register</span>
-      </button>
+      </Button>
     </form>
 
-    <p class="form-footer">
+    <p class="mt-6 text-center text-sm text-muted-foreground">
       Already have an account?
-      <a href="/login" class="form-link">Sign in</a>
+      <a href="/login" class="text-primary hover:underline font-medium">Sign in</a>
     </p>
   </div>
 </template>
-
-<style scoped>
-.register-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.input-error {
-  border-color: #ef4444;
-}
-
-.input-error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #ef4444;
-}
-
-.alert {
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.btn-primary:disabled {
-  background-color: #93c5fd;
-  cursor: not-allowed;
-}
-
-.form-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.form-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.form-link:hover {
-  text-decoration: underline;
-}
-</style>

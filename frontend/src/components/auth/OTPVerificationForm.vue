@@ -2,6 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { otpVerificationSchema } from '@/schemas'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 // Props
 const props = defineProps<{
@@ -95,221 +99,69 @@ function handleBack(): void {
 </script>
 
 <template>
-  <div class="otp-form">
-    <h2 class="form-title">Verify Your Email</h2>
+  <div class="max-w-md mx-auto p-8">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Verify Your Email</h2>
 
-    <p class="form-description">
-      We've sent a 6-digit code to <strong>{{ email }}</strong>. Please enter it below.
+    <p class="mb-6 text-center text-muted-foreground text-sm leading-relaxed">
+      We've sent a 6-digit code to <strong class="text-foreground font-semibold">{{ email }}</strong>. Please enter it below.
     </p>
 
-    <form @submit.prevent="handleSubmit" novalidate>
+    <form @submit.prevent="handleSubmit" novalidate class="space-y-4">
       <!-- OTP Code -->
-      <div class="form-group">
-        <label for="code" class="form-label">Verification Code</label>
-        <input
+      <div class="space-y-2">
+        <Label for="code">Verification Code</Label>
+        <Input
           id="code"
           ref="codeInput"
           v-model="code"
           type="text"
           inputmode="numeric"
           pattern="[0-9]*"
-          class="form-input code-input"
-          :class="{ 'input-error': codeError || otpError }"
+          class="text-center text-2xl tracking-[0.5rem] font-semibold"
+          :class="{ 'border-destructive': codeError || otpError }"
           placeholder="123456"
           maxlength="6"
           autocomplete="one-time-code"
           @input="formatCode"
           @paste="handlePaste"
         />
-        <p v-if="codeError" class="error-message">
+        <p v-if="codeError" class="text-sm text-destructive">
           {{ codeError }}
         </p>
       </div>
 
       <!-- General Error -->
-      <div v-if="otpError && !codeError" class="alert alert-error">
-        {{ otpError.message }}
-      </div>
+      <Alert v-if="otpError && !codeError" variant="destructive">
+        <AlertDescription>
+          {{ otpError.message }}
+        </AlertDescription>
+      </Alert>
 
       <!-- Action Buttons -->
-      <div class="button-group">
-        <button
+      <div class="grid grid-cols-[1fr_2fr] gap-3">
+        <Button
           type="button"
-          class="btn btn-secondary"
+          variant="secondary"
           :disabled="isVerifyingOTP"
           @click="handleBack"
         >
           Back
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          class="btn btn-primary"
           :disabled="isVerifyingOTP || code.length !== 6"
         >
           <span v-if="isVerifyingOTP">Verifying...</span>
           <span v-else>Verify Email</span>
-        </button>
+        </Button>
       </div>
     </form>
 
-    <p class="form-footer">
+    <p class="mt-6 text-center text-sm text-muted-foreground">
       Didn't receive the code?
-      <button type="button" class="form-link-button">
+      <button type="button" class="text-primary hover:underline font-medium bg-transparent border-none cursor-pointer p-0">
         Resend code
       </button>
     </p>
   </div>
 </template>
-
-<style scoped>
-.otp-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.form-description {
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: #6b7280;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-.form-description strong {
-  color: #111827;
-  font-weight: 600;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.code-input {
-  text-align: center;
-  font-size: 1.5rem;
-  letter-spacing: 0.5rem;
-  font-weight: 600;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.input-error {
-  border-color: #ef4444;
-}
-
-.input-error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #ef4444;
-}
-
-.alert {
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.button-group {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 0.75rem;
-}
-
-.btn {
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.btn-primary:disabled {
-  background-color: #93c5fd;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #e5e7eb;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.form-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.form-link-button {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: none;
-}
-
-.form-link-button:hover {
-  text-decoration: underline;
-}
-</style>
