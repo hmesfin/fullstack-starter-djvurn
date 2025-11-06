@@ -3,6 +3,12 @@ import { ref, computed, onMounted } from 'vue'
 import { projectCreateSchema, projectPatchSchema, type StatusEnum, type PriorityEnum } from '@/schemas'
 import type { Project } from '@/api/types.gen'
 import type { ZodIssue } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { STATUS_OPTIONS, PRIORITY_OPTIONS } from '@/constants/projects'
 
 // Props
 const props = defineProps<{
@@ -31,22 +37,6 @@ const formData = ref({
 
 // Field errors
 const fieldErrors = ref<Record<string, string>>({})
-
-// Priority labels
-const priorityLabels: Record<PriorityEnum, string> = {
-  1: 'Low',
-  2: 'Medium',
-  3: 'High',
-  4: 'Critical',
-}
-
-// Status labels
-const statusLabels: Record<StatusEnum, string> = {
-  draft: 'Draft',
-  active: 'Active',
-  completed: 'Completed',
-  archived: 'Archived',
-}
 
 /**
  * Initialize form with project data if editing
@@ -118,270 +108,144 @@ function handleCancel(): void {
 </script>
 
 <template>
-  <div class="project-form">
-    <h2 class="form-title">
+  <div class="max-w-2xl mx-auto p-8 bg-card rounded-lg shadow">
+    <h2 class="text-2xl font-semibold mb-6 text-foreground">
       {{ isEditing ? 'Edit Project' : 'Create New Project' }}
     </h2>
 
-    <form @submit.prevent="handleSubmit" novalidate>
+    <form @submit.prevent="handleSubmit" novalidate class="space-y-5">
       <!-- Project Name -->
-      <div class="form-group">
-        <label for="name" class="form-label">
-          Project Name <span class="required">*</span>
-        </label>
-        <input
+      <div class="space-y-2">
+        <Label for="name">
+          Project Name <span class="text-destructive">*</span>
+        </Label>
+        <Input
           id="name"
           v-model="formData.name"
           type="text"
-          class="form-input"
-          :class="{ 'input-error': fieldErrors['name'] }"
           placeholder="Enter project name"
+          :class="{ 'border-destructive': fieldErrors['name'] }"
           @input="clearFieldError('name')"
         />
-        <p v-if="fieldErrors['name']" class="error-message">
+        <p v-if="fieldErrors['name']" class="text-xs text-destructive">
           {{ fieldErrors['name'] }}
         </p>
       </div>
 
       <!-- Description -->
-      <div class="form-group">
-        <label for="description" class="form-label">Description</label>
-        <textarea
+      <div class="space-y-2">
+        <Label for="description">Description</Label>
+        <Textarea
           id="description"
           v-model="formData.description"
-          class="form-textarea"
-          :class="{ 'input-error': fieldErrors['description'] }"
           placeholder="Enter project description (optional)"
           rows="4"
+          :class="{ 'border-destructive': fieldErrors['description'] }"
           @input="clearFieldError('description')"
         />
-        <p v-if="fieldErrors['description']" class="error-message">
+        <p v-if="fieldErrors['description']" class="text-xs text-destructive">
           {{ fieldErrors['description'] }}
         </p>
       </div>
 
       <!-- Status & Priority Row -->
-      <div class="form-row">
+      <div class="grid grid-cols-2 gap-4">
         <!-- Status -->
-        <div class="form-group">
-          <label for="status" class="form-label">Status</label>
-          <select
-            id="status"
-            v-model="formData.status"
-            class="form-select"
-            :class="{ 'input-error': fieldErrors['status'] }"
-            @change="clearFieldError('status')"
-          >
-            <option v-for="(label, value) in statusLabels" :key="value" :value="value">
-              {{ label }}
-            </option>
-          </select>
-          <p v-if="fieldErrors['status']" class="error-message">
+        <div class="space-y-2">
+          <Label for="status">Status</Label>
+          <Select v-model="formData.status">
+            <SelectTrigger id="status" :class="{ 'border-destructive': fieldErrors['status'] }">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in STATUS_OPTIONS"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p v-if="fieldErrors['status']" class="text-xs text-destructive">
             {{ fieldErrors['status'] }}
           </p>
         </div>
 
         <!-- Priority -->
-        <div class="form-group">
-          <label for="priority" class="form-label">Priority</label>
-          <select
-            id="priority"
-            v-model.number="formData.priority"
-            class="form-select"
-            :class="{ 'input-error': fieldErrors['priority'] }"
-            @change="clearFieldError('priority')"
-          >
-            <option v-for="(label, value) in priorityLabels" :key="value" :value="Number(value)">
-              {{ label }}
-            </option>
-          </select>
-          <p v-if="fieldErrors['priority']" class="error-message">
+        <div class="space-y-2">
+          <Label for="priority">Priority</Label>
+          <Select v-model="formData.priority">
+            <SelectTrigger id="priority" :class="{ 'border-destructive': fieldErrors['priority'] }">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in PRIORITY_OPTIONS"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p v-if="fieldErrors['priority']" class="text-xs text-destructive">
             {{ fieldErrors['priority'] }}
           </p>
         </div>
       </div>
 
       <!-- Dates Row -->
-      <div class="form-row">
+      <div class="grid grid-cols-2 gap-4">
         <!-- Start Date -->
-        <div class="form-group">
-          <label for="start_date" class="form-label">Start Date</label>
-          <input
+        <div class="space-y-2">
+          <Label for="start_date">Start Date</Label>
+          <Input
             id="start_date"
             v-model="formData.start_date"
             type="date"
-            class="form-input"
-            :class="{ 'input-error': fieldErrors['start_date'] }"
+            :class="{ 'border-destructive': fieldErrors['start_date'] }"
             @input="clearFieldError('start_date')"
           />
-          <p v-if="fieldErrors['start_date']" class="error-message">
+          <p v-if="fieldErrors['start_date']" class="text-xs text-destructive">
             {{ fieldErrors['start_date'] }}
           </p>
         </div>
 
         <!-- Due Date -->
-        <div class="form-group">
-          <label for="due_date" class="form-label">Due Date</label>
-          <input
+        <div class="space-y-2">
+          <Label for="due_date">Due Date</Label>
+          <Input
             id="due_date"
             v-model="formData.due_date"
             type="date"
-            class="form-input"
-            :class="{ 'input-error': fieldErrors['due_date'] }"
+            :class="{ 'border-destructive': fieldErrors['due_date'] }"
             @input="clearFieldError('due_date')"
           />
-          <p v-if="fieldErrors['due_date']" class="error-message">
+          <p v-if="fieldErrors['due_date']" class="text-xs text-destructive">
             {{ fieldErrors['due_date'] }}
           </p>
         </div>
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
-        <button
+      <div class="flex gap-3 justify-end pt-6 border-t">
+        <Button
           type="button"
-          class="btn btn-secondary"
+          variant="secondary"
           :disabled="isLoading"
           @click="handleCancel"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          class="btn btn-primary"
           :disabled="isLoading"
         >
           <span v-if="isLoading">{{ isEditing ? 'Updating...' : 'Creating...' }}</span>
           <span v-else>{{ isEditing ? 'Update Project' : 'Create Project' }}</span>
-        </button>
+        </Button>
       </div>
     </form>
   </div>
 </template>
-
-<style scoped>
-.project-form {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #111827;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #374151;
-}
-
-.required {
-  color: #ef4444;
-}
-
-.form-input,
-.form-textarea,
-.form-select {
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  color: #111827;
-}
-
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.input-error {
-  border-color: #ef4444;
-}
-
-.input-error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  margin-top: 0.375rem;
-  font-size: 0.75rem;
-  color: #ef4444;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn {
-  padding: 0.625rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.btn-primary:disabled {
-  background-color: #93c5fd;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #e5e7eb;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>

@@ -5,6 +5,9 @@ import ProjectCard from './ProjectCard.vue'
 import ProjectFilters from './ProjectFilters.vue'
 import ProjectForm from './ProjectForm.vue'
 import type { Project } from '@/api/types.gen'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { FileText, Loader2 } from 'lucide-vue-next'
 
 // State
 const filters = ref<{
@@ -77,30 +80,29 @@ function handleProjectClick(project: Project): void {
 </script>
 
 <template>
-  <div class="project-list-container">
+  <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
     <!-- Header -->
-    <div class="list-header">
-      <div class="header-content">
-        <h1 class="page-title">Projects</h1>
-        <button
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <h1 class="text-3xl font-bold text-foreground">Projects</h1>
+        <Button
           v-if="!isFormVisible"
-          class="btn btn-primary"
           @click="handleCreateClick"
         >
           + New Project
-        </button>
+        </Button>
       </div>
 
       <!-- Stats -->
-      <div v-if="!isLoading && hasProjects" class="stats">
-        <span class="stat-item">
-          Total: <strong>{{ projects?.length ?? 0 }}</strong>
+      <div v-if="!isLoading && hasProjects" class="flex gap-6 text-sm text-muted-foreground">
+        <span>
+          Total: <strong class="text-foreground font-semibold">{{ projects?.length ?? 0 }}</strong>
         </span>
       </div>
     </div>
 
     <!-- Form (Create/Edit) -->
-    <div v-if="isFormVisible" class="form-container">
+    <div v-if="isFormVisible" class="mb-8">
       <ProjectForm
         :project="editingProject"
         :is-loading="formLoading.value"
@@ -117,48 +119,43 @@ function handleProjectClick(project: Project): void {
     />
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="loading-state" role="status" aria-live="polite">
-      <div class="spinner" aria-hidden="true" />
-      <p>Loading projects...</p>
+    <div
+      v-if="isLoading"
+      class="flex flex-col items-center justify-center py-16 gap-4"
+      role="status"
+      aria-live="polite"
+    >
+      <Loader2 class="h-10 w-10 animate-spin text-muted-foreground" aria-hidden="true" />
+      <p class="text-muted-foreground">Loading projects...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="error-state">
-      <p class="error-message">Failed to load projects</p>
-      <button class="btn btn-secondary" @click="() => refetch()">
-        Try Again
-      </button>
-    </div>
+    <Alert v-else-if="error" variant="destructive" class="my-8">
+      <AlertDescription class="flex flex-col items-center gap-4">
+        <p class="text-lg">Failed to load projects</p>
+        <Button variant="outline" @click="() => refetch()">
+          Try Again
+        </Button>
+      </AlertDescription>
+    </Alert>
+
     <!-- Empty State -->
-    <div v-else-if="!hasProjects" class="empty-state">
-      <svg
-        class="empty-icon"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-        />
-      </svg>
-      <h2 class="empty-title">No projects found</h2>
-      <p class="empty-description">
+    <div v-else-if="!hasProjects" class="text-center py-16">
+      <FileText class="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
+      <h2 class="text-2xl font-semibold text-foreground mb-2">No projects found</h2>
+      <p class="text-base text-muted-foreground mb-6">
         {{ filters.search || filters.status ? 'Try adjusting your filters' : 'Get started by creating your first project' }}
       </p>
-      <button
+      <Button
         v-if="!filters.search && !filters.status"
-        class="btn btn-primary"
         @click="handleCreateClick"
       >
         Create Project
-      </button>
+      </Button>
     </div>
 
     <!-- Projects Grid -->
-    <div v-else class="projects-grid">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <ProjectCard
         v-for="project in projects"
         :key="project.uuid"
@@ -173,150 +170,3 @@ function handleProjectClick(project: Project): void {
   </div>
 </template>
 
-<style scoped>
-.project-list-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.list-header {
-  margin-bottom: 2rem;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.stats {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.stat-item strong {
-  color: #111827;
-  font-weight: 600;
-}
-
-.form-container {
-  margin-bottom: 2rem;
-}
-
-.btn {
-  padding: 0.625rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background-color: #e5e7eb;
-}
-
-.loading-state,
-.error-state,
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: #6b7280;
-}
-
-.spinner {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 3px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-state {
-  color: #991b1b;
-}
-
-.error-message {
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
-}
-
-.empty-icon {
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto 1.5rem;
-  color: #d1d5db;
-}
-
-.empty-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.5rem;
-}
-
-.empty-description {
-  font-size: 1rem;
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .project-list-container {
-    padding: 1rem;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .projects-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { StatusEnum } from '@/schemas'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Search } from 'lucide-vue-next'
+import { STATUS_OPTIONS } from '@/constants/projects'
 
 // Props
 const props = defineProps<{
@@ -63,162 +68,90 @@ function clearFilters(): void {
 }
 
 // Check if any filters are active
-const hasActiveFilters = ref(false)
-watch(
-  localFilters,
-  () => {
-    const hasStatus = localFilters.value.status && localFilters.value.status !== 'undefined'
-    hasActiveFilters.value = !!(hasStatus || localFilters.value.search)
-  },
-  { deep: true, immediate: true }
-)
+const hasActiveFilters = computed(() => {
+  const hasStatus = localFilters.value.status && localFilters.value.status !== 'undefined'
+  return !!(hasStatus || localFilters.value.search)
+})
+
+// Status options with "All Statuses" option
+const statusFilterOptions = computed(() => [
+  { value: 'undefined', label: 'All Statuses' },
+  ...STATUS_OPTIONS,
+])
+
+// Sorting options
+const SORT_OPTIONS = [
+  { value: '-created_at', label: 'Newest First' },
+  { value: 'created_at', label: 'Oldest First' },
+  { value: 'name', label: 'Name (A-Z)' },
+  { value: '-name', label: 'Name (Z-A)' },
+  { value: 'due_date', label: 'Due Date (Earliest)' },
+  { value: '-due_date', label: 'Due Date (Latest)' },
+  { value: 'priority', label: 'Priority (Low to High)' },
+  { value: '-priority', label: 'Priority (High to Low)' },
+] as const
 </script>
 
 <template>
-  <div class="project-filters">
+  <div class="flex flex-wrap items-center gap-3 p-4 bg-card rounded-lg shadow-sm border mb-6">
     <!-- Search -->
-    <div class="filter-group search-group">
-      <input
+    <div class="flex-1 min-w-[200px] relative">
+      <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input
         v-model="localFilters.search"
         type="text"
-        class="filter-input search-input"
         placeholder="Search projects..."
+        class="pl-9"
         @input="updateFilters"
       />
     </div>
 
     <!-- Status Filter -->
-    <div class="filter-group">
-      <select
-        v-model="localFilters.status"
-        class="filter-select"
-        @change="updateFilters"
-      >
-        <option value="undefined">All Statuses</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
-        <option value="archived">Archived</option>
-      </select>
+    <div class="flex-shrink-0">
+      <Select v-model="localFilters.status" @update:model-value="updateFilters">
+        <SelectTrigger class="w-[160px]">
+          <SelectValue placeholder="All Statuses" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem
+            v-for="option in statusFilterOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
     </div>
 
     <!-- Sort By -->
-    <div class="filter-group">
-      <label for="ordering-select" class="sr-only">Sort projects</label>
-      <select
-        id="ordering-select"
-        v-model="localFilters.ordering"
-        class="filter-select"
-        aria-label="Sort projects"
-        @change="updateFilters"
-      >
-        <option value="-created_at">Newest First</option>
-        <option value="created_at">Oldest First</option>
-        <option value="name">Name (A-Z)</option>
-        <option value="-name">Name (Z-A)</option>
-        <option value="due_date">Due Date (Earliest)</option>
-        <option value="-due_date">Due Date (Latest)</option>
-        <option value="priority">Priority (Low to High)</option>
-        <option value="-priority">Priority (High to Low)</option>
-      </select>
+    <div class="flex-shrink-0">
+      <Select v-model="localFilters.ordering" @update:model-value="updateFilters">
+        <SelectTrigger class="w-[180px]" aria-label="Sort projects">
+          <SelectValue placeholder="Sort by..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem
+            v-for="option in SORT_OPTIONS"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
     </div>
 
     <!-- Clear Filters Button -->
-    <button
+    <Button
       v-if="hasActiveFilters"
-      class="clear-btn"
+      variant="secondary"
+      size="sm"
+      class="whitespace-nowrap"
       @click="clearFilters"
     >
       Clear Filters
-    </button>
+    </Button>
   </div>
 </template>
 
-<style scoped>
-/* Screen reader only class for accessibility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.project-filters {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 1rem;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-}
-
-.filter-group {
-  flex: 0 0 auto;
-}
-
-.search-group {
-  flex: 1 1 auto;
-  min-width: 200px;
-}
-
-.filter-input,
-.filter-select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  color: #111827;
-  background: white;
-}
-
-.filter-input:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.search-input {
-  width: 100%;
-}
-
-.clear-btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background-color: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-}
-
-.clear-btn:hover {
-  background-color: #e5e7eb;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .project-filters {
-    flex-wrap: wrap;
-  }
-
-  .search-group {
-    flex-basis: 100%;
-  }
-
-  .filter-group {
-    flex: 1 1 auto;
-  }
-}
-</style>
