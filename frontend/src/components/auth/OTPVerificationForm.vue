@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { otpVerificationSchema } from '@/schemas'
 import { Button } from '@/components/ui/button'
@@ -26,11 +26,25 @@ const code = ref('')
 const codeError = ref<string>('')
 
 // Focus input on mount
-const codeInput = ref<HTMLInputElement | null>(null)
+const codeInput = ref<InstanceType<typeof Input> | null>(null)
 
 onMounted(() => {
-  codeInput.value?.focus()
+  // Access the native input element from the Shadcn Input component
+  const inputElement = codeInput.value?.$el as HTMLInputElement | undefined
+  inputElement?.focus()
 })
+
+// Watch code changes and format automatically
+watch(code, (newValue, oldValue) => {
+  const formatted = newValue.replace(/\D/g, '').slice(0, 6)
+  if (formatted !== newValue) {
+    code.value = formatted
+  }
+  // Clear error when user types
+  if (codeError.value && newValue !== oldValue) {
+    codeError.value = ''
+  }
+}, { flush: 'sync' })
 
 /**
  * Validate and submit OTP verification
@@ -65,21 +79,6 @@ async function handleSubmit(): Promise<void> {
 }
 
 /**
- * Clear error on input
- */
-function clearError(): void {
-  codeError.value = ''
-}
-
-/**
- * Format code input (only numbers, max 6 digits)
- */
-function formatCode(): void {
-  code.value = code.value.replace(/\D/g, '').slice(0, 6)
-  clearError()
-}
-
-/**
  * Handle paste events to format pasted content
  */
 function handlePaste(event: ClipboardEvent): void {
@@ -87,7 +86,6 @@ function handlePaste(event: ClipboardEvent): void {
   const pastedText = event.clipboardData?.getData('text') || ''
   const numericOnly = pastedText.replace(/\D/g, '').slice(0, 6)
   code.value = numericOnly
-  clearError()
 }
 
 /**
@@ -122,7 +120,6 @@ function handleBack(): void {
           placeholder="123456"
           maxlength="6"
           autocomplete="one-time-code"
-          @input="formatCode"
           @paste="handlePaste"
         />
         <p v-if="codeError" class="text-sm text-destructive">

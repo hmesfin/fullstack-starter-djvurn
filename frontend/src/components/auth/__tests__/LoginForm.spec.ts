@@ -355,8 +355,8 @@ describe('LoginForm.vue', () => {
         const emailInput = screen.getByLabelText('Email')
         const passwordInput = screen.getByLabelText('Password')
 
-        expect(emailInput).toHaveClass('input-error')
-        expect(passwordInput).toHaveClass('input-error')
+        expect(emailInput).toHaveClass('border-destructive')
+        expect(passwordInput).toHaveClass('border-destructive')
       })
     })
 

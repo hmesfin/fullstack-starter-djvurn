@@ -262,12 +262,10 @@ describe('ProjectList.vue', () => {
     it('does not show create button when filters are active', async () => {
       mockUseProjects.projects.value = []
 
-      const { container } = render(ProjectList)
+      render(ProjectList)
 
-      // In the actual component, the create button should be conditional
-      // based on whether filters are active
-      const emptyState = container.querySelector('.empty-state')
-      expect(emptyState).toBeInTheDocument()
+      // Component shows empty state message, not checking for CSS class
+      expect(screen.getByText('No projects found')).toBeInTheDocument()
     })
   })
 
@@ -577,8 +575,10 @@ describe('ProjectList.vue', () => {
     it('has proper heading structure', () => {
       render(ProjectList)
 
-      const heading = screen.getByRole('heading', { name: /projects/i })
+      // Check for the main page heading (h1)
+      const heading = screen.getByRole('heading', { name: /projects/i, level: 1 })
       expect(heading).toBeInTheDocument()
+      expect(heading.tagName).toBe('H1')
     })
 
     it('loading state has implicit status role', () => {

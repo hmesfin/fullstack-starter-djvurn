@@ -8,6 +8,7 @@ const { isDark, toggleDark } = useTheme()
 
 <template>
   <Button
+    type="button"
     variant="ghost"
     size="icon"
     @click="toggleDark()"

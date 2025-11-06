@@ -390,7 +390,7 @@ describe('RegisterForm.vue', () => {
 
       await waitFor(() => {
         const firstNameInput = screen.getByLabelText('First Name')
-        expect(firstNameInput).toHaveClass('input-error')
+        expect(firstNameInput).toHaveClass('border-destructive')
       })
     })
 

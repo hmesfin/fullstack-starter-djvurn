@@ -8,6 +8,8 @@ Full-stack Django + Vue.js starter template with:
 
 - **Backend**: Django 5.2, Django REST Framework (API-only), PostgreSQL, Redis, Celery (async tasks)
 - **Frontend**: Vue 3 (Composition API), TypeScript, Vite, TanStack Query (vue-query)
+- **UI Components**: Shadcn-vue (Radix Vue primitives) + Tailwind CSS v4
+- **Dark Mode**: VueUse composables with system detection + manual toggle
 - **Infrastructure**: Docker-based development with docker-compose (all services containerized)
 - **API Contract**: OpenAPI schema with automatic TypeScript client generation via `@hey-api/openapi-ts`
 - **Package Management**: `uv` for Python (replaces pip/poetry), `npm` for JavaScript
@@ -272,18 +274,40 @@ frontend/src/
 ├── api/              # Auto-generated from OpenAPI schema (DO NOT EDIT)
 │   ├── sdk.gen.ts    # Generated API functions
 │   └── types.gen.ts  # Generated TypeScript types
-├── composables/      # Vue composables (useProjects, etc)
-├── components/       # Reusable Vue components
+├── components/       # Domain components
+│   ├── auth/         # LoginForm, RegisterForm, OTPVerificationForm
+│   ├── projects/     # ProjectCard, ProjectForm, ProjectFilters, ProjectList
+│   ├── ui/           # Shadcn-vue components (Button, Input, Card, etc.)
+│   └── ThemeToggle.vue  # Dark mode toggle
+├── composables/      # Vue composables (useProjects, useTheme, etc)
+├── constants/        # Centralized constants (PROJECT_STATUSES, etc)
 ├── lib/
-│   └── api-client.ts # Configured axios client with auth interceptors
+│   ├── api-client.ts # Configured axios client with auth interceptors
+│   └── utils.ts      # cn() utility for class merging
 ├── schemas/          # Zod validation schemas (mirror backend models)
 ├── types/            # Manual TypeScript types
+├── views/            # Route views (LoginView, DashboardView, etc)
 ├── App.vue
 └── main.ts
 ```
 
 **Key Patterns**:
 
+- **Component Library**: Shadcn-vue (copy-paste components, no dependency hell)
+  - Built on Radix Vue primitives (accessibility-first)
+  - Styled with Tailwind CSS utility classes
+  - Components in `src/components/ui/` - full ownership, customize as needed
+- **Dark Mode**: VueUse `useDark()` composable
+  - System preference detection with manual override
+  - Persisted in localStorage
+  - Class-based (`dark` class on `<html>`)
+- **Styling**: Tailwind CSS v4
+  - Zero custom CSS - all utility classes
+  - Design tokens via CSS variables for light/dark themes
+- **Centralized Constants**: `src/constants/projects.ts`
+  - STATUS_CONFIG, PRIORITY_CONFIG with badge variants
+  - Maps backend Django enums (StatusEnum, PriorityEnum) to UI
+  - Single source of truth for status/priority labels and colors
 - Composition API with `<script setup lang="ts">`
 - TanStack Query (vue-query) for data fetching/caching
 - Auto-generated API client from Django OpenAPI schema
@@ -300,6 +324,68 @@ frontend/src/
     query: { status: 'active' }
   });
   ```
+
+### Using Shadcn-vue Components
+
+Shadcn-vue components are **copy-paste components** (not an npm package) with full ownership and customization:
+
+**Adding new components:**
+
+```bash
+# Browse available components at https://www.shadcn-vue.com/docs/components
+# Add a component (copies files to src/components/ui/)
+docker compose run --rm frontend npx shadcn-vue@latest add <component-name>
+
+# Example: Add Dialog component
+docker compose run --rm frontend npx shadcn-vue@latest add dialog
+```
+
+**Using components in your code:**
+
+```vue
+<script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+
+// Always include type="button" to prevent accidental form submission
+</script>
+
+<template>
+  <Card>
+    <CardHeader>
+      <CardTitle>Login</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <Label for="email">Email</Label>
+          <Input id="email" type="email" v-model="email" />
+        </div>
+        <Button type="submit" class="w-full">Sign In</Button>
+      </div>
+    </CardContent>
+  </Card>
+</template>
+```
+
+**Important patterns:**
+
+1. **Always use `type="button"` on non-submit buttons** to prevent accidental form submission
+2. **Use Tailwind utility classes** for spacing, sizing, colors - no custom CSS
+3. **Use centralized constants** from `src/constants/` for badge variants, status colors
+4. **Dark mode support** - All Shadcn components work with `dark` class automatically
+
+**Common components:**
+
+- **Button**: `variant` (default, destructive, outline, secondary, ghost, link), `size` (default, sm, lg, icon)
+- **Input**: Text, email, password, number inputs with proper styling
+- **Select**: Dropdown with search/filtering support (uses Radix Vue primitives)
+- **Card**: Container with Header, Title, Description, Content, Footer
+- **Badge**: Small labels with variants (default, secondary, destructive, outline)
+- **Alert**: Info/warning/error messages with AlertTitle and AlertDescription
 
 ### API Client Generation
 

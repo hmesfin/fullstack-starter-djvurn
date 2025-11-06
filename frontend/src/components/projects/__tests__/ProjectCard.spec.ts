@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/vue'
+import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import ProjectCard from '../ProjectCard.vue'
 import type { Project } from '@/api/types.gen'
@@ -72,13 +72,25 @@ describe('ProjectCard.vue', () => {
       expect(screen.getByText('No description')).toBeInTheDocument()
     })
 
-    it('renders edit and delete buttons', () => {
+    it('renders dropdown menu with edit and delete options', async () => {
+      const user = userEvent.setup()
       render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()
+      // Find the dropdown trigger button (the three-dot menu)
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      expect(dropdownTrigger).toBeInTheDocument()
+      expect(dropdownTrigger).toHaveAttribute('aria-haspopup', 'menu')
+
+      // Open the dropdown
+      await user.click(dropdownTrigger)
+
+      // Check that Edit and Delete options appear
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: /edit/i })).toBeInTheDocument()
+        expect(screen.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument()
+      })
     })
   })
 
@@ -204,8 +216,10 @@ describe('ProjectCard.vue', () => {
         },
       })
 
-      const card = container.querySelector('.project-card')
-      expect(card).toHaveClass('is-overdue')
+      // Shadcn Card adds border-l-4 border-l-destructive for overdue
+      const card = container.querySelector('[class*="border-l-4"]')
+      expect(card).toBeInTheDocument()
+      expect(card).toHaveClass('border-l-destructive')
     })
   })
 
@@ -268,14 +282,19 @@ describe('ProjectCard.vue', () => {
   })
 
   describe('Edit Button Interaction', () => {
-    it('emits edit event with project when edit button is clicked', async () => {
+    it('emits edit event with project when edit menu item is clicked', async () => {
       const user = userEvent.setup()
       const { emitted } = render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const editButton = screen.getByRole('button', { name: /edit/i })
-      await user.click(editButton)
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Edit menu item
+      const editMenuItem = await screen.findByRole('menuitem', { name: /edit/i })
+      await user.click(editMenuItem)
 
       expect(emitted()).toHaveProperty('edit')
       expect(emitted()['edit']?.[0]).toEqual([mockProject])
@@ -287,8 +306,13 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      const editButton = screen.getByRole('button', { name: /edit/i })
-      await user.click(editButton)
+      // Open dropdown menu (clicking trigger already prevents card click)
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Edit menu item
+      const editMenuItem = await screen.findByRole('menuitem', { name: /edit/i })
+      await user.click(editMenuItem)
 
       // Should emit edit but not click
       expect(emitted()).toHaveProperty('edit')
@@ -297,14 +321,19 @@ describe('ProjectCard.vue', () => {
   })
 
   describe('Delete Button Interaction', () => {
-    it('shows confirmation dialog when delete button is clicked', async () => {
+    it('shows confirmation dialog when delete menu item is clicked', async () => {
       const user = userEvent.setup()
       render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Delete menu item
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+      await user.click(deleteMenuItem)
 
       expect(global.confirm).toHaveBeenCalledWith('Delete project "Test Project"?')
     })
@@ -317,8 +346,13 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Delete menu item
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+      await user.click(deleteMenuItem)
 
       expect(emitted()).toHaveProperty('delete')
       expect(emitted()['delete']?.[0]).toEqual(['123e4567-e89b-12d3-a456-426614174000'])
@@ -332,8 +366,13 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Delete menu item
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+      await user.click(deleteMenuItem)
 
       expect(emitted()).not.toHaveProperty('delete')
     })
@@ -344,92 +383,105 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // Open dropdown menu (prevents card click)
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Click Delete menu item
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+      await user.click(deleteMenuItem)
 
       expect(emitted()).not.toHaveProperty('click')
     })
 
-    it('shows deleting state when isDeleting prop is true', () => {
+    it('shows deleting state when isDeleting prop is true', async () => {
+      const user = userEvent.setup()
       render(ProjectCard, {
         props: { project: mockProject, isDeleting: true },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /deleting/i })
-      expect(deleteButton).toBeDisabled()
-      expect(deleteButton).toHaveTextContent('Deleting...')
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Find Delete menu item with "Deleting..." text
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /deleting/i })
+      expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true')
+      expect(deleteMenuItem).toHaveTextContent('Deleting...')
     })
 
-    it('disables delete button during deletion', () => {
+    it('disables delete button during deletion', async () => {
+      const user = userEvent.setup()
       render(ProjectCard, {
         props: { project: mockProject, isDeleting: true },
       })
 
-      const deleteButton = screen.getByRole('button', { name: /deleting/i })
-      expect(deleteButton).toBeDisabled()
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // Find Delete menu item
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /deleting/i })
+      expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true')
     })
   })
 
   describe('Card Click Interaction', () => {
     it('emits click event with project when card is clicked', async () => {
       const user = userEvent.setup()
-      const { emitted } = render(ProjectCard, {
+      const { emitted, container } = render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const card = screen.getByText('Test Project').closest('.project-card')
+      // Find the Card component (div with cursor-pointer class)
+      const card = container.querySelector('[class*="cursor-pointer"]')
       await user.click(card!)
 
       expect(emitted()).toHaveProperty('click')
       expect(emitted()['click']?.[0]).toEqual([mockProject])
     })
 
-    it('does not emit click when edit button is clicked', async () => {
+    it('does not emit click when dropdown menu is opened', async () => {
       const user = userEvent.setup()
       const { emitted } = render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const editButton = screen.getByRole('button', { name: /edit/i })
-      await user.click(editButton)
-
-      expect(emitted()).toHaveProperty('edit')
-      expect(emitted()).not.toHaveProperty('click')
-    })
-
-    it('does not emit click when delete button is clicked', async () => {
-      const user = userEvent.setup()
-      const { emitted } = render(ProjectCard, {
-        props: { project: mockProject },
-      })
-
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // Open dropdown menu - should not emit card click
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
 
       expect(emitted()).not.toHaveProperty('click')
     })
   })
 
   describe('Accessibility', () => {
-    it('has proper button roles', () => {
+    it('has proper menu structure with menuitem roles', async () => {
+      const user = userEvent.setup()
       render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const editButton = screen.getByRole('button', { name: /edit/i })
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      // Open dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      expect(dropdownTrigger).toHaveAttribute('aria-haspopup', 'menu')
+      await user.click(dropdownTrigger)
 
-      expect(editButton).toHaveAttribute('title', 'Edit project')
-      expect(deleteButton).toHaveAttribute('title', 'Delete project')
+      // Check menu items have proper roles
+      const editMenuItem = await screen.findByRole('menuitem', { name: /edit/i })
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+
+      expect(editMenuItem).toBeInTheDocument()
+      expect(deleteMenuItem).toBeInTheDocument()
     })
 
     it('is clickable for keyboard navigation', async () => {
       const user = userEvent.setup()
-      const { emitted } = render(ProjectCard, {
+      const { emitted, container } = render(ProjectCard, {
         props: { project: mockProject },
       })
 
-      const card = screen.getByText('Test Project').closest('.project-card')
+      const card = container.querySelector('[class*="cursor-pointer"]')
 
       // Simulate keyboard interaction
       await user.click(card!)
@@ -444,19 +496,20 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      const card = container.querySelector('.project-card')
-      expect(card).toHaveClass('project-card')
+      const card = container.querySelector('[class*="cursor-pointer"]')
+      expect(card).toBeInTheDocument()
+      expect(card).toHaveClass('cursor-pointer')
     })
 
     it('applies correct badge styles for different statuses', () => {
-      const { container: draftContainer } = render(ProjectCard, {
+      render(ProjectCard, {
         props: {
           project: { ...mockProject, status: 'draft' },
         },
       })
 
-      const draftBadge = draftContainer.querySelector('.badge')
-      expect(draftBadge).toBeInTheDocument()
+      // Shadcn Badge component is used - check for badge text
+      expect(screen.getByText('Draft')).toBeInTheDocument()
     })
   })
 
@@ -535,9 +588,13 @@ describe('ProjectCard.vue', () => {
       expect(screen.getByText('Active')).toBeInTheDocument()
       expect(screen.getByText('Medium')).toBeInTheDocument()
 
-      // User clicks edit
-      const editButton = screen.getByRole('button', { name: /edit/i })
-      await user.click(editButton)
+      // User opens dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // User clicks Edit
+      const editMenuItem = await screen.findByRole('menuitem', { name: /edit/i })
+      await user.click(editMenuItem)
 
       // Edit event emitted
       expect(emitted()['edit']).toBeTruthy()
@@ -552,9 +609,13 @@ describe('ProjectCard.vue', () => {
         props: { project: mockProject },
       })
 
-      // User clicks delete
-      const deleteButton = screen.getByRole('button', { name: /delete/i })
-      await user.click(deleteButton)
+      // User opens dropdown menu
+      const dropdownTrigger = screen.getByRole('button', { name: '' })
+      await user.click(dropdownTrigger)
+
+      // User clicks Delete
+      const deleteMenuItem = await screen.findByRole('menuitem', { name: /delete/i })
+      await user.click(deleteMenuItem)
 
       // Confirmation shown
       expect(global.confirm).toHaveBeenCalledWith('Delete project "Test Project"?')
@@ -566,12 +627,12 @@ describe('ProjectCard.vue', () => {
 
     it('displays project and allows user to view details', async () => {
       const user = userEvent.setup()
-      const { emitted } = render(ProjectCard, {
+      const { emitted, container } = render(ProjectCard, {
         props: { project: mockProject },
       })
 
       // User clicks on card
-      const card = screen.getByText('Test Project').closest('.project-card')
+      const card = container.querySelector('[class*="cursor-pointer"]')
       await user.click(card!)
 
       // Click event emitted
