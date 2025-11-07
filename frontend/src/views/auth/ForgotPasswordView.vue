@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import AuthLayout from '@/layouts/AuthLayout.vue'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm.vue'
 
 const router = useRouter()
@@ -15,12 +16,10 @@ function handleBack(): void {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-500 to-purple-700 p-4">
-    <div class="bg-card rounded-lg shadow-xl w-full max-w-md">
-      <ForgotPasswordForm
-        @success="handleSuccess"
-        @back="handleBack"
-      />
-    </div>
-  </div>
+  <AuthLayout>
+    <ForgotPasswordForm
+      @success="handleSuccess"
+      @back="handleBack"
+    />
+  </AuthLayout>
 </template>

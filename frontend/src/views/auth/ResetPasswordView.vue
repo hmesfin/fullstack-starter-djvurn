@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import AuthLayout from '@/layouts/AuthLayout.vue'
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -21,29 +22,27 @@ function handleSuccess(): void {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-500 to-purple-700 p-4">
-    <div class="bg-card rounded-lg shadow-xl w-full max-w-md">
-      <!-- Show error if no token provided -->
-      <div v-if="!token" class="p-8">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Invalid Reset Link</h2>
-        <Alert variant="destructive" class="mb-6">
-          <AlertDescription>
-            This password reset link is invalid or has expired. Please request a new password reset.
-          </AlertDescription>
-        </Alert>
-        <div class="text-center">
-          <Button variant="outline" @click="router.push({ name: 'forgot-password' })">
-            Request New Reset Link
-          </Button>
-        </div>
+  <AuthLayout>
+    <!-- Show error if no token provided -->
+    <div v-if="!token" class="p-8">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Invalid Reset Link</h2>
+      <Alert variant="destructive" class="mb-6">
+        <AlertDescription>
+          This password reset link is invalid or has expired. Please request a new password reset.
+        </AlertDescription>
+      </Alert>
+      <div class="text-center">
+        <Button variant="outline" @click="router.push({ name: 'forgot-password' })">
+          Request New Reset Link
+        </Button>
       </div>
-
-      <!-- Show form if token is present -->
-      <ResetPasswordForm
-        v-else
-        :token="token"
-        @success="handleSuccess"
-      />
     </div>
-  </div>
+
+    <!-- Show form if token is present -->
+    <ResetPasswordForm
+      v-else
+      :token="token"
+      @success="handleSuccess"
+    />
+  </AuthLayout>
 </template>
