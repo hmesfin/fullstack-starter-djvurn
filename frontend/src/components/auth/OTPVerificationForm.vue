@@ -19,11 +19,16 @@ const emit = defineEmits<{
 }>()
 
 // Composables
-const { verifyOTP, isVerifyingOTP, otpError } = useAuth()
+const { verifyOTP, isVerifyingOTP, otpError, resendOTP, isResendingOTP, resendOTPError } = useAuth()
 
 // Form state
 const code = ref('')
 const codeError = ref<string>('')
+
+// Resend state
+const resendSuccess = ref(false)
+const resendCooldown = ref(0)
+const canResend = ref(true)
 
 // Focus input on mount
 const codeInput = ref<InstanceType<typeof Input> | null>(null)
@@ -94,6 +99,42 @@ function handlePaste(event: ClipboardEvent): void {
 function handleBack(): void {
   emit('back')
 }
+
+/**
+ * Resend OTP code
+ */
+async function handleResend(): Promise<void> {
+  if (!canResend.value || isResendingOTP.value || resendCooldown.value > 0) {
+    return
+  }
+
+  // Clear previous success/error states
+  resendSuccess.value = false
+
+  // Call resend API
+  const { success } = await resendOTP({ email: props.email })
+
+  if (success) {
+    resendSuccess.value = true
+    // Show success message for 5 seconds
+    setTimeout(() => {
+      resendSuccess.value = false
+    }, 5000)
+
+    // Start 60 second cooldown to prevent spam
+    canResend.value = false
+    resendCooldown.value = 60
+
+    const interval = setInterval(() => {
+      resendCooldown.value--
+      if (resendCooldown.value <= 0) {
+        clearInterval(interval)
+        canResend.value = true
+      }
+    }, 1000)
+  }
+  // Error is handled by resendOTPError reactive state
+}
 </script>
 
 <template>
@@ -154,11 +195,38 @@ function handleBack(): void {
       </div>
     </form>
 
-    <p class="mt-6 text-center text-sm text-muted-foreground">
-      Didn't receive the code?
-      <button type="button" class="text-primary hover:underline font-medium bg-transparent border-none cursor-pointer p-0">
-        Resend code
-      </button>
-    </p>
+    <!-- Resend Section -->
+    <div class="mt-6 text-center">
+      <!-- Success Message -->
+      <Alert v-if="resendSuccess" variant="default" class="mb-4">
+        <AlertDescription>
+          Verification code resent successfully! Check your email.
+        </AlertDescription>
+      </Alert>
+
+      <!-- Error Message -->
+      <Alert v-if="resendOTPError && !resendSuccess" variant="destructive" class="mb-4">
+        <AlertDescription>
+          {{ resendOTPError.message }}
+        </AlertDescription>
+      </Alert>
+
+      <p class="text-sm text-muted-foreground">
+        Didn't receive the code?
+        <button
+          type="button"
+          :disabled="!canResend || isResendingOTP || resendCooldown > 0"
+          :class="{
+            'text-primary hover:underline font-medium bg-transparent border-none cursor-pointer p-0': canResend && !isResendingOTP && resendCooldown === 0,
+            'text-muted-foreground cursor-not-allowed bg-transparent border-none p-0': !canResend || isResendingOTP || resendCooldown > 0
+          }"
+          @click="handleResend"
+        >
+          <span v-if="isResendingOTP">Sending...</span>
+          <span v-else-if="resendCooldown > 0">Resend code ({{ resendCooldown }}s)</span>
+          <span v-else>Resend code</span>
+        </button>
+      </p>
+    </div>
   </div>
 </template>

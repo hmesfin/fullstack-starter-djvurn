@@ -19,9 +19,12 @@ from apps.users.models import User
 
 from .serializers import EmailTokenObtainPairSerializer
 from .serializers import OTPVerificationSerializer
+from .serializers import PasswordResetConfirmSerializer
+from .serializers import PasswordResetRequestSerializer
 from .serializers import ResendOTPSerializer
 from .serializers import UserRegistrationSerializer
 from .serializers import UserSerializer
+from .throttles import ResendOTPThrottle
 
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
@@ -150,6 +153,7 @@ class ResendOTPView(GenericAPIView):
 
     serializer_class = ResendOTPSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [ResendOTPThrottle]
 
     def post(self, request, *args, **kwargs):
         """Resend OTP code to user's email."""
@@ -159,5 +163,41 @@ class ResendOTPView(GenericAPIView):
 
         return Response(
             {"message": "Verification code sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetRequestView(GenericAPIView):
+    """API endpoint for requesting password reset."""
+
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Request password reset and send email with reset token."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "If an account exists with this email, you will receive password reset instructions."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(GenericAPIView):
+    """API endpoint for confirming password reset with token."""
+
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Reset password using valid token."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Password reset successful. You can now log in with your new password."},
             status=status.HTTP_200_OK,
         )

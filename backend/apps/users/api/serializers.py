@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.users.models import EmailVerificationOTP
+from apps.users.models import PasswordResetToken
 from apps.users.models import User
 
 
@@ -193,3 +194,92 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             )
 
         return data
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Serializer for password reset request."""
+
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value: str) -> str:
+        """Validate and normalize email."""
+        return value.lower()
+
+    def save(self) -> None:
+        """Create password reset token and send email."""
+        email = self.validated_data["email"]
+
+        # Try to get user (return same response for security - don't leak user existence)
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # For security, return success even if user doesn't exist
+            # This prevents email enumeration attacks
+            return
+
+        # Create new password reset token
+        token = PasswordResetToken.create_for_user(user)
+
+        # Send password reset email via Celery task
+        from apps.users.tasks import send_password_reset_email
+        send_password_reset_email.delay(user.id, token.token)
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Serializer for password reset confirmation."""
+
+    token = serializers.CharField(required=True, max_length=64)
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={"input_type": "password"},
+    )
+
+    def validate_password(self, value: str) -> str:
+        """Validate password using Django's password validators."""
+        validate_password(value)
+        return value
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        """Validate token and prepare for password reset."""
+        token_str = attrs.get("token", "")
+
+        # Find valid token
+        try:
+            token = PasswordResetToken.objects.get(
+                token=token_str,
+                is_used=False,
+            )
+        except PasswordResetToken.DoesNotExist:
+            msg = _("Invalid or expired password reset token.")
+            raise serializers.ValidationError(
+                msg,
+            ) from None
+
+        # Check if token is still valid (not expired)
+        if not token.is_valid():
+            msg = _("Invalid or expired password reset token.")
+            raise serializers.ValidationError(
+                msg,
+            )
+
+        # Store token and user for use in save()
+        attrs["reset_token"] = token
+        attrs["user"] = token.user
+
+        return attrs
+
+    def save(self) -> User:
+        """Reset user password and mark token as used."""
+        user = self.validated_data["user"]
+        reset_token = self.validated_data["reset_token"]
+        new_password = self.validated_data["password"]
+
+        # Set new password
+        user.set_password(new_password)
+        user.save(update_fields=["password", "modified"])
+
+        # Mark token as used
+        reset_token.mark_as_used()
+
+        return user

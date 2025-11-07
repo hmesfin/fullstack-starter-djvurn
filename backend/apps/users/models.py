@@ -91,3 +91,50 @@ class EmailVerificationOTP(BaseModel):
         """Mark the OTP as used."""
         self.is_used = True
         self.save(update_fields=["is_used", "modified"])
+
+
+class PasswordResetToken(BaseModel):
+    """Model to store password reset tokens."""
+
+    user = ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="password_reset_tokens",
+        verbose_name=_("user"),
+    )
+    token = CharField(_("reset token"), max_length=64, unique=True)
+    expires_at = DateTimeField(_("expires at"))
+    is_used = BooleanField(_("is used"), default=False)
+
+    class Meta:
+        verbose_name = _("Password Reset Token")
+        verbose_name_plural = _("Password Reset Tokens")
+        ordering = ["-created"]
+        indexes = [
+            models.Index(fields=["user", "-created"]),
+            models.Index(fields=["token", "is_used"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"Password reset for {self.user.email}"
+
+    @classmethod
+    def generate_token(cls) -> str:
+        """Generate a secure random token."""
+        return secrets.token_urlsafe(32)
+
+    @classmethod
+    def create_for_user(cls, user: "User") -> "PasswordResetToken":
+        """Create a new password reset token for the given user."""
+        token = cls.generate_token()
+        expires_at = timezone.now() + timedelta(hours=1)
+        return cls.objects.create(user=user, token=token, expires_at=expires_at)
+
+    def is_valid(self) -> bool:
+        """Check if the token is still valid."""
+        return not self.is_used and self.expires_at > timezone.now()
+
+    def mark_as_used(self) -> None:
+        """Mark the token as used."""
+        self.is_used = True
+        self.save(update_fields=["is_used", "modified"])

@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthResendOtpCreateData, ApiAuthResendOtpCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { ApiAuthPasswordResetConfirmCreateData, ApiAuthPasswordResetConfirmCreateResponses, ApiAuthPasswordResetRequestCreateData, ApiAuthPasswordResetRequestCreateResponses, ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthResendOtpCreateData, ApiAuthResendOtpCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -16,6 +16,58 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
+};
+
+/**
+ * Reset password using valid token.
+ */
+export const apiAuthPasswordResetConfirmCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthPasswordResetConfirmCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthPasswordResetConfirmCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/password-reset/confirm/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Request password reset and send email with reset token.
+ */
+export const apiAuthPasswordResetRequestCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthPasswordResetRequestCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthPasswordResetRequestCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/password-reset/request/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
 };
 
 /**

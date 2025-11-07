@@ -12,12 +12,14 @@ import { setTokens, hasTokens } from '@/lib/token-storage'
 import {
   apiAuthRegisterCreate,
   apiAuthVerifyOtpCreate,
+  apiAuthResendOtpCreate,
   apiAuthTokenCreate,
   apiUsersMeRetrieve,
 } from '@/api/sdk.gen'
 import type {
   UserRegistrationRequestWritable,
   OtpVerificationRequest,
+  ResendOtpRequest,
   EmailTokenObtainPairRequest,
 } from '@/api/types.gen'
 import type { AxiosError } from 'axios'
@@ -34,12 +36,14 @@ export function useAuth() {
   // Local loading states (separate from store loading for granular control)
   const isRegistering = ref(false)
   const isVerifyingOTP = ref(false)
+  const isResendingOTP = ref(false)
   const isLoggingIn = ref(false)
   const isFetchingUser = ref(false)
 
   // Error states
   const registerError = ref<AuthError | null>(null)
   const otpError = ref<AuthError | null>(null)
+  const resendOTPError = ref<AuthError | null>(null)
   const loginError = ref<AuthError | null>(null)
   const userError = ref<AuthError | null>(null)
 
@@ -144,6 +148,38 @@ export function useAuth() {
       return { success: false }
     } finally {
       isVerifyingOTP.value = false
+    }
+  }
+
+  /**
+   * Resend OTP code to email
+   */
+  async function resendOTP(
+    request: ResendOtpRequest
+  ): Promise<{ success: boolean; message?: string }> {
+    resendOTPError.value = null
+    isResendingOTP.value = true
+
+    try {
+      const response = await apiAuthResendOtpCreate({
+        client: apiClient,
+        body: request,
+      })
+
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response // Throw the entire response which is an AxiosError
+      }
+
+      return {
+        success: true,
+        message: (response.data as any)?.message || 'Verification code sent to your email.'
+      }
+    } catch (error) {
+      resendOTPError.value = parseError(error)
+      return { success: false }
+    } finally {
+      isResendingOTP.value = false
     }
   }
 
@@ -260,6 +296,7 @@ export function useAuth() {
     // Loading states
     isRegistering,
     isVerifyingOTP,
+    isResendingOTP,
     isLoggingIn,
     isFetchingUser,
     isLoading: authStore.isLoading,
@@ -267,12 +304,14 @@ export function useAuth() {
     // Error states
     registerError,
     otpError,
+    resendOTPError,
     loginError,
     userError,
 
     // Methods
     register,
     verifyOTP,
+    resendOTP,
     login,
     logout,
     fetchCurrentUser,

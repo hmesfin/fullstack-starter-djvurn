@@ -28,6 +28,34 @@ export type OtpVerificationRequest = {
     code: string;
 };
 
+/**
+ * Serializer for password reset confirmation.
+ */
+export type PasswordResetConfirm = {
+    token: string;
+};
+
+/**
+ * Serializer for password reset confirmation.
+ */
+export type PasswordResetConfirmRequest = {
+    token: string;
+};
+
+/**
+ * Serializer for password reset request.
+ */
+export type PasswordResetRequest = {
+    email: string;
+};
+
+/**
+ * Serializer for password reset request.
+ */
+export type PasswordResetRequestRequest = {
+    email: string;
+};
+
 export type PatchedProjectRequest = {
     name?: string;
     description?: string;
@@ -187,6 +215,14 @@ export type UserRequest = {
     email: string;
 };
 
+/**
+ * Serializer for password reset confirmation.
+ */
+export type PasswordResetConfirmRequestWritable = {
+    token: string;
+    password: string;
+};
+
 export type ProjectWritable = {
     name: string;
     description?: string;
@@ -233,6 +269,32 @@ export type UserRegistrationRequestWritable = {
     first_name: string;
     last_name: string;
 };
+
+export type ApiAuthPasswordResetConfirmCreateData = {
+    body: PasswordResetConfirmRequestWritable;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset/confirm/';
+};
+
+export type ApiAuthPasswordResetConfirmCreateResponses = {
+    200: PasswordResetConfirm;
+};
+
+export type ApiAuthPasswordResetConfirmCreateResponse = ApiAuthPasswordResetConfirmCreateResponses[keyof ApiAuthPasswordResetConfirmCreateResponses];
+
+export type ApiAuthPasswordResetRequestCreateData = {
+    body: PasswordResetRequestRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset/request/';
+};
+
+export type ApiAuthPasswordResetRequestCreateResponses = {
+    200: PasswordResetRequest;
+};
+
+export type ApiAuthPasswordResetRequestCreateResponse = ApiAuthPasswordResetRequestCreateResponses[keyof ApiAuthPasswordResetRequestCreateResponses];
 
 export type ApiAuthRegisterCreateData = {
     body: UserRegistrationRequestWritable;

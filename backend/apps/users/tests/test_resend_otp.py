@@ -6,6 +6,7 @@ Following TDD approach - tests written FIRST before implementation.
 
 import pytest
 from django.core import mail
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -20,6 +21,9 @@ class TestResendOTP:
 
     def setup_method(self):
         """Set up test client and create test user."""
+        # Clear cache to reset throttle counters between tests
+        cache.clear()
+
         self.client = APIClient()
         self.url = reverse("api:auth-resend-otp")
 
@@ -134,8 +138,38 @@ class TestResendOTP:
         assert mail.outbox[0].to == [self.user.email]
 
     def test_resend_otp_rate_limiting(self):
-        """Test that resending OTP multiple times in quick succession works."""
-        # Send OTP 3 times
+        """Test that resending OTP is rate limited to 3 requests per hour per email."""
+        # First 3 requests should succeed (within rate limit)
+        for i in range(3):
+            response = self.client.post(
+                self.url,
+                {"email": self.user.email},
+            )
+            assert response.status_code == status.HTTP_200_OK, f"Request {i+1} should succeed"
+
+        # 4th request should be throttled (429 Too Many Requests)
+        response = self.client.post(
+            self.url,
+            {"email": self.user.email},
+        )
+        assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+        assert "throttled" in str(response.data).lower() or "rate limit" in str(response.data).lower()
+
+        # Only 3 emails should be sent (4th request was blocked)
+        assert len(mail.outbox) == 3
+
+    def test_resend_otp_rate_limiting_is_per_email(self):
+        """Test that rate limiting is per email address (not global)."""
+        # Create second user
+        user2 = User.objects.create_user(
+            email="test2@example.com",
+            password="testpass123",
+            first_name="Test2",
+            last_name="User2",
+            is_email_verified=False,
+        )
+
+        # Exhaust rate limit for first user (3 requests)
         for _ in range(3):
             response = self.client.post(
                 self.url,
@@ -143,8 +177,22 @@ class TestResendOTP:
             )
             assert response.status_code == status.HTTP_200_OK
 
-        # All 3 emails should be sent
-        assert len(mail.outbox) == 3
+        # 4th request for first user should be throttled
+        response = self.client.post(
+            self.url,
+            {"email": self.user.email},
+        )
+        assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+
+        # But requests for second user should still work (separate rate limit)
+        response = self.client.post(
+            self.url,
+            {"email": user2.email},
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        # Total: 3 emails for user1 + 1 email for user2 = 4 emails
+        assert len(mail.outbox) == 4
 
     def test_resend_otp_does_not_expose_user_existence(self):
         """Test that response is same for existing and non-existing emails (security)."""

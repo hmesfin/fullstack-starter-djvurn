@@ -14,6 +14,7 @@ Implemented async OTP email delivery using Celery with beautiful HTML email temp
 Created professional HTML email templates with plain text alternatives:
 
 **Files Created:**
+
 - `backend/apps/templates/email/otp_verification.html` - Beautiful HTML template with:
   - Responsive design (mobile-friendly)
   - Large, easy-to-read OTP code display
@@ -27,6 +28,7 @@ Created professional HTML email templates with plain text alternatives:
 **File**: `backend/apps/users/tasks.py`
 
 Implemented `send_otp_email` Celery task:
+
 - Takes `user_id` and `otp_code` as parameters
 - Renders both HTML and plain text email templates
 - Sends via Django's `EmailMultiAlternatives`
@@ -38,6 +40,7 @@ Implemented `send_otp_email` Celery task:
 **File**: `backend/apps/users/tests/test_tasks.py`
 
 8 comprehensive tests covering:
+
 - ✅ Email sent successfully
 - ✅ OTP code appears in email body
 - ✅ Personalization (user's first name)
@@ -54,6 +57,7 @@ Implemented `send_otp_email` Celery task:
 **File**: `backend/apps/users/api/serializers.py`
 
 Updated `UserRegistrationSerializer.create()`:
+
 - Generates OTP via `EmailVerificationOTP.create_for_user(user)`
 - Triggers async email via `send_otp_email.delay(user.id, otp.code)`
 - Email sent asynchronously (non-blocking)
@@ -61,6 +65,7 @@ Updated `UserRegistrationSerializer.create()`:
 ### 5. Verification ✅
 
 **Tested with Mailpit**:
+
 - Registered test user: `mailpit3@example.com`
 - Celery task executed successfully (0.055s)
 - Email delivered to Mailpit:
@@ -79,7 +84,7 @@ EMAIL_HOST = "mailpit"
 EMAIL_PORT = 1025
 ```
 
-**Access Mailpit UI**: http://localhost:8025
+**Access Mailpit UI**: <http://localhost:8025>
 
 ### Production (SendGrid)
 
@@ -135,6 +140,7 @@ backend/
 **Subject**: Verify Your Email - OTP Code
 
 **Features**:
+
 - 📧 Professional email design
 - 👤 Personalized greeting ("Hello [FirstName],")
 - 🔢 Large, prominent OTP code display
@@ -176,7 +182,7 @@ open http://localhost:8025
 
 ### 1. Get SendGrid API Key
 
-1. Sign up at https://sendgrid.com/
+1. Sign up at <https://sendgrid.com/>
 2. Create API Key with "Mail Send" permissions
 3. Verify sender domain/email
 
