@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { emailTokenObtainPairSchema } from '@/schemas'
 import type { ZodIssue } from 'zod'
@@ -131,9 +132,9 @@ function clearFieldError(field: string): void {
           />
           <span>Remember me</span>
         </label>
-        <a href="/forgot-password" class="text-sm text-primary hover:underline font-medium">
+        <RouterLink :to="{ name: 'forgot-password' }" class="text-sm text-primary hover:underline font-medium">
           Forgot password?
-        </a>
+        </RouterLink>
       </div>
 
       <!-- General Error -->

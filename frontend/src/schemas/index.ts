@@ -22,10 +22,14 @@ export {
   emailTokenObtainPairSchema,
   otpVerificationSchema,
   tokenRefreshSchema,
+  passwordResetRequestSchema,
+  passwordResetConfirmSchema,
   type UserRegistrationInput,
   type EmailTokenObtainPairInput,
   type OtpVerificationInput,
   type TokenRefreshInput,
+  type PasswordResetRequestInput,
+  type PasswordResetConfirmInput,
 } from './auth.schema'
 
 // User schemas

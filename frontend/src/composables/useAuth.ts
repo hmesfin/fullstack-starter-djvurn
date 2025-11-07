@@ -13,6 +13,8 @@ import {
   apiAuthRegisterCreate,
   apiAuthVerifyOtpCreate,
   apiAuthResendOtpCreate,
+  apiAuthPasswordResetRequestCreate,
+  apiAuthPasswordResetConfirmCreate,
   apiAuthTokenCreate,
   apiUsersMeRetrieve,
 } from '@/api/sdk.gen'
@@ -20,6 +22,8 @@ import type {
   UserRegistrationRequestWritable,
   OtpVerificationRequest,
   ResendOtpRequest,
+  PasswordResetRequestRequest,
+  PasswordResetConfirmRequestWritable,
   EmailTokenObtainPairRequest,
 } from '@/api/types.gen'
 import type { AxiosError } from 'axios'
@@ -37,6 +41,8 @@ export function useAuth() {
   const isRegistering = ref(false)
   const isVerifyingOTP = ref(false)
   const isResendingOTP = ref(false)
+  const isRequestingPasswordReset = ref(false)
+  const isConfirmingPasswordReset = ref(false)
   const isLoggingIn = ref(false)
   const isFetchingUser = ref(false)
 
@@ -44,6 +50,8 @@ export function useAuth() {
   const registerError = ref<AuthError | null>(null)
   const otpError = ref<AuthError | null>(null)
   const resendOTPError = ref<AuthError | null>(null)
+  const passwordResetRequestError = ref<AuthError | null>(null)
+  const passwordResetConfirmError = ref<AuthError | null>(null)
   const loginError = ref<AuthError | null>(null)
   const userError = ref<AuthError | null>(null)
 
@@ -184,6 +192,70 @@ export function useAuth() {
   }
 
   /**
+   * Request password reset - sends email with reset token
+   */
+  async function requestPasswordReset(
+    request: PasswordResetRequestRequest
+  ): Promise<{ success: boolean; message?: string }> {
+    passwordResetRequestError.value = null
+    isRequestingPasswordReset.value = true
+
+    try {
+      const response = await apiAuthPasswordResetRequestCreate({
+        client: apiClient,
+        body: request,
+      })
+
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response
+      }
+
+      return {
+        success: true,
+        message: (response.data as any)?.message || 'Password reset instructions sent to your email.'
+      }
+    } catch (error) {
+      passwordResetRequestError.value = parseError(error)
+      return { success: false }
+    } finally {
+      isRequestingPasswordReset.value = false
+    }
+  }
+
+  /**
+   * Confirm password reset with token and new password
+   */
+  async function confirmPasswordReset(
+    request: PasswordResetConfirmRequestWritable
+  ): Promise<{ success: boolean; message?: string }> {
+    passwordResetConfirmError.value = null
+    isConfirmingPasswordReset.value = true
+
+    try {
+      const response = await apiAuthPasswordResetConfirmCreate({
+        client: apiClient,
+        body: request,
+      })
+
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response
+      }
+
+      return {
+        success: true,
+        message: (response.data as any)?.message || 'Password reset successful. You can now log in.'
+      }
+    } catch (error) {
+      passwordResetConfirmError.value = parseError(error)
+      return { success: false }
+    } finally {
+      isConfirmingPasswordReset.value = false
+    }
+  }
+
+  /**
    * Login with email and password, store JWT tokens
    */
   async function login(
@@ -297,6 +369,8 @@ export function useAuth() {
     isRegistering,
     isVerifyingOTP,
     isResendingOTP,
+    isRequestingPasswordReset,
+    isConfirmingPasswordReset,
     isLoggingIn,
     isFetchingUser,
     isLoading: authStore.isLoading,
@@ -305,6 +379,8 @@ export function useAuth() {
     registerError,
     otpError,
     resendOTPError,
+    passwordResetRequestError,
+    passwordResetConfirmError,
     loginError,
     userError,
 
@@ -312,6 +388,8 @@ export function useAuth() {
     register,
     verifyOTP,
     resendOTP,
+    requestPasswordReset,
+    confirmPasswordReset,
     login,
     logout,
     fetchCurrentUser,

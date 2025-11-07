@@ -84,7 +84,7 @@ def send_password_reset_email(user_id: int, reset_token: str) -> None:
         "FRONTEND_BASE_URL",
         "http://localhost:5173"
     )
-    reset_url = f"{frontend_base_url}/password-reset/confirm?token={reset_token}"
+    reset_url = f"{frontend_base_url}/reset-password?token={reset_token}"
 
     # Prepare email context
     context = {
