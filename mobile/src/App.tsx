@@ -1,13 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+/**
+ * Root App component with all providers
+ * Sets up QueryClient, React Native Paper theme, and navigation
+ */
 
-export default function App() {
+import React from 'react'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { PaperProvider } from 'react-native-paper'
+import { QueryProvider } from '@/providers/QueryProvider'
+import { lightTheme } from '@/theme'
+import { View, Text, StyleSheet } from 'react-native'
+
+/**
+ * Root App Component
+ */
+export default function App(): React.ReactElement {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <SafeAreaProvider>
+      <QueryProvider>
+        <PaperProvider theme={lightTheme}>
+          <View style={styles.container}>
+            <Text style={styles.text}>React Native + TanStack Query + Zustand</Text>
+            <Text style={styles.subtitle}>Ready for Session 5! 🚀</Text>
+            <StatusBar style="auto" />
+          </View>
+        </PaperProvider>
+      </QueryProvider>
+    </SafeAreaProvider>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -16,5 +36,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 20,
   },
-});
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+})
