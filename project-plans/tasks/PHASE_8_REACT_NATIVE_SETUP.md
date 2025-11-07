@@ -700,45 +700,144 @@ This document tracks the implementation of Phase 8, building a production-ready 
 - ✅ All dependencies installed and configured
 - ⚠️ Test suite configuration complete (tests will work once we have components)
 
-### Session 2 - Shared Types & API Client (TBD)
+### Session 2 - Shared Types & API Client (2025-11-07)
+
+**Status**: ✅ Complete
+
+**Completed:**
+
+- [x] Implemented API configuration with Platform.select (10.0.2.2 for Android emulator)
+- [x] Installed and configured @hey-api/openapi-ts v0.87.1
+- [x] Generated TypeScript client from Django OpenAPI schema (types.gen.ts, sdk.gen.ts)
+- [x] Created base API client with axios + JWT interceptors (TDD)
+  - Request interceptor: Auto-adds JWT from AsyncStorage
+  - Response interceptor: Clears token on 401 Unauthorized
+  - Helper functions: setAuthToken, clearAuthToken, getAuthToken
+- [x] Created auth service wrapper (TDD)
+  - Methods: register, login, verifyOTP, resendOTP, refreshToken, getMe
+  - 18 comprehensive tests
+- [x] Created projects service wrapper (TDD)
+  - Methods: list, get, create, update, delete
+  - 14 CRUD tests with error handling
+- [x] Copied Zod schemas from frontend (auth, project, user)
+- [x] Configured ngrok tunnel for mobile testing
+  - Added ngrok domain to Django ALLOWED_HOSTS
+  - Enabled CORS_ALLOW_ALL_ORIGINS in local dev
+  - Updated mobile API config to use ngrok URL
+- [x] Created comprehensive GETTING_STARTED.md guide
+- [x] TypeScript type-check passes with 0 errors ✅
+
+**Files Created:**
+
+**Config:**
+- `src/config/api.ts` - API config with Platform.select + ngrok tunnel
+- `src/config/__tests__/api.test.ts` - 26 configuration tests
+
+**Generated API:**
+- `openapi-ts.config.ts` - OpenAPI generator config
+- `src/api/types.gen.ts` - All TypeScript types (auto-generated)
+- `src/api/sdk.gen.ts` - API endpoint functions (auto-generated)
+- `src/api/client.gen.ts` - Base client (auto-generated)
+- `src/api/client/*` - Client utilities (auto-generated)
+- `src/api/core/*` - Core utilities (auto-generated)
+
+**Services:**
+- `src/services/api-client.ts` - Axios instance + JWT interceptors
+- `src/services/auth.service.ts` - Auth API wrapper
+- `src/services/projects.service.ts` - Projects API wrapper
+- `src/services/__tests__/api-client.test.ts` - 19 tests
+- `src/services/__tests__/auth.service.test.ts` - 18 tests
+- `src/services/__tests__/projects.service.test.ts` - 14 tests
+
+**Schemas:**
+- `src/schemas/auth.schema.ts` - Auth validation schemas
+- `src/schemas/project.schema.ts` - Project validation schemas
+- `src/schemas/user.schema.ts` - User validation schemas
+- `src/schemas/index.ts` - Central exports
+
+**Documentation:**
+- `GETTING_STARTED.md` - Comprehensive setup guide
+
+**Files Modified:**
+- `package.json` - Added generate:api script, @hey-api/openapi-ts dependency
+- `backend/config/settings/local.py` - Added ngrok to ALLOWED_HOSTS and CORS
+
+**Metrics:**
+
+- TypeScript errors: 0 ✅
+- Tests written: 77 tests (config + API client + services)
+- Files created: 30 files
+- API types: 100% auto-generated from backend
+- Code coverage: Services fully tested (TDD approach)
+
+**Tested and Verified:**
+
+- ✅ Backend accessible via ngrok tunnel (https://intersticed-latently-bertie.ngrok-free.dev)
+- ✅ CORS headers working (access-control-allow-origin: *)
+- ✅ Mobile app successfully connects to Django API
+- ✅ OpenAPI schema loads correctly on physical Android device
+- ✅ All services properly typed with generated types
+
+**Network Architecture (WSL + Android):**
+
+**For Android Emulator:**
+```
+Android Emulator (Windows)
+  ↓ 10.0.2.2:8000
+Windows localhost:8000
+  ↓ WSL2 port forward
+WSL Docker Django:8000
+```
+
+**For Physical Devices:**
+```
+Physical Device (anywhere)
+  ↓ HTTPS
+Ngrok Tunnel
+  ↓ HTTP
+WSL Docker Django:8000
+```
+
+**Exit Criteria Met:**
+
+- ✅ Types are shared with backend (auto-generated, no duplication)
+- ✅ API client generates successfully (npm run generate:api)
+- ✅ All API service tests passing (77 tests)
+- ⏭️ TanStack Query hooks moved to Session 3 (time management)
+
+**Note:** Originally planned to include TanStack Query hooks in Session 2, but decided to dedicate Session 3 entirely to TanStack Query + offline support for better focus and testing.
+
+### Session 3 - TanStack Query & Offline Support (TBD)
 
 **Status**: ⏳ Pending
 
 **Goals:**
 
-- [ ] Implement shared types strategy
-- [ ] Generate API client from OpenAPI
-- [ ] Create API service wrappers (TDD)
-- [ ] Set up TanStack Query hooks (TDD)
-- [ ] Write comprehensive test suite
+- [ ] Set up TanStack Query client with AsyncStorage persistence (TDD)
+- [ ] Configure offline mutation queue and retry logic
+- [ ] Create auth query hooks (TDD)
+  - [ ] useLogin - Login mutation with token storage
+  - [ ] useRegister - Register mutation
+  - [ ] useVerifyOTP - OTP verification mutation
+  - [ ] useResendOTP - Resend OTP mutation
+  - [ ] useCurrentUser - Get current user query
+- [ ] Create projects query hooks (TDD)
+  - [ ] useProjects - List projects query with caching
+  - [ ] useProject - Single project query
+  - [ ] useCreateProject - Create mutation with optimistic updates
+  - [ ] useUpdateProject - Update mutation with optimistic updates
+  - [ ] useDeleteProject - Delete mutation with optimistic updates
+- [ ] Write comprehensive test suite for all hooks
+- [ ] Test offline behavior (airplane mode simulation)
 
 **Exit Criteria:**
 
-- Types are shared with backend (no duplication)
-- API client generates successfully
-- All API service tests passing
-- TanStack Query hooks tested and working
-
-### Session 3 - Navigation & Auth UI (TBD)
-
-**Status**: ⏳ Pending
-
-**Goals:**
-
-- [ ] Define navigation types
-- [ ] Create auth and app stacks
-- [ ] Create root navigator with auth flow
-- [ ] Create auth store (TDD)
-- [ ] Build login screen (TDD)
-- [ ] Build register screen (TDD)
-- [ ] Build OTP verification screen (TDD)
-
-**Exit Criteria:**
-
-- Navigation fully typed and working
-- Auth flow functional end-to-end (register → OTP → login)
-- All auth tests passing (unit + integration)
-- UI polished with React Native Paper
+- TanStack Query client configured with AsyncStorage persistence
+- All auth hooks working with proper error handling
+- All projects hooks working with optimistic updates
+- Offline mutations queue properly
+- All hook tests passing (90+ tests expected)
+- TypeScript type-check passes (0 errors)
 
 ### Session 4 - Projects Feature (TBD)
 
