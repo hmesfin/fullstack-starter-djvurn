@@ -41,6 +41,24 @@ Full-stack Django + Vue.js starter template with production-ready patterns:
 - **Frontend**: Vue.js handles ALL user-facing UI (no Django templates except emails)
 - **Validation**: Zod schemas for ALL API requests/responses
 
+## App Scaffolding System
+
+**NEW**: This starter includes an AI-driven scaffolding system that transforms your app idea into a comprehensive, TDD-driven, session-based implementation plan.
+
+### Quick Scaffold
+
+```bash
+/scaffold-app
+```
+
+**What you get**:
+1. Interactive discovery (Claude asks smart questions about your app)
+2. Technical requirements document (models, endpoints, components, validation)
+3. High-level project plan (phases, timelines, success criteria)
+4. Detailed session-by-session tasks (TDD workflows, files to create, exit criteria)
+
+**Learn more**: See `.claude/SCAFFOLDING_GUIDE.md`
+
 ## Quick Start
 
 ### Start Everything
