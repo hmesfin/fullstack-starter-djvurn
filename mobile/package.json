@@ -16,9 +16,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-navigation/bottom-tabs": "^7.8.3",
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/native-stack": "^7.6.2",
+    "@tanstack/query-async-storage-persister": "^5.90.9",
     "@tanstack/react-query": "^5.90.7",
     "@tanstack/react-query-persist-client": "^5.90.9",
     "axios": "^1.13.2",
