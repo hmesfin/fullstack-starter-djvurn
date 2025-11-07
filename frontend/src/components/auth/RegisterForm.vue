@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import PasswordInput from '@/components/PasswordInput.vue'
 
 // Emits
 const emit = defineEmits<{
@@ -126,13 +127,12 @@ function clearFieldError(field: string): void {
       <!-- Password -->
       <div class="space-y-2">
         <Label for="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
           v-model="formData.password"
-          type="password"
           placeholder="••••••••"
           autocomplete="new-password"
-          :class="{ 'border-destructive': fieldErrors['password'] }"
+          :class="fieldErrors['password'] ? 'border-destructive' : ''"
           @input="clearFieldError('password')"
         />
         <p v-if="fieldErrors['password']" class="text-sm text-destructive">

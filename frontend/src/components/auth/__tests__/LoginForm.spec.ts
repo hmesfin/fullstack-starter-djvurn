@@ -5,8 +5,8 @@
  * Following TDD best practices with comprehensive coverage
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, waitFor, cleanup } from '@testing-library/vue'
 import { ref } from 'vue'
 import userEvent from '@testing-library/user-event'
 import LoginForm from '../LoginForm.vue'
@@ -23,6 +23,34 @@ vi.mock('@/composables/useAuth', () => ({
   useAuth: () => mockUseAuth,
 }))
 
+// Render helper with router stub
+function renderWithStubs(component: any) {
+  return render(component, {
+    global: {
+      stubs: {
+        RouterLink: {
+          template: '<a :href="href"><slot /></a>',
+          props: ['to'],
+          computed: {
+            href(): string {
+              if (typeof this.to === 'string') return this.to
+              if (typeof this.to === 'object' && this.to.name) {
+                // Convert route name to path
+                const routeMap: Record<string, string> = {
+                  'forgot-password': '/forgot-password',
+                  'register': '/register',
+                }
+                return routeMap[this.to.name] || '#'
+              }
+              return '#'
+            },
+          },
+        },
+      },
+    },
+  })
+}
+
 describe('LoginForm.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -30,9 +58,13 @@ describe('LoginForm.vue', () => {
     mockUseAuth.loginError.value = null
   })
 
+  afterEach(() => {
+    cleanup()
+  })
+
   describe('Component Rendering', () => {
     it('renders login form with all required fields', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       // Verify form title
       expect(screen.getByText('Welcome Back')).toBeInTheDocument()
@@ -46,7 +78,7 @@ describe('LoginForm.vue', () => {
     })
 
     it('renders email and password fields with correct attributes', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email') as HTMLInputElement
       const passwordInput = screen.getByLabelText('Password') as HTMLInputElement
@@ -61,7 +93,7 @@ describe('LoginForm.vue', () => {
     })
 
     it('renders remember me checkbox', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const checkbox = screen.getByRole('checkbox', { name: /remember me/i })
       expect(checkbox).toBeInTheDocument()
@@ -69,7 +101,7 @@ describe('LoginForm.vue', () => {
     })
 
     it('renders forgot password link', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const forgotPasswordLink = screen.getByText('Forgot password?')
       expect(forgotPasswordLink).toBeInTheDocument()
@@ -77,7 +109,7 @@ describe('LoginForm.vue', () => {
     })
 
     it('renders sign up link for new users', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const signUpLink = screen.getByText('Sign up')
       expect(signUpLink).toBeInTheDocument()
@@ -88,7 +120,7 @@ describe('LoginForm.vue', () => {
   describe('Form Validation - Zod Schema', () => {
     it('displays error when email is empty', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
@@ -102,7 +134,7 @@ describe('LoginForm.vue', () => {
 
     it('displays error when email format is invalid', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       await user.type(emailInput, 'not-an-email')
@@ -119,7 +151,7 @@ describe('LoginForm.vue', () => {
 
     it('displays error when password is empty', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       await user.type(emailInput, 'test@example.com')
@@ -136,7 +168,7 @@ describe('LoginForm.vue', () => {
 
     it('displays both validation errors when all fields are empty', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
@@ -153,7 +185,7 @@ describe('LoginForm.vue', () => {
   describe('Field Error Clearing', () => {
     it('clears email error when user starts typing', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
@@ -172,7 +204,7 @@ describe('LoginForm.vue', () => {
 
     it('clears password error when user starts typing', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
@@ -193,7 +225,7 @@ describe('LoginForm.vue', () => {
   describe('Remember Me Functionality', () => {
     it('toggles remember me checkbox when clicked', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const checkbox = screen.getByRole('checkbox', { name: /remember me/i })
       expect(checkbox).not.toBeChecked()
@@ -213,7 +245,7 @@ describe('LoginForm.vue', () => {
         success: true,
       })
 
-      const { emitted } = render(LoginForm)
+      const { emitted } = renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       const passwordInput = screen.getByLabelText('Password')
@@ -240,7 +272,7 @@ describe('LoginForm.vue', () => {
     it('shows loading state during login', async () => {
       mockUseAuth.isLoggingIn = true
 
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /signing in/i })
 
@@ -263,7 +295,7 @@ describe('LoginForm.vue', () => {
         },
       }
 
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       const passwordInput = screen.getByLabelText('Password')
@@ -290,7 +322,7 @@ describe('LoginForm.vue', () => {
         details: null,
       }
 
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       const passwordInput = screen.getByLabelText('Password')
@@ -316,7 +348,7 @@ describe('LoginForm.vue', () => {
         details: null,
       }
 
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       const passwordInput = screen.getByLabelText('Password')
@@ -335,7 +367,7 @@ describe('LoginForm.vue', () => {
 
   describe('Accessibility', () => {
     it('associates labels with input fields correctly', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const emailInput = screen.getByLabelText('Email')
       const passwordInput = screen.getByLabelText('Password')
@@ -346,7 +378,7 @@ describe('LoginForm.vue', () => {
 
     it('applies error styling to invalid fields', async () => {
       const user = userEvent.setup()
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
@@ -361,14 +393,14 @@ describe('LoginForm.vue', () => {
     })
 
     it('prevents native form validation', () => {
-      const { container } = render(LoginForm)
+      const { container } = renderWithStubs(LoginForm)
 
       const form = container.querySelector('form')
       expect(form).toHaveAttribute('novalidate')
     })
 
     it('has accessible checkbox label', () => {
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       const checkbox = screen.getByRole('checkbox', { name: /remember me/i })
       expect(checkbox).toBeInTheDocument()
@@ -382,7 +414,7 @@ describe('LoginForm.vue', () => {
         success: true,
       })
 
-      const { emitted } = render(LoginForm)
+      const { emitted } = renderWithStubs(LoginForm)
 
       // User fills in credentials
       await user.type(screen.getByLabelText('Email'), 'user@example.com')
@@ -422,7 +454,7 @@ describe('LoginForm.vue', () => {
         details: null,
       }
 
-      render(LoginForm)
+      renderWithStubs(LoginForm)
 
       await user.type(screen.getByLabelText('Email'), 'user@example.com')
       await user.type(screen.getByLabelText('Password'), 'WrongPassword')

@@ -4,9 +4,9 @@ import { useAuth } from '@/composables/useAuth'
 import { passwordResetConfirmSchema } from '@/schemas'
 import type { ZodIssue } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import PasswordInput from '@/components/PasswordInput.vue'
 
 // Props
 const props = defineProps<{
@@ -26,10 +26,6 @@ const password = ref('')
 const confirmPassword = ref('')
 const fieldErrors = ref<Record<string, string>>({})
 const showSuccess = ref(false)
-
-// Password visibility
-const showPassword = ref(false)
-const showConfirmPassword = ref(false)
 
 /**
  * Validate and submit password reset confirmation
@@ -110,25 +106,14 @@ function clearFieldError(field: string): void {
       <!-- Password Field -->
       <div class="space-y-2">
         <Label for="password">New Password</Label>
-        <div class="relative">
-          <Input
-            id="password"
-            v-model="password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="Enter new password"
-            autocomplete="new-password"
-            :class="{ 'border-destructive': fieldErrors['password'] }"
-            @input="clearFieldError('password')"
-          />
-          <button
-            type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            @click="showPassword = !showPassword"
-          >
-            <span v-if="showPassword">Hide</span>
-            <span v-else>Show</span>
-          </button>
-        </div>
+        <PasswordInput
+          id="password"
+          v-model="password"
+          placeholder="Enter new password"
+          autocomplete="new-password"
+          :class="fieldErrors['password'] ? 'border-destructive' : ''"
+          @input="clearFieldError('password')"
+        />
         <p v-if="fieldErrors['password']" class="text-sm text-destructive">
           {{ fieldErrors['password'] }}
         </p>
@@ -140,25 +125,14 @@ function clearFieldError(field: string): void {
       <!-- Confirm Password Field -->
       <div class="space-y-2">
         <Label for="confirmPassword">Confirm Password</Label>
-        <div class="relative">
-          <Input
-            id="confirmPassword"
-            v-model="confirmPassword"
-            :type="showConfirmPassword ? 'text' : 'password'"
-            placeholder="Confirm new password"
-            autocomplete="new-password"
-            :class="{ 'border-destructive': fieldErrors['confirmPassword'] }"
-            @input="clearFieldError('confirmPassword')"
-          />
-          <button
-            type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            @click="showConfirmPassword = !showConfirmPassword"
-          >
-            <span v-if="showConfirmPassword">Hide</span>
-            <span v-else>Show</span>
-          </button>
-        </div>
+        <PasswordInput
+          id="confirmPassword"
+          v-model="confirmPassword"
+          placeholder="Confirm new password"
+          autocomplete="new-password"
+          :class="fieldErrors['confirmPassword'] ? 'border-destructive' : ''"
+          @input="clearFieldError('confirmPassword')"
+        />
         <p v-if="fieldErrors['confirmPassword']" class="text-sm text-destructive">
           {{ fieldErrors['confirmPassword'] }}
         </p>

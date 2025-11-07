@@ -21,7 +21,7 @@ function handleSuccess(): void {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-700 p-4">
+  <div class="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-500 to-purple-700 p-4">
     <div class="bg-card rounded-lg shadow-xl w-full max-w-md">
       <!-- Show error if no token provided -->
       <div v-if="!token" class="p-8">
