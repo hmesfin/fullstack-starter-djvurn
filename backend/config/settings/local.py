@@ -13,12 +13,22 @@ SECRET_KEY = env(
     default="i8FI4OXT3GX6W4LO42iyj6Dj5AIwPwzKqsGXDKWHTyi0HEFCNcWoWNi02LMonPRL",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]  # noqa: S104
+ALLOWED_HOSTS = [
+    "localhost",
+    "0.0.0.0",
+    "127.0.0.1",
+    "intersticed-latently-bertie.ngrok-free.dev",  # ngrok tunnel for mobile testing
+]  # noqa: S104
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://intersticed-latently-bertie.ngrok-free.dev",  # ngrok tunnel
 ]
+
+# Allow all origins in local development (for mobile debugging)
+# This is safe because we're only in local development
+CORS_ALLOW_ALL_ORIGINS = True
 
 # CACHES
 # ------------------------------------------------------------------------------

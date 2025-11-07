@@ -17,17 +17,16 @@ import { Platform } from 'react-native';
 const getApiBaseUrl = (): string => {
   if (__DEV__) {
     // Development environment
-    return Platform.select({
-      // Android emulator's special alias for host machine
-      // This reaches Windows localhost, which WSL2 forwards to WSL
-      android: 'http://10.0.2.2:8000',
+    // Using ngrok tunnel for all platforms (works with physical devices + emulators)
+    return 'https://intersticed-latently-bertie.ngrok-free.dev';
 
-      // iOS simulator shares host network, can use localhost directly
-      ios: 'http://localhost:8000',
-
-      // Web fallback (if using Expo web)
-      default: 'http://localhost:8000',
-    });
+    // Alternative: Platform-specific local development
+    // Uncomment if testing with emulator and ngrok is down:
+    // return Platform.select({
+    //   android: 'http://10.0.2.2:8000',  // Android emulator
+    //   ios: 'http://localhost:8000',      // iOS simulator
+    //   default: 'http://localhost:8000',
+    // });
   }
 
   // Production - replace with your production API URL
