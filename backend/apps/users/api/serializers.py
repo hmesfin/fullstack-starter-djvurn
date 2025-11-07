@@ -128,6 +128,40 @@ class OTPVerificationSerializer(serializers.Serializer):
         return attrs
 
 
+class ResendOTPSerializer(serializers.Serializer):
+    """Serializer for resending OTP to unverified email."""
+
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value: str) -> str:
+        """Validate and normalize email."""
+        return value.lower()
+
+    def save(self) -> None:
+        """Create new OTP and send email."""
+        email = self.validated_data["email"]
+
+        # Try to get user (return same response for security - don't leak user existence)
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # For security, return success even if user doesn't exist
+            # This prevents email enumeration attacks
+            return
+
+        # Check if email is already verified
+        if user.is_email_verified:
+            msg = _("Email address is already verified.")
+            raise serializers.ValidationError(msg)
+
+        # Create new OTP
+        otp = EmailVerificationOTP.create_for_user(user)
+
+        # Send OTP email via Celery task
+        from apps.users.tasks import send_otp_email
+        send_otp_email.delay(user.id, otp.code)
+
+
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Custom JWT serializer that uses email and checks email verification."""
 
@@ -146,12 +180,15 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Check if email is verified
         if not self.user.is_email_verified:
+            # OTP creation is handled in the view to avoid transaction rollback issues
             raise serializers.ValidationError(
                 {
                     "email": _(
                         "Email address is not verified. "
+                        "We've sent a verification code to your email. "
                         "Please verify your email before logging in.",
                     ),
+                    "email_verification_required": True,
                 },
             )
 

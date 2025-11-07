@@ -1,24 +1,19 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+**2-Minute Project Briefing** - Read this first, consult detailed docs as needed.
 
-## Project Overview
+## What Is This?
 
-Full-stack Django + Vue.js starter template with:
+Full-stack Django + Vue.js starter template with production-ready patterns:
 
-- **Backend**: Django 5.2, Django REST Framework (API-only), PostgreSQL, Redis, Celery (async tasks)
-- **Frontend**: Vue 3 (Composition API), TypeScript, Vite, TanStack Query (vue-query)
-- **UI Components**: Shadcn-vue (Radix Vue primitives) + Tailwind CSS v4
-- **Dark Mode**: VueUse composables with system detection + manual toggle
-- **Infrastructure**: Docker-based development with docker-compose (all services containerized)
-- **API Contract**: OpenAPI schema with automatic TypeScript client generation via `@hey-api/openapi-ts`
-- **Package Management**: `uv` for Python (replaces pip/poetry), `npm` for JavaScript
-- **Type Safety**: Strict TypeScript config with `noUncheckedIndexedAccess` enabled
-- **Authentication**: Token-based API authentication (no Django templates/forms frontend)
+- **Backend**: Django 5.2, DRF (API-only), PostgreSQL, Redis, Celery
+- **Frontend**: Vue 3 (Composition API), TypeScript, Vite, Shadcn-vue, Tailwind CSS v4
+- **Auth**: Email-based with OTP verification (no Django templates)
+- **Infrastructure**: Docker-first (all services containerized, including Vite dev server)
+- **Type Safety**: Auto-generated TypeScript client from Django OpenAPI schema
+- **Package Management**: `uv` (Python), `npm` (JavaScript)
 
-## Core Principles (Non-Negotiable)
-
-These principles are **equally important** and must be followed at all times:
+## Non-Negotiable Rules
 
 ### 1. Test-Driven Development (TDD)
 - **RED-GREEN-REFACTOR** cycle is mandatory
@@ -26,677 +21,223 @@ These principles are **equally important** and must be followed at all times:
 - No code exists until there's a failing test that needs it
 - Minimum 85% code coverage (90% for data, 95% for security)
 
-### 2. Fully-Typed Code (Type Safety First)
+### 2. Fully-Typed Code
 - **NO `any` types** - ever. Use `unknown` if type is truly unknown
 - **Explicit return types** on all functions (TypeScript & Python)
-- **mypy strict mode** for Python - all code must pass with no errors
-- **TypeScript strict mode** - `noUncheckedIndexedAccess` enabled
+- **mypy strict mode** (Python), **TypeScript strict mode** with `noUncheckedIndexedAccess`
 - **Runtime validation** with Zod schemas (mirrors TypeScript types)
-- Type checking runs BEFORE tests in CI/CD
 
-### 3. Code Quality & Organization
+### 3. Code Organization
 - **Max 500 lines per file** - split when approaching limit
 - **Domain-driven organization** - group by feature, not by type
 - **Descriptive naming** - `getUserByEmail()` not `getUser()`
-- **No magic numbers** - use named constants
-- **Modular architecture** - each module is self-contained
 
 ## User Preferences
 
-- **Django Patterns**: Auto-increment PK (default) + UUID for public API exposure
-- **Development**: Docker-first workflow for consistency across environments
-- **Frontend**: Vue.js handles ALL user-facing UI (no Django templates except for emails)
+- **Django patterns**: Auto-increment PK (default) + UUID for public API exposure
+- **Development**: Docker-first workflow - consistency over speed
+- **Frontend**: Vue.js handles ALL user-facing UI (no Django templates except emails)
 - **Validation**: Zod schemas for ALL API requests/responses
 
-## Development Workflow
+## Quick Start
 
-### Starting the Stack
-
-**All services run in Docker** via `docker-compose` (including frontend Vite dev server):
+### Start Everything
 
 ```bash
-# Start all services (Django, Frontend, Postgres, Redis, Celery, Mailpit)
 docker compose up
+```
 
-# View logs
+**Services**:
+- Django API: http://localhost:8000 (includes admin)
+- Frontend: http://localhost:5173 (Vite dev server in Docker)
+- Mailpit: http://localhost:8025 (email testing)
+- Flower: http://localhost:5555 (Celery monitor)
+
+### Critical Commands
+
+```bash
+# Django (ALWAYS via Docker, NEVER locally except startapp)
+docker compose run --rm django python manage.py migrate
+docker compose run --rm django pytest
+
+# Frontend (Docker or host - your choice)
+docker compose run --rm frontend npm run type-check
+docker compose run --rm frontend npm run generate:api  # After backend changes
+
+# Logs
 docker compose logs -f django
 docker compose logs -f frontend
-docker compose logs -f celeryworker
-
-# Rebuild after dependency changes
-docker compose build
-
-# Rebuild specific service
-docker compose build django
-docker compose build frontend
 ```
 
-Services run on:
+**Exception**: Only `python manage.py startapp <name>` runs locally (avoids root file ownership).
 
-- Django API: <http://localhost:8000>
-- Django Admin: <http://localhost:8000/admin>
-- **Frontend (Vite dev server)**: <http://localhost:5173> (runs in Docker)
-- Mailpit (email testing): <http://localhost:8025>
-- Flower (Celery monitor): <http://localhost:5555>
+## Critical Gotchas
 
-### Django Commands
+### Django ATOMIC_REQUESTS Transaction Rollback
 
-**IMPORTANT**: All Django commands that interact with the database MUST run inside the Docker container:
+**Symptom**: Data appears created in logs, then vanishes (e.g., "created: 1" → "count: 0")
 
-```bash
-# Database migrations
-docker compose run --rm django python manage.py makemigrations
-docker compose run --rm django python manage.py migrate
+**Cause**: `DATABASES["default"]["ATOMIC_REQUESTS"] = True` wraps every request in transaction. When `ValidationError` is raised, the **entire transaction rolls back**, including model creation.
 
-# Create superuser
-docker compose run --rm django python manage.py createsuperuser
+**Fix**: Use `@transaction.non_atomic_requests` decorator. See DEBUG_DOGMA.md for detailed patterns.
 
-# Django shell
-docker compose run --rm django python manage.py shell
+### Generated SDK Error Handling
 
-# Run tests
-docker compose run --rm django pytest
-docker compose run --rm django pytest apps/projects/tests.py  # single test file
+The `@hey-api/openapi-ts` generated SDK may **return errors instead of throwing them**.
 
-# Type checking
-docker compose run --rm django mypy apps
-
-# Test coverage
-docker compose run --rm django coverage run -m pytest
-docker compose run --rm django coverage html
-```
-
-**Exception**: Only `python manage.py startapp <name>` runs locally (to avoid root file ownership issues).
-
-### Frontend Commands
-
-Frontend commands can run in two ways:
-
-**1. Via Docker (recommended for consistency):**
-
-```bash
-# Type checking
-docker compose run --rm frontend npm run type-check
-
-# Build for production
-docker compose run --rm frontend npm run build
-
-# Generate TypeScript API client from Django OpenAPI schema
-docker compose run --rm frontend npm run generate:api  # requires Django running
-
-# Install new dependencies (then rebuild)
-docker compose run --rm frontend npm install <package>
-docker compose build frontend
-```
-
-**2. On the host (faster for type-checking during development):**
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Type checking (fast, no Docker overhead)
-npm run type-check  # or: vue-tsc --noEmit
-
-# Build for production
-npm run build
-
-# Generate TypeScript API client
-npm run generate:api  # requires Django running on :8000
-```
-
-**Note**: The dev server (`npm run dev`) runs automatically in Docker via `docker compose up`. You don't need to run it manually.
-
-### Frontend Testing
-
-**Test Framework**: Vitest (configured in `vite.config.ts`)
-
-**1. Via Docker (recommended for consistency):**
-
-```bash
-# Run tests once
-docker compose run --rm frontend npm run test:run
-
-# Run tests in watch mode
-docker compose run --rm frontend npm test
-
-# Run tests with UI
-docker compose run --rm frontend npm run test:ui
-```
-
-**2. On the host (faster for iteration):**
-
-```bash
-cd frontend
-
-# Run tests once
-npm run test:run
-
-# Run tests in watch mode
-npm test
-
-# Run tests with UI
-npm run test:ui
-```
-
-**Zod Schema Validation Pattern:**
-
-All API request/response data MUST have corresponding Zod schemas for runtime validation:
-
+**Pattern to use**:
 ```typescript
-// frontend/src/schemas/auth.schema.ts
-import { z } from 'zod'
+const response = await apiAuthTokenCreate({ client: apiClient, body: data })
 
-export const userRegistrationSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
-}).strict()
-
-export type UserRegistrationInput = z.infer<typeof userRegistrationSchema>
-```
-
-**Usage in components:**
-
-```typescript
-import { userRegistrationSchema } from '@/schemas'
-import { apiAuthRegisterCreate } from '@/api/sdk.gen'
-import { apiClient } from '@/lib/api-client'
-
-const result = userRegistrationSchema.safeParse(formData)
-if (result.success) {
-  // Data is validated at runtime
-  await apiAuthRegisterCreate({ client: apiClient, body: result.data })
-} else {
-  // Handle validation errors
-  console.error(result.error.issues)
+// ALWAYS check for error property
+if (response && 'error' in response && response.error) {
+  throw response  // Throw it to be caught properly
 }
 ```
 
-**TDD for Schemas:**
+### Axios Configuration
 
-1. Write schema validation tests FIRST (`__tests__/schema.test.ts`)
-2. Run tests to verify they fail (RED phase)
-3. Implement schema to make tests pass (GREEN phase)
-4. Schemas are stored in `frontend/src/schemas/` grouped by domain
-
-## Architecture
-
-### Backend Structure
-
-```tree
-backend/
-├── apps/
-│   ├── contrib/         # Cookiecutter-django utilities
-│   ├── projects/        # Example app: Project model
-│   │   ├── api/
-│   │   │   ├── serializers.py
-│   │   │   └── views.py     # DRF ViewSets
-│   │   ├── migrations/
-│   │   ├── models.py
-│   │   └── tests.py
-│   └── users/           # Custom user model (email-based auth)
-├── config/
-│   ├── settings/
-│   │   ├── base.py        # Shared settings
-│   │   ├── local.py       # Development settings
-│   │   ├── production.py
-│   │   └── test.py        # Test configuration
-│   ├── api_router.py    # DRF router (registers ViewSets)
-│   ├── urls.py          # Root URL configuration
-│   ├── asgi.py          # ASGI entry point (uvicorn)
-│   └── celery_app.py    # Celery configuration
-├── locale/          # Translation files
-├── manage.py        # Django CLI
-├── pyproject.toml   # Python dependencies
-└── uv.lock          # Dependency lock file
+Ensure axios throws on 4xx/5xx errors:
+```typescript
+// frontend/src/lib/api-client.ts
+validateStatus: (status) => status >= 200 && status < 300
 ```
 
-**Key Patterns**:
+## Where to Find More
 
-- All backend code in `backend/` directory for clear separation
-- Apps in `backend/apps/` directory
-- Custom User model: `apps.users.User` (email-based, no username)
-- API endpoints: `/api/v1/` namespace
-- DRF ViewSets registered in `backend/config/api_router.py`
-- OpenAPI schema available at `/api/schema/`
-- Authentication: DRF Token Authentication (via `/api/auth-token/`)
-- **No Django template views**: All user-facing UI handled by Vue.js frontend
-- Templates only used for Django Admin and email templates (`backend/apps/templates/email/`)
+- **ARCHITECTURE.md** - Detailed structure, patterns, component library, validation
+- **DEV_WORKFLOW.md** - All commands, workflows, troubleshooting (database, testing, code quality)
+- **EMAIL_SETUP.md** - Email configuration (Mailpit, SendGrid, templates, Celery tasks)
+- **DEBUG_DOGMA.md** - Hard-won debugging lessons (when "chasing your tails")
 
-### Frontend Structure
+## Key Architecture Decisions
 
-```tree
-frontend/src/
-├── api/              # Auto-generated from OpenAPI schema (DO NOT EDIT)
-│   ├── sdk.gen.ts    # Generated API functions
-│   └── types.gen.ts  # Generated TypeScript types
-├── components/       # Domain components
-│   ├── auth/         # LoginForm, RegisterForm, OTPVerificationForm
-│   ├── projects/     # ProjectCard, ProjectForm, ProjectFilters, ProjectList
-│   ├── ui/           # Shadcn-vue components (Button, Input, Card, etc.)
-│   └── ThemeToggle.vue  # Dark mode toggle
-├── composables/      # Vue composables (useProjects, useTheme, etc)
-├── constants/        # Centralized constants (PROJECT_STATUSES, etc)
-├── lib/
-│   ├── api-client.ts # Configured axios client with auth interceptors
-│   └── utils.ts      # cn() utility for class merging
-├── schemas/          # Zod validation schemas (mirror backend models)
-├── types/            # Manual TypeScript types
-├── views/            # Route views (LoginView, DashboardView, etc)
-├── App.vue
-└── main.ts
+1. **Monorepo**: `backend/` (Django/Python), `frontend/` (Vue/TypeScript), root (infrastructure)
+2. **API-Only Backend**: Django serves API + admin only. No template-based views. All user-facing UI in Vue.js.
+3. **Custom User Model**: `apps.users.User` (email-based, no username)
+4. **Auto-Generated API Client**: Frontend types generated from Django OpenAPI schema (never edit `frontend/src/api/` manually)
+5. **Shadcn-vue**: Copy-paste components (not npm package) - full ownership, customize as needed
+
+## Common Workflows (Quick Reference)
+
+### Add Django Model
+1. Define model in `backend/apps/<app>/models.py`
+2. Create migrations: `docker compose run --rm django python manage.py makemigrations`
+3. Apply migrations: `docker compose run --rm django python manage.py migrate`
+4. Create serializer + ViewSet, register in `api_router.py`
+5. **Regenerate frontend types**: `docker compose run --rm frontend npm run generate:api`
+6. Create composable in `frontend/src/composables/use<Model>.ts`
+
+See DEV_WORKFLOW.md for complete step-by-step workflows.
+
+### Add Frontend Dependency
+```bash
+docker compose run --rm frontend npm install <package>
+docker compose build frontend
+docker compose restart frontend
 ```
 
-**Key Patterns**:
+### Add Backend Dependency
+Edit `backend/pyproject.toml` → Add to `[project.dependencies]` or `[dependency-groups.dev]`
+```bash
+docker compose build django
+docker compose restart django
+```
 
-- **Component Library**: Shadcn-vue (copy-paste components, no dependency hell)
-  - Built on Radix Vue primitives (accessibility-first)
-  - Styled with Tailwind CSS utility classes
-  - Components in `src/components/ui/` - full ownership, customize as needed
-- **Dark Mode**: VueUse `useDark()` composable
-  - System preference detection with manual override
-  - Persisted in localStorage
-  - Class-based (`dark` class on `<html>`)
-- **Styling**: Tailwind CSS v4
-  - Zero custom CSS - all utility classes
-  - Design tokens via CSS variables for light/dark themes
-- **Centralized Constants**: `src/constants/projects.ts`
-  - STATUS_CONFIG, PRIORITY_CONFIG with badge variants
-  - Maps backend Django enums (StatusEnum, PriorityEnum) to UI
-  - Single source of truth for status/priority labels and colors
-- Composition API with `<script setup lang="ts">`
-- TanStack Query (vue-query) for data fetching/caching
-- Auto-generated API client from Django OpenAPI schema
-- API calls use typed functions from `@/api/sdk.gen.ts` (not service classes)
-- Composables pattern: `useProjects()` wraps API + query logic
-- Never manually edit files in `src/api/` (regenerate with `npm run generate:api`)
-- **API Client Usage**: Always pass `apiClient` to generated SDK functions:
-  ```typescript
-  import { projectsList } from '@/api/sdk.gen';
-  import { apiClient } from '@/lib/api-client';
+### Database Reset (Clean Slate)
+```bash
+docker compose down -v
+docker compose up -d postgres
+docker compose run --rm django python manage.py migrate
+docker compose run --rm django python manage.py createsuperuser
+docker compose up
+```
 
-  const response = await projectsList({
-    client: apiClient,
-    query: { status: 'active' }
-  });
-  ```
-
-### Using Shadcn-vue Components
-
-Shadcn-vue components are **copy-paste components** (not an npm package) with full ownership and customization:
-
-**Adding new components:**
+## Testing
 
 ```bash
-# Browse available components at https://www.shadcn-vue.com/docs/components
-# Add a component (copies files to src/components/ui/)
-docker compose run --rm frontend npx shadcn-vue@latest add <component-name>
+# Backend
+docker compose run --rm django pytest                  # all tests
+docker compose run --rm django pytest apps/projects/   # specific app
+docker compose run --rm django pytest -v               # verbose
+docker compose run --rm django coverage run -m pytest  # with coverage
 
-# Example: Add Dialog component
-docker compose run --rm frontend npx shadcn-vue@latest add dialog
+# Frontend
+docker compose run --rm frontend npm run test:run      # all tests
+docker compose run --rm frontend npm test              # watch mode
+
+# Type checking
+docker compose run --rm django mypy apps
+docker compose run --rm frontend npm run type-check
 ```
 
-**Using components in your code:**
+## Debugging
 
-```vue
-<script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+> **When debugging feels unproductive or you're "chasing your tails"**, refer to DEBUG_DOGMA.md.
 
-// Always include type="button" to prevent accidental form submission
-</script>
+**Quick checks**:
+1. Check `ATOMIC_REQUESTS` FIRST when data appears then disappears
+2. Fetch Django logs proactively: `docker compose logs django --tail 100`
+3. Test backend APIs independently with `curl` or Django shell
+4. Check SDK error handling: `if (response && 'error' in response && response.error)`
+5. Verify axios `validateStatus` is throwing on 4xx errors
 
-<template>
-  <Card>
-    <CardHeader>
-      <CardTitle>Login</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div class="space-y-4">
-        <div class="space-y-2">
-          <Label for="email">Email</Label>
-          <Input id="email" type="email" v-model="email" />
-        </div>
-        <Button type="submit" class="w-full">Sign In</Button>
-      </div>
-    </CardContent>
-  </Card>
-</template>
-```
-
-**Important patterns:**
-
-1. **Always use `type="button"` on non-submit buttons** to prevent accidental form submission
-2. **Use Tailwind utility classes** for spacing, sizing, colors - no custom CSS
-3. **Use centralized constants** from `src/constants/` for badge variants, status colors
-4. **Dark mode support** - All Shadcn components work with `dark` class automatically
-
-**Common components:**
-
-- **Button**: `variant` (default, destructive, outline, secondary, ghost, link), `size` (default, sm, lg, icon)
-- **Input**: Text, email, password, number inputs with proper styling
-- **Select**: Dropdown with search/filtering support (uses Radix Vue primitives)
-- **Card**: Container with Header, Title, Description, Content, Footer
-- **Badge**: Small labels with variants (default, secondary, destructive, outline)
-- **Alert**: Info/warning/error messages with AlertTitle and AlertDescription
-
-### API Client Generation
-
-The frontend TypeScript client is auto-generated from Django's OpenAPI schema:
-
-1. Django generates OpenAPI schema via `drf-spectacular`
-2. `@hey-api/openapi-ts` generates TypeScript client
-3. Generated files in `frontend/src/api/` (committed to Git)
-
-**Workflow**:
-
+**Efficient log commands**:
 ```bash
-# After changing Django models/serializers/views:
-
-# Option 1: Via Docker (recommended)
-docker compose run --rm frontend npm run generate:api
-
-# Option 2: On host (faster, requires Django running)
-cd frontend
-npm run generate:api  # fetches http://localhost:8000/api/schema/
+docker compose logs django --tail 100
+docker compose logs django --tail 200 | grep -E "(ERROR|WARNING)"
+docker compose logs django --since 5m
+docker compose logs -f django  # follow in real-time
 ```
-
-**When to regenerate**:
-
-- After adding/modifying Django models
-- After changing DRF serializers or views
-- After adding new API endpoints
-- After changing field types or validation
-
-**Generated Type Patterns**:
-- Request types: `ProjectCreateRequest`, `PatchedProjectRequest`
-- Response types in `.data` property: `response.data`
-- Enums: `StatusEnum`, `PriorityEnum` (mapped in `SPECTACULAR_SETTINGS`)
-
-### Testing
-
-**Backend (pytest)**:
-
-```bash
-docker compose run --rm django pytest                    # all tests
-docker compose run --rm django pytest apps/projects/     # specific app
-docker compose run --rm django pytest -v                 # verbose
-docker compose run --rm django pytest --lf               # last failed
-docker compose run --rm django pytest -k "test_create"   # match pattern
-```
-
-Test configuration in `pyproject.toml`:
-
-- `pytest.ini_options`: Django settings module, database reuse
-- `coverage.run`: Coverage includes `apps/**`, omits migrations/tests
-
-**Frontend (Vitest)**:
-
-```bash
-# Via Docker (recommended)
-docker compose run --rm frontend npm run test:run    # run once
-docker compose run --rm frontend npm test            # watch mode
-docker compose run --rm frontend npm run test:ui     # with UI
-
-# On host (faster)
-cd frontend
-npm run test:run    # run once
-npm test            # watch mode
-npm run test:ui     # with UI
-```
-
-Test configuration in `vite.config.ts`:
-
-- `test.globals`: true - enables describe, it, expect globally
-- `test.environment`: jsdom - for DOM testing
-- Schemas tests in `src/schemas/__tests__/` validate Zod schemas
-
-## Code Quality Tools
-
-### Python (Backend)
-
-**Linting & Formatting**:
-
-- **Ruff**: All-in-one linter + formatter (configured in `pyproject.toml`)
-- **mypy**: Type checking with Django stubs
-- **djLint**: Django template linting
-
-```bash
-# Run via pre-commit hooks
-pre-commit run --all-files
-
-# Or manually via Docker:
-docker compose run --rm django ruff check apps/
-docker compose run --rm django ruff format apps/
-docker compose run --rm django mypy apps/
-```
-
-**Pre-commit hooks** (`.pre-commit-config.yaml`):
-
-- Ruff (lint + format)
-- djLint (template formatting)
-- django-upgrade (auto-upgrade to Django 5.2 syntax)
-- Standard checks (trailing whitespace, YAML/JSON/TOML validation, etc.)
-
-### TypeScript (Frontend)
-
-```bash
-cd frontend
-npm run type-check   # vue-tsc --noEmit
-npm run build        # includes type checking
-```
-
-## Environment Configuration
-
-Environment files in `.envs/.local/`:
-
-- `.django` - Django settings (SECRET_KEY, DEBUG, REDIS_URL, etc.)
-- `.postgres` - Database credentials
-
-**Do not commit** actual secrets. Template files should use placeholders.
-
-## Database
-
-- PostgreSQL (via Docker)
-- ORM: Django ORM
-- Migrations: Django migrations (run via `docker compose run --rm django`)
-- Connection: Managed by Django via `DATABASE_URL` env var
-
-## Celery (Async Tasks)
-
-- **Broker & Backend**: Redis
-- **Worker**: `celeryworker` service in docker-compose
-- **Beat Scheduler**: `celerybeat` service (for periodic tasks)
-- **Monitoring**: Flower UI at <http://localhost:5555>
-
-**Define tasks** in `apps/<app>/tasks.py`:
-
-```python
-from config.celery_app import app
-
-@app.task()
-def my_task():
-    # task code
-```
-
-**Run task**:
-
-```python
-from apps.myapp.tasks import my_task
-my_task.delay()  # async
-```
-
-## Email Configuration
-
-**Email backend**: Django's email system with Celery for async delivery
-
-**Local Development (Mailpit)**:
-- Service: `mailpit` container in docker-compose
-- SMTP: `mailpit:1025` (captured, not sent)
-- Web UI: http://localhost:8025 (view all sent emails)
-- Config: `EMAIL_HOST=mailpit` in `.envs/.local/.django`
-
-**Production (SendGrid via django-anymail)**:
-- Backend: `anymail.backends.sendgrid.EmailBackend`
-- API Key: Set `SENDGRID_API_KEY` environment variable
-- From address: Set `DJANGO_DEFAULT_FROM_EMAIL`
-
-**Email Templates**:
-- Location: `backend/apps/templates/email/`
-- Format: Both HTML and plain text versions
-- Context: Django template variables (user, otp_code, year, etc.)
-
-**Sending Emails**:
-
-```python
-# Via Celery task (recommended - async)
-from apps.users.tasks import send_otp_email
-send_otp_email.delay(user_id, otp_code)
-
-# Direct send (synchronous - use for testing only)
-from django.core.mail import send_mail
-send_mail(
-    'Subject',
-    'Message body',
-    'from@example.com',
-    ['to@example.com'],
-)
-```
-
-**Viewing Test Emails**:
-1. Run services: `docker compose up`
-2. Trigger email (e.g., register user)
-3. Open Mailpit UI: http://localhost:8025
-4. View rendered HTML and plain text versions
-
-**Email Task Tests**:
-```bash
-docker compose run --rm django pytest apps/users/tests/test_tasks.py -v
-```
-
-## Deployment Considerations
-
-- Production settings in `config/settings/production.py`
-- Static files: Collected via `collectstatic`, served via CDN/S3 (django-storages)
-- ASGI server: Uvicorn (configured in docker-compose)
-- Environment: Set `DJANGO_SETTINGS_MODULE=config.settings.production`
 
 ## Important Notes
 
-1. **Monorepo Structure**: Backend and frontend separated at root level
-   - `backend/` - All Django/Python code (apps, config, manage.py, dependencies)
-   - `frontend/` - All Vue.js/TypeScript code
-   - Root - Infrastructure files (docker-compose, .envs, docs)
-
-2. **API-Only Backend**: Django serves only API endpoints and admin interface
-   - No django-crispy-forms, no django-allauth, no template-based views
-   - Templates directory (`backend/apps/templates/`) used ONLY for email templates
-   - All user-facing UI handled by Vue.js frontend at `http://localhost:5173`
-
-3. **Python Package Management**: This project uses `uv` (not pip/poetry)
-   - Dependencies in `backend/pyproject.toml` under `[project.dependencies]` or `[dependency-groups.dev]`
+1. **Python Package Management**: This project uses `uv` (not pip/poetry)
+   - Dependencies in `backend/pyproject.toml` under `[project.dependencies]`
    - Lock file: `backend/uv.lock`
-   - Sync: `docker compose build` after modifying `pyproject.toml`
 
-4. **Custom User Model**: Authentication uses `apps.users.User` (email-based, no username field)
-   - API-only authentication with DRF Token Authentication
-   - No django-allauth or template-based auth flows
-   - Authentication handled entirely through API endpoints
+2. **Email Templates**: Django templates in `backend/apps/templates/email/`
+   - Used for transactional emails (password reset, OTP verification, etc.)
+   - Sent via django-anymail (SendGrid) or Mailpit (local)
+   - See EMAIL_SETUP.md for complete configuration
 
-5. **Email Templates**: Django templates in `backend/apps/templates/email/`
-   - Used for transactional emails (password reset, notifications, etc.)
-   - Sent via django-anymail (SendGrid configured)
-   - NOT for user-facing web pages
+3. **Authentication**: API-only (no session-based auth, no django-allauth)
+   - Backend: DRF TokenAuthentication + JWT
+   - Frontend handles all auth UI (login, signup, OTP verification)
 
-6. **API Versioning**: Endpoints prefixed with `/api/v1/` (configured in `SPECTACULAR_SETTINGS`)
+4. **Generated API Client**: Never manually edit `frontend/src/api/`
+   - Regenerate after backend changes: `npm run generate:api`
 
-7. **UUID Primary Keys**: Example `Project` model uses UUIDs for primary keys (better for APIs)
+5. **Shadcn-vue Components**: Copy-paste, not npm package
+   - Add new: `docker compose run --rm frontend npx shadcn-vue@latest add <component>`
+   - Components in `frontend/src/components/ui/` - customize freely
 
-8. **DRF Spectacular**: Auto-generates OpenAPI schema with proper enum handling
-   - Enum mappings in `SPECTACULAR_SETTINGS['ENUM_NAME_OVERRIDES']`
-   - Schema endpoint: `/api/schema/`
+6. **Dark Mode**: VueUse `useDark()` composable with localStorage persistence
 
-9. **CORS**: Configured for `/api/.*` endpoints via `django-cors-headers`
+7. **Centralized Constants**: `frontend/src/constants/projects.ts`
+   - Maps Django enums (StatusEnum, PriorityEnum) to UI
+   - Single source of truth for status/priority labels and badge variants
 
-10. **Authentication**: API-only authentication
-   - Backend: DRF TokenAuthentication (obtain token via `/api/auth-token/`)
-   - No session-based auth, no django-allauth, no template-based login
-   - Frontend handles all auth UI (login, signup, password reset)
-   - Consider implementing JWT for token refresh (djangorestframework-simplejwt)
+## File Organization Triggers (MANDATORY)
 
-## Useful Commands Quick Reference
+- File approaching 500 lines → Split immediately
+- Component has >3 responsibilities → Extract sub-components
+- Module has 3+ related views → Create feature module
+- Logic used by 3+ modules → Move to `shared/`
 
-```bash
-# Start everything (includes frontend Vite dev server)
-docker compose up
+## That's It!
 
-# View logs
-docker compose logs -f django
-docker compose logs -f frontend
+You now know:
+- ✅ What this project is
+- ✅ Non-negotiable rules (TDD, types, organization)
+- ✅ How to start the stack
+- ✅ Critical gotchas (ATOMIC_REQUESTS, SDK errors)
+- ✅ Where to find detailed docs
 
-# Django commands (run from backend/ directory in container)
-docker compose run --rm django python manage.py makemigrations
-docker compose run --rm django python manage.py migrate
-docker compose run --rm django python manage.py createsuperuser
-docker compose run --rm django python manage.py shell
-docker compose run --rm django pytest
+**Detailed docs**:
+- **ARCHITECTURE.md** - Structure, patterns, components
+- **DEV_WORKFLOW.md** - Commands, workflows, troubleshooting
+- **EMAIL_SETUP.md** - Email configuration (Mailpit, SendGrid)
+- **DEBUG_DOGMA.md** - Debugging patterns and lessons
 
-# Frontend commands (via Docker - recommended)
-docker compose run --rm frontend npm run type-check
-docker compose run --rm frontend npm run build
-docker compose run --rm frontend npm run generate:api  # Regenerate TS client
-docker compose run --rm frontend npm install <package>
-
-# Frontend commands (on host - faster for iteration)
-cd frontend
-npm run type-check    # Fast TypeScript checking
-npm run generate:api  # Requires Django running on :8000
-
-# Code quality
-pre-commit run --all-files
-docker compose run --rm django ruff check apps/
-docker compose run --rm django mypy apps/
-
-# Rebuild after dependency changes
-docker compose build django    # After updating pyproject.toml
-docker compose build frontend  # After updating package.json
-```
-
-## Common Workflows
-
-### Adding a New Django Model
-
-1. Define model in `backend/apps/<app>/models.py`
-2. Create serializer in `backend/apps/<app>/api/serializers.py`
-3. Create ViewSet in `backend/apps/<app>/api/views.py`
-4. Register ViewSet in `backend/config/api_router.py`
-5. Create and run migrations:
-   ```bash
-   docker compose run --rm django python manage.py makemigrations
-   docker compose run --rm django python manage.py migrate
-   ```
-6. Regenerate frontend types:
-   ```bash
-   docker compose run --rm frontend npm run generate:api
-   ```
-7. Create composable in `frontend/src/composables/use<Model>.ts`
-
-### Adding Frontend Dependencies
-
-```bash
-# Install package
-docker compose run --rm frontend npm install <package>
-
-# Rebuild container to persist
-docker compose build frontend
-
-# Restart service
-docker compose restart frontend
-```
+Now go build something! 🚀

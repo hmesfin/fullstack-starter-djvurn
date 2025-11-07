@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 // Emits
 const emit = defineEmits<{
   success: []
+  emailVerificationRequired: [email: string]
 }>()
 
 // Composables
@@ -57,6 +58,13 @@ async function handleSubmit(): Promise<void> {
     // Emit success event to parent
     emit('success')
   } else if (loginError.value?.details) {
+    // Check if email verification is required
+    if ('email_verification_required' in loginError.value.details) {
+      // Email verification required - emit event with email
+      emit('emailVerificationRequired', formData.value.email)
+      return
+    }
+
     // Map API errors to field errors
     for (const [field, messages] of Object.entries(loginError.value.details)) {
       fieldErrors.value[field] = messages[0] ?? 'Invalid value'

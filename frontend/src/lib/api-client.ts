@@ -85,6 +85,8 @@ const config = createConfig<ClientOptions>({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Throw errors on any non-2xx status code
+  validateStatus: (status) => status >= 200 && status < 300,
 })
 
 // Create configured client

@@ -99,12 +99,17 @@ export function useAuth() {
     isRegistering.value = true
 
     try {
-      const { data } = await apiAuthRegisterCreate({
+      const response = await apiAuthRegisterCreate({
         client: apiClient,
         body: credentials,
       })
 
-      return { success: true, email: data?.email }
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response // Throw the entire response which is an AxiosError
+      }
+
+      return { success: true, email: response.data?.email }
     } catch (error) {
       registerError.value = parseError(error)
       return { success: false }
@@ -123,10 +128,15 @@ export function useAuth() {
     isVerifyingOTP.value = true
 
     try {
-      await apiAuthVerifyOtpCreate({
+      const response = await apiAuthVerifyOtpCreate({
         client: apiClient,
         body: verification,
       })
+
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response // Throw the entire response which is an AxiosError
+      }
 
       return { success: true }
     } catch (error) {
@@ -148,10 +158,17 @@ export function useAuth() {
     authStore.setLoading(true)
 
     try {
-      const { data } = await apiAuthTokenCreate({
+      const response = await apiAuthTokenCreate({
         client: apiClient,
         body: credentials,
       })
+
+      // Check if the SDK returned an error object instead of throwing it
+      if (response && 'error' in response && response.error) {
+        throw response // Throw the entire response which is an AxiosError
+      }
+
+      const { data } = response
 
       if (!data || !('access' in data) || !('refresh' in data)) {
         throw new Error('No tokens received from server')

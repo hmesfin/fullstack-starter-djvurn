@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils.decorators import method_decorator
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
@@ -17,6 +19,7 @@ from apps.users.models import User
 
 from .serializers import EmailTokenObtainPairSerializer
 from .serializers import OTPVerificationSerializer
+from .serializers import ResendOTPSerializer
 from .serializers import UserRegistrationSerializer
 from .serializers import UserSerializer
 
@@ -98,6 +101,63 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
     serializer_class = EmailTokenObtainPairSerializer
 
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        """Disable automatic transaction wrapping to handle OTP creation manually."""
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """Override to handle OTP creation outside transaction when email unverified."""
+        from rest_framework.exceptions import ValidationError as DRFValidationError
+        from apps.users.models import EmailVerificationOTP, User
+
+        # Wrap the parent call in a transaction so successful logins are atomic
+        try:
+            with transaction.atomic():
+                return super().post(request, *args, **kwargs)
+        except DRFValidationError as e:
+            # Transaction rolled back, now we can create OTP outside it
+            # Check if this is an email verification required error
+            if hasattr(e, 'detail') and isinstance(e.detail, dict):
+                if 'email_verification_required' in e.detail:
+                    # Get user email from request
+                    email = request.data.get('email', '').lower()
+
+                    # Create OTP in a separate transaction (now outside the rolled-back one)
+                    try:
+                        user = User.objects.get(email=email)
+
+                        with transaction.atomic():
+                            otp = EmailVerificationOTP.create_for_user(user)
+
+                            # Send email
+                            from apps.users.tasks import send_otp_email
+                            send_otp_email.delay(user.id, otp.code)
+
+                    except User.DoesNotExist:
+                        pass
+
+            # Re-raise the validation error to return proper 400 response
+            raise
+
 
 class EmailTokenRefreshView(TokenRefreshView):
     """JWT token refresh view (uses default SimpleJWT behavior)."""
+
+
+class ResendOTPView(GenericAPIView):
+    """API endpoint for resending OTP verification email."""
+
+    serializer_class = ResendOTPSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Resend OTP code to user's email."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Verification code sent to your email."},
+            status=status.HTTP_200_OK,
+        )

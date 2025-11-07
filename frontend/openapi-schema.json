@@ -33,6 +33,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserRegistration'
           description: ''
+  /api/auth/resend-otp/:
+    post:
+      operationId: api_auth_resend_otp_create
+      description: Resend OTP code to user's email.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendOTP'
+          description: ''
   /api/auth/token/:
     post:
       operationId: api_auth_token_create
@@ -689,6 +718,25 @@ components:
           nullable: true
       required:
       - name
+    ResendOTP:
+      type: object
+      description: Serializer for resending OTP to unverified email.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    ResendOTPRequest:
+      type: object
+      description: Serializer for resending OTP to unverified email.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
     StatusEnum:
       enum:
       - draft

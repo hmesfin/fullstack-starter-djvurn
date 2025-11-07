@@ -109,6 +109,20 @@ export type ProjectRequest = {
 };
 
 /**
+ * Serializer for resending OTP to unverified email.
+ */
+export type ResendOtp = {
+    email: string;
+};
+
+/**
+ * Serializer for resending OTP to unverified email.
+ */
+export type ResendOtpRequest = {
+    email: string;
+};
+
+/**
  * * `draft` - Draft
  * * `active` - Active
  * * `completed` - Completed
@@ -232,6 +246,19 @@ export type ApiAuthRegisterCreateResponses = {
 };
 
 export type ApiAuthRegisterCreateResponse = ApiAuthRegisterCreateResponses[keyof ApiAuthRegisterCreateResponses];
+
+export type ApiAuthResendOtpCreateData = {
+    body: ResendOtpRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/resend-otp/';
+};
+
+export type ApiAuthResendOtpCreateResponses = {
+    200: ResendOtp;
+};
+
+export type ApiAuthResendOtpCreateResponse = ApiAuthResendOtpCreateResponses[keyof ApiAuthResendOtpCreateResponses];
 
 export type ApiAuthTokenCreateData = {
     body: EmailTokenObtainPairRequest;

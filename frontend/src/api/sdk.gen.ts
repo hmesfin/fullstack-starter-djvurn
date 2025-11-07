@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthResendOtpCreateData, ApiAuthResendOtpCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -36,6 +36,32 @@ export const apiAuthRegisterCreate = <ThrowOnError extends boolean = false>(opti
             }
         ],
         url: '/api/auth/register/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Resend OTP code to user's email.
+ */
+export const apiAuthResendOtpCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthResendOtpCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthResendOtpCreateResponses, unknown, ThrowOnError>({
+        responseType: 'json',
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/resend-otp/',
         ...options,
         headers: {
             'Content-Type': 'application/json',
