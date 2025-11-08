@@ -138,6 +138,200 @@ sequenceDiagram
 ```
 ```
 
+### 2.4 Platform-Specific Feature Selection
+
+**Problem**: Mobile apps rarely have 1:1 feature parity with web. Often you have 10 web features but only need 3 in mobile.
+
+**Solution**: Enhanced discovery flow with selective feature planning per platform.
+
+#### Discovery Questions
+
+After gathering all features, ask:
+
+```
+Mobile requirements?
+  [1] Web only (no mobile app)
+  [2] Mobile with full feature parity (all web features in mobile)
+  [3] Mobile with selective features (choose which features)
+  [4] Mobile-first (mobile is primary, web is secondary)
+```
+
+If user selects **[3] Mobile with selective features**:
+
+```
+You mentioned these features for web:
+  - Product catalog
+  - Shopping cart
+  - Checkout
+  - Order management
+  - Admin dashboard
+  - Analytics
+  - Inventory management
+  - Bulk upload
+  - Customer support chat
+  - Email campaigns
+
+Which features do you need in mobile app? (multi-select)
+  [✓] Product catalog
+  [✓] Shopping cart
+  [✓] Checkout
+  [✓] Order tracking
+  [ ] Admin dashboard
+  [ ] Analytics
+  [ ] Inventory management
+  [ ] Bulk upload
+  [ ] Customer support chat
+  [ ] Email campaigns
+
+Any mobile-specific features not in web? (multi-select)
+  [✓] Push notifications (order updates)
+  [✓] Biometric login (Face ID / fingerprint)
+  [✓] Offline mode (browse cached products)
+  [ ] Camera (scan barcodes)
+  [ ] Geolocation (nearby stores)
+  [ ] Background sync
+  [ ] Share extensions
+```
+
+#### Requirements Generation Enhancements
+
+**Platform Feature Matrix** (added to `REQUIREMENTS.md`):
+
+```markdown
+## Platform Feature Matrix
+
+| Feature | Web | Mobile | Implementation Notes |
+|---------|-----|--------|---------------------|
+| Product catalog | ✅ | ✅ | Same API, different UI (grid vs infinite scroll) |
+| Shopping cart | ✅ | ✅ | Web: full page, Mobile: bottom sheet |
+| Checkout | ✅ | ✅ | Web: multi-step form, Mobile: single-page flow |
+| Order tracking | ✅ | ✅ | Mobile adds push notifications |
+| Admin dashboard | ✅ | ❌ | Web only - complex UI, desktop workflow |
+| Analytics | ✅ | ❌ | Web only - data visualization, desktop workflow |
+| Inventory management | ✅ | ❌ | Web only - bulk operations |
+| Bulk upload | ✅ | ❌ | Web only - file handling, desktop workflow |
+| Customer support chat | ✅ | ❌ | Web only - multi-window support needed |
+| Email campaigns | ✅ | ❌ | Web only - rich text editor, desktop workflow |
+| Push notifications | ❌ | ✅ | Mobile only - FCM/APNS |
+| Biometric login | ❌ | ✅ | Mobile only - Face ID/Touch ID |
+| Offline mode | ❌ | ✅ | Mobile only - AsyncStorage/WatermelonDB |
+
+### Mobile-Specific Considerations
+
+#### Features Included in Mobile (4 core + 3 mobile-specific)
+
+**Core Features (from web):**
+1. **Product Catalog**
+   - UI: Simplified grid view with infinite scroll
+   - Offline: Cache last 50 products in AsyncStorage
+   - Search: Basic text search (no advanced filters)
+
+2. **Shopping Cart**
+   - UI: Bottom sheet (vs full page on web)
+   - Actions: Swipe-to-remove items
+   - Persistence: AsyncStorage (survives app restart)
+
+3. **Checkout**
+   - UI: Single-page flow (vs multi-step on web)
+   - Payment: Apple Pay/Google Pay integration
+   - Address: Autofill from device contacts
+
+4. **Order Tracking**
+   - UI: Timeline view with status updates
+   - Real-time: Push notifications on status changes
+   - Offline: Cache active orders
+
+**Mobile-Specific Features:**
+1. **Push Notifications**
+   - Order status updates (shipped, delivered)
+   - Promotional offers (optional, user can disable)
+   - Abandoned cart reminders
+   - Implementation: FCM (Android) + APNS (iOS)
+
+2. **Biometric Login**
+   - Face ID (iOS) / Face Unlock (Android)
+   - Touch ID / Fingerprint
+   - Fallback to PIN/password
+   - Implementation: expo-local-authentication
+
+3. **Offline Mode**
+   - Browse cached product catalog
+   - Add to cart while offline (syncs when online)
+   - View past orders
+   - Implementation: AsyncStorage + WatermelonDB + React Query
+
+#### Features Excluded from Mobile
+
+**Rationale for exclusions:**
+- **Admin Dashboard**: Complex UI, multi-tab workflows, desktop-oriented
+- **Analytics**: Data visualization, large tables, export functionality
+- **Inventory Management**: Bulk operations, spreadsheet-like UI
+- **Bulk Upload**: File handling, CSV parsing, desktop workflow
+- **Customer Support Chat**: Support team uses desktop, multi-window support
+- **Email Campaigns**: Rich text editor, template management, desktop workflow
+
+**User guidance**: "Use web app for these admin/management features"
+```
+
+#### Phase Task Generation Adjustments
+
+**`PHASE_3_MOBILE_APP.md`** generation logic:
+
+1. **Only generate sessions for selected mobile features**
+   - If "Admin dashboard" excluded → Skip admin UI sessions
+   - If "Analytics" excluded → Skip charts/reports sessions
+
+2. **Add mobile-specific sessions**
+   - Session X: Push Notifications (FCM/APNS setup, notification handling)
+   - Session Y: Biometric Authentication (expo-local-authentication, secure storage)
+   - Session Z: Offline Mode (AsyncStorage, WatermelonDB, sync strategies)
+
+3. **Document web vs mobile differences**
+   ```markdown
+   ## Session 1: Product Catalog (Mobile)
+
+   **Web Differences:**
+   - Web has 20 items per page with pagination
+   - Mobile uses infinite scroll (10 items per batch)
+   - Web has advanced filters (price range, categories, tags)
+   - Mobile has basic search only (performance on mobile networks)
+   - Web has grid/list toggle
+   - Mobile is grid-only (optimized for touch)
+   ```
+
+4. **API Reuse Documentation**
+   ```markdown
+   ### API Endpoints (Shared with Web)
+   - GET /api/products/ (same endpoint, mobile uses `?limit=10`)
+   - POST /api/cart/items/ (same endpoint)
+   - POST /api/orders/ (same endpoint)
+
+   ### Mobile-Specific API Endpoints
+   - POST /api/devices/register/ (FCM/APNS device tokens)
+   - POST /api/auth/biometric/ (biometric challenge/response)
+   - GET /api/products/offline/ (optimized payload for offline caching)
+   ```
+
+#### Example Output
+
+**E-commerce app with selective mobile features:**
+
+```
+Web: 10 features → 5 phases, 18 sessions
+Mobile: 4 features + 3 mobile-specific → 2 phases, 8 sessions
+
+Total: 26 sessions vs 35+ if full parity assumed
+Time savings: ~15-20 hours
+```
+
+#### Benefits
+
+1. **Realistic Planning**: Plans match real-world mobile app scopes
+2. **Reduced Complexity**: Don't build features mobile users won't use
+3. **Faster Time-to-Market**: Focus mobile dev on core user workflows
+4. **Clear Scope**: Team knows exactly what's in/out for mobile
+5. **API Efficiency**: Documents which endpoints are shared vs platform-specific
+
 ---
 
 ## Phase 3: Agent Integration (Future)
@@ -280,26 +474,41 @@ Identifies potential issues:
 
 ## Timeline
 
-### Week 1: Rename & Rebrand
-- Rename files
-- Update documentation
-- Deprecate old command
+### Week 1: Rename & Rebrand ✅ COMPLETED
+- ✅ Rename files (scaffold-app.md → plan-app.md)
+- ✅ Update documentation (all references updated)
+- ✅ Philosophy shift to planning-first
+- ✅ Created transformation roadmap
 
-### Week 2-3: Templates
-- Create 5 app templates
-- Test template customization flow
-- Document template usage
+### Week 2-4: Enhanced Planning Capabilities
+- **Week 2**: Pre-built app templates (5 templates)
+  - Blog Platform template
+  - E-Commerce Store template
+  - SaaS Multi-Tenant template
+  - Social Network template
+  - Project Management template
+  - Template selection flow implementation
 
-### Week 4: Visual Enhancements
-- Add Mermaid diagrams to generated plans
-- Add workflow visualizations
-- Test rendering in markdown viewers
+- **Week 3**: Platform-Specific Feature Selection
+  - Implement multi-select feature discovery
+  - Platform Feature Matrix generation
+  - Mobile-specific vs web-specific logic
+  - API reuse documentation
+  - Web vs mobile workflow differences
+
+- **Week 4**: Visual Enhancements
+  - Mermaid ERD diagrams for data models
+  - Sequence diagrams for workflows
+  - Dependency graphs for sessions
+  - Test rendering in markdown viewers
 
 ### Future: Agent Integration
 - Design agent architecture
 - Implement backend-builder agent
 - Implement frontend-builder agent
+- Implement mobile-builder agent
 - Test agent execution
+- Human-in-the-loop workflows
 
 ---
 
