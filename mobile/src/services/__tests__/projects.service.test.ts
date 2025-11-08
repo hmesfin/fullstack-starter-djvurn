@@ -1,13 +1,15 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { projectsService } from '../projects.service';
 import { apiClient } from '../api-client';
 import type { ProjectRequest, Project, StatusEnum, PriorityEnum } from '@/api/types.gen';
 
 // Mock the API client
-jest.mock('../api-client');
+vi.mock('../api-client');
 
 describe('projectsService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('list', () => {
@@ -35,7 +37,7 @@ describe('projectsService', () => {
         ],
       };
 
-      (apiClient.get as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await projectsService.list();
 
@@ -47,7 +49,7 @@ describe('projectsService', () => {
     it('should return empty array when no projects exist', async () => {
       const mockResponse = { data: [] };
 
-      (apiClient.get as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await projectsService.list();
 
@@ -69,7 +71,7 @@ describe('projectsService', () => {
 
       const mockResponse = { data: mockProject };
 
-      (apiClient.get as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await projectsService.get('uuid-1');
 
@@ -85,7 +87,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.get as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.get as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(projectsService.get('non-existent')).rejects.toEqual(mockError);
     });
@@ -109,7 +111,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await projectsService.create(mockRequest);
 
@@ -132,7 +134,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(projectsService.create(mockRequest)).rejects.toEqual(mockError);
     });
@@ -158,7 +160,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.put as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.put as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await projectsService.update(projectId, mockRequest);
 
@@ -181,7 +183,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.put as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.put as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(projectsService.update('non-existent', mockRequest)).rejects.toEqual(
         mockError
@@ -193,7 +195,7 @@ describe('projectsService', () => {
     it('should delete a project', async () => {
       const projectId = 'uuid-1';
 
-      (apiClient.delete as jest.Mock).mockResolvedValueOnce({ status: 204 });
+      (apiClient.delete as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ status: 204 });
 
       await projectsService.delete(projectId);
 
@@ -208,7 +210,7 @@ describe('projectsService', () => {
         },
       };
 
-      (apiClient.delete as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.delete as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(projectsService.delete('non-existent')).rejects.toEqual(mockError);
     });

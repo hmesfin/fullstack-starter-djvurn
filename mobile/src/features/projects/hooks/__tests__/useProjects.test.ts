@@ -1,16 +1,18 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for useProjects query hook
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import * as projectsService from '@/services/projects.service'
 import { useProjects } from '../useProjects'
 
 // Mock the projects service
-jest.mock('@/services/projects.service')
+vi.mock('@/services/projects.service')
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -29,7 +31,7 @@ function createWrapper() {
 
 describe('useProjects', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should fetch projects list successfully', async () => {
@@ -56,7 +58,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -76,7 +78,7 @@ describe('useProjects', () => {
   })
 
   it('should handle empty projects list', async () => {
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue([])
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue([])
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -89,7 +91,7 @@ describe('useProjects', () => {
 
   it('should handle fetch errors gracefully', async () => {
     const mockError = new Error('Network error')
-    ;(projectsService.listProjects as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.listProjects).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -112,7 +114,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -146,7 +148,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -173,7 +175,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -205,7 +207,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;(projectsService.listProjects as jest.Mock).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),

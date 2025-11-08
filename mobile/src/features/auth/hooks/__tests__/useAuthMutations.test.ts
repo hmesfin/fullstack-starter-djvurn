@@ -1,9 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for authentication mutation hooks
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -11,12 +13,7 @@ import * as authService from '@/services/auth.service'
 import { useLogin, useRegister, useVerifyOTP, useResendOTP } from '../useAuthMutations'
 
 // Mock the auth service
-jest.mock('@/services/auth.service')
-
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-)
+vi.mock('@/services/auth.service')
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -35,7 +32,7 @@ function createWrapper() {
 
 describe('useLogin', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     AsyncStorage.clear()
   })
 
@@ -51,7 +48,7 @@ describe('useLogin', () => {
       },
     }
 
-    ;(authService.login as jest.Mock).mockResolvedValue(mockResponse)
+    ;vi.mocked(authService.login).mockResolvedValue(mockResponse)
 
     const { result } = renderHook(() => useLogin(), {
       wrapper: createWrapper(),
@@ -78,7 +75,7 @@ describe('useLogin', () => {
 
   it('should handle login errors', async () => {
     const mockError = new Error('Invalid credentials')
-    ;(authService.login as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(authService.login).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useLogin(), {
       wrapper: createWrapper(),
@@ -95,7 +92,7 @@ describe('useLogin', () => {
   })
 
   it('should set loading state during mutation', async () => {
-    ;(authService.login as jest.Mock).mockImplementation(
+    ;vi.mocked(authService.login).mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(
@@ -131,7 +128,7 @@ describe('useLogin', () => {
 
 describe('useRegister', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     AsyncStorage.clear()
   })
 
@@ -141,7 +138,7 @@ describe('useRegister', () => {
       message: 'OTP sent to your email',
     }
 
-    ;(authService.register as jest.Mock).mockResolvedValue(mockResponse)
+    ;vi.mocked(authService.register).mockResolvedValue(mockResponse)
 
     const { result } = renderHook(() => useRegister(), {
       wrapper: createWrapper(),
@@ -168,7 +165,7 @@ describe('useRegister', () => {
 
   it('should handle registration errors', async () => {
     const mockError = new Error('Email already exists')
-    ;(authService.register as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(authService.register).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useRegister(), {
       wrapper: createWrapper(),
@@ -189,7 +186,7 @@ describe('useRegister', () => {
 
 describe('useVerifyOTP', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     AsyncStorage.clear()
   })
 
@@ -205,7 +202,7 @@ describe('useVerifyOTP', () => {
       },
     }
 
-    ;(authService.verifyOTP as jest.Mock).mockResolvedValue(mockResponse)
+    ;vi.mocked(authService.verifyOTP).mockResolvedValue(mockResponse)
 
     const { result } = renderHook(() => useVerifyOTP(), {
       wrapper: createWrapper(),
@@ -228,7 +225,7 @@ describe('useVerifyOTP', () => {
 
   it('should handle invalid OTP errors', async () => {
     const mockError = new Error('Invalid or expired OTP')
-    ;(authService.verifyOTP as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(authService.verifyOTP).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useVerifyOTP(), {
       wrapper: createWrapper(),
@@ -247,7 +244,7 @@ describe('useVerifyOTP', () => {
 
 describe('useResendOTP', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     AsyncStorage.clear()
   })
 
@@ -256,7 +253,7 @@ describe('useResendOTP', () => {
       message: 'OTP sent successfully',
     }
 
-    ;(authService.resendOTP as jest.Mock).mockResolvedValue(mockResponse)
+    ;vi.mocked(authService.resendOTP).mockResolvedValue(mockResponse)
 
     const { result } = renderHook(() => useResendOTP(), {
       wrapper: createWrapper(),
@@ -277,7 +274,7 @@ describe('useResendOTP', () => {
 
   it('should handle resend OTP errors', async () => {
     const mockError = new Error('Rate limit exceeded')
-    ;(authService.resendOTP as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(authService.resendOTP).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useResendOTP(), {
       wrapper: createWrapper(),

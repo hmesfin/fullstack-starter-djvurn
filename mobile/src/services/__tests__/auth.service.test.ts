@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { authService } from '../auth.service';
 import { apiClient } from '../api-client';
 import type {
@@ -8,11 +10,11 @@ import type {
 } from '@/api/types.gen';
 
 // Mock the API client
-jest.mock('../api-client');
+vi.mock('../api-client');
 
 describe('authService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('register', () => {
@@ -34,7 +36,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.register(mockRequest);
 
@@ -56,7 +58,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(authService.register(mockRequest)).rejects.toEqual(mockError);
     });
@@ -76,7 +78,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.login(mockRequest);
 
@@ -97,7 +99,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(authService.login(mockRequest)).rejects.toEqual(mockError);
     });
@@ -116,7 +118,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.verifyOTP(mockRequest);
 
@@ -137,7 +139,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockRejectedValueOnce(mockError);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(mockError);
 
       await expect(authService.verifyOTP(mockRequest)).rejects.toEqual(mockError);
     });
@@ -155,7 +157,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.resendOTP(mockRequest);
 
@@ -174,7 +176,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.refreshToken(refreshToken);
 
@@ -197,7 +199,7 @@ describe('authService', () => {
         },
       };
 
-      (apiClient.get as jest.Mock).mockResolvedValueOnce(mockResponse);
+      (apiClient.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
 
       const result = await authService.getMe();
 

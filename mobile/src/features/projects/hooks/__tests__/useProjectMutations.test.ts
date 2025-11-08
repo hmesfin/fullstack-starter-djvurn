@@ -1,9 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for project mutation hooks (create, update, delete)
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import * as projectsService from '@/services/projects.service'
@@ -16,7 +18,7 @@ import {
 } from '../useProjectMutations'
 
 // Mock the projects service
-jest.mock('@/services/projects.service')
+vi.mock('@/services/projects.service')
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -35,7 +37,7 @@ function createWrapper() {
 
 describe('useCreateProject', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should create a new project successfully', async () => {
@@ -54,7 +56,7 @@ describe('useCreateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;(projectsService.createProject as jest.Mock).mockResolvedValue(createdProject)
+    ;vi.mocked(projectsService.createProject).mockResolvedValue(createdProject)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useCreateProject(), { wrapper })
@@ -88,7 +90,7 @@ describe('useCreateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;(projectsService.createProject as jest.Mock).mockResolvedValue(createdProject)
+    ;vi.mocked(projectsService.createProject).mockResolvedValue(createdProject)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -109,7 +111,7 @@ describe('useCreateProject', () => {
 
   it('should handle creation errors', async () => {
     const mockError = new Error('Validation error')
-    ;(projectsService.createProject as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.createProject).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useCreateProject(), { wrapper })
@@ -129,7 +131,7 @@ describe('useCreateProject', () => {
 
 describe('useUpdateProject', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should update an existing project successfully', async () => {
@@ -148,7 +150,7 @@ describe('useUpdateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;(projectsService.updateProject as jest.Mock).mockResolvedValue(updatedProject)
+    ;vi.mocked(projectsService.updateProject).mockResolvedValue(updatedProject)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
@@ -182,7 +184,7 @@ describe('useUpdateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;(projectsService.updateProject as jest.Mock).mockResolvedValue(updatedProject)
+    ;vi.mocked(projectsService.updateProject).mockResolvedValue(updatedProject)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -206,7 +208,7 @@ describe('useUpdateProject', () => {
 
   it('should handle update errors', async () => {
     const mockError = new Error('Project not found')
-    ;(projectsService.updateProject as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.updateProject).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
@@ -227,11 +229,11 @@ describe('useUpdateProject', () => {
 
 describe('useDeleteProject', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should delete a project successfully', async () => {
-    ;(projectsService.deleteProject as jest.Mock).mockResolvedValue(undefined)
+    ;vi.mocked(projectsService.deleteProject).mockResolvedValue(undefined)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
@@ -247,7 +249,7 @@ describe('useDeleteProject', () => {
   })
 
   it('should invalidate projects list cache after deletion', async () => {
-    ;(projectsService.deleteProject as jest.Mock).mockResolvedValue(undefined)
+    ;vi.mocked(projectsService.deleteProject).mockResolvedValue(undefined)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -270,7 +272,7 @@ describe('useDeleteProject', () => {
 
   it('should handle deletion errors', async () => {
     const mockError = new Error('Permission denied')
-    ;(projectsService.deleteProject as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.deleteProject).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
@@ -283,7 +285,7 @@ describe('useDeleteProject', () => {
   })
 
   it('should provide loading state during deletion', async () => {
-    ;(projectsService.deleteProject as jest.Mock).mockImplementation(
+    ;vi.mocked(projectsService.deleteProject).mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(undefined), 100))
     )
 

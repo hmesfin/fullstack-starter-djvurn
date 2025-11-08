@@ -1,32 +1,17 @@
-import { Platform } from 'react-native';
-import { API_BASE_URL, API_TIMEOUT, TOKEN_STORAGE_KEYS, API_ENDPOINTS } from '../api';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-// Mock Platform.select
-jest.mock('react-native', () => ({
-  Platform: {
-    select: jest.fn(),
-  },
-}));
+import { API_BASE_URL, API_TIMEOUT, TOKEN_STORAGE_KEYS, API_ENDPOINTS } from '../api';
 
 describe('API Configuration', () => {
   describe('API_BASE_URL', () => {
-    it('should use 10.0.2.2 for Android in development', () => {
-      // Mock Platform.select to return Android URL
-      (Platform.select as jest.Mock).mockReturnValue('http://10.0.2.2:8000');
-
-      // Re-import to get fresh value with mocked Platform
-      const { API_BASE_URL: url } = jest.requireActual('../api');
-
-      expect(Platform.select).toHaveBeenCalled();
-      expect(url).toBe('http://10.0.2.2:8000');
+    it('should use ngrok URL in development', () => {
+      // In dev mode, API_BASE_URL should use ngrok tunnel
+      expect(API_BASE_URL).toContain('ngrok');
     });
 
-    it('should use localhost for iOS in development', () => {
-      (Platform.select as jest.Mock).mockReturnValue('http://localhost:8000');
-
-      const { API_BASE_URL: url } = jest.requireActual('../api');
-
-      expect(url).toBe('http://localhost:8000');
+    it('should be a valid URL', () => {
+      // API_BASE_URL should be a valid URL format
+      expect(API_BASE_URL).toMatch(/^https?:\/\/.+/);
     });
   });
 

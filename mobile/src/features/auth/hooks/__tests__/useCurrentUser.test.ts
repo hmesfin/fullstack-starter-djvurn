@@ -1,9 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for useCurrentUser query hook
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import * as authService from '@/services/auth.service'
@@ -11,10 +13,10 @@ import * as apiClient from '@/services/api-client'
 import { useCurrentUser } from '../useCurrentUser'
 
 // Mock the auth service
-jest.mock('@/services/auth.service')
+vi.mock('@/services/auth.service')
 
 // Mock the API client
-jest.mock('@/services/api-client')
+vi.mock('@/services/api-client')
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -33,7 +35,7 @@ function createWrapper() {
 
 describe('useCurrentUser', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should fetch current user when authenticated', async () => {
@@ -48,8 +50,8 @@ describe('useCurrentUser', () => {
       date_joined: '2024-01-01T00:00:00Z',
     }
 
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue('mock-token')
-    ;(authService.getMe as jest.Mock).mockResolvedValue(mockUser)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token')
+    ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),
@@ -69,7 +71,7 @@ describe('useCurrentUser', () => {
   })
 
   it('should not fetch when no auth token exists', async () => {
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue(null)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue(null)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),
@@ -91,8 +93,8 @@ describe('useCurrentUser', () => {
 
   it('should handle fetch errors gracefully', async () => {
     const mockError = new Error('Unauthorized')
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue('mock-token')
-    ;(authService.getMe as jest.Mock).mockRejectedValue(mockError)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token')
+    ;vi.mocked(authService.getMe).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),
@@ -111,8 +113,8 @@ describe('useCurrentUser', () => {
       last_name: 'User',
     }
 
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue('mock-token')
-    ;(authService.getMe as jest.Mock).mockResolvedValue(mockUser)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token')
+    ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),
@@ -133,8 +135,8 @@ describe('useCurrentUser', () => {
       last_name: 'User',
     }
 
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue('mock-token')
-    ;(authService.getMe as jest.Mock).mockResolvedValue(mockUser)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token')
+    ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),
@@ -168,8 +170,8 @@ describe('useCurrentUser', () => {
       date_joined: '2024-01-01T00:00:00Z',
     }
 
-    ;(apiClient.getAuthToken as jest.Mock).mockResolvedValue('mock-token')
-    ;(authService.getMe as jest.Mock).mockResolvedValue(mockUser)
+    ;(apiClient.getAuthToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token')
+    ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),

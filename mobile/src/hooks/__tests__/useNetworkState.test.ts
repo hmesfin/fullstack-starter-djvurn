@@ -1,27 +1,29 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for network state management hook
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import NetInfo from '@react-native-community/netinfo'
 import { onlineManager } from '@tanstack/react-query'
 import { useNetworkState } from '../useNetworkState'
 
 // Mock NetInfo
-jest.mock('@react-native-community/netinfo')
+vi.mock('@react-native-community/netinfo')
 
 // Mock TanStack Query online manager
-jest.mock('@tanstack/react-query', () => ({
+vi.mock('@tanstack/react-query', () => ({
   onlineManager: {
-    setOnline: jest.fn(),
-    setEventListener: jest.fn(),
+    setOnline: vi.fn(),
+    setEventListener: vi.fn(),
   },
 }))
 
 describe('useNetworkState', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Hook Initialization', () => {
@@ -32,7 +34,7 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       const { result } = renderHook(() => useNetworkState())
 
@@ -48,7 +50,7 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       renderHook(() => useNetworkState())
 
@@ -72,11 +74,11 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(initialState)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(initialState)
       let listener: ((state: any) => void) | undefined
-      ;(NetInfo.addEventListener as jest.Mock).mockImplementation((callback: any) => {
+      ;(NetInfo.addEventListener as ReturnType<typeof vi.fn>).mockImplementation((callback: any) => {
         listener = callback
-        return jest.fn() // unsubscribe function
+        return vi.fn() // unsubscribe function
       })
 
       const { result } = renderHook(() => useNetworkState())
@@ -109,11 +111,11 @@ describe('useNetworkState', () => {
         type: 'none',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(initialState)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(initialState)
       let listener: ((state: any) => void) | undefined
-      ;(NetInfo.addEventListener as jest.Mock).mockImplementation((callback: any) => {
+      ;(NetInfo.addEventListener as ReturnType<typeof vi.fn>).mockImplementation((callback: any) => {
         listener = callback
-        return jest.fn() // unsubscribe function
+        return vi.fn() // unsubscribe function
       })
 
       const { result } = renderHook(() => useNetworkState())
@@ -142,7 +144,7 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       renderHook(() => useNetworkState())
 
@@ -158,7 +160,7 @@ describe('useNetworkState', () => {
         type: 'none',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       renderHook(() => useNetworkState())
 
@@ -174,7 +176,7 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       renderHook(() => useNetworkState())
 
@@ -186,9 +188,9 @@ describe('useNetworkState', () => {
 
   describe('Cleanup', () => {
     it('should unsubscribe from NetInfo on unmount', () => {
-      const unsubscribe = jest.fn()
-      ;(NetInfo.addEventListener as jest.Mock).mockReturnValue(unsubscribe)
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue({
+      const unsubscribe = vi.fn()
+      ;(NetInfo.addEventListener as ReturnType<typeof vi.fn>).mockReturnValue(unsubscribe)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         isConnected: true,
         isInternetReachable: true,
         type: 'wifi',
@@ -210,7 +212,7 @@ describe('useNetworkState', () => {
         type: 'wifi',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       const { result } = renderHook(() => useNetworkState())
 
@@ -226,7 +228,7 @@ describe('useNetworkState', () => {
         type: 'cellular',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       const { result } = renderHook(() => useNetworkState())
 
@@ -242,7 +244,7 @@ describe('useNetworkState', () => {
         type: 'none',
       }
 
-      ;(NetInfo.fetch as jest.Mock).mockResolvedValue(mockNetInfo)
+      ;(NetInfo.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockNetInfo)
 
       const { result } = renderHook(() => useNetworkState())
 

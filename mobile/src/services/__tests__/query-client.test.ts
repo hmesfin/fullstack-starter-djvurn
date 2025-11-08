@@ -3,14 +3,10 @@
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
+import { describe, it, expect, beforeEach } from 'vitest'
 import { QueryClient } from '@tanstack/react-query'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createQueryClient, queryClient } from '../query-client'
-
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-)
 
 describe('Query Client Configuration', () => {
   beforeEach(() => {

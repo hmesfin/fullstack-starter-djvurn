@@ -1,15 +1,17 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
+import { renderHook, act } from '@testing-library/react';
 import { useAppTheme } from '../useAppTheme';
 import { useThemeStore } from '@/stores/themeStore';
 import { lightTheme, darkTheme } from '@/theme';
 
 // Mock the theme store
-jest.mock('@/stores/themeStore');
-const mockUseThemeStore = useThemeStore as jest.MockedFunction<typeof useThemeStore>;
+vi.mock('@/stores/themeStore');
+const mockUseThemeStore = useThemeStore as vi.MockedFunction<typeof useThemeStore>;
 
 describe('useAppTheme', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('theme selection', () => {
@@ -18,9 +20,9 @@ describe('useAppTheme', () => {
         theme: 'light',
         isDark: false,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -33,9 +35,9 @@ describe('useAppTheme', () => {
         theme: 'dark',
         isDark: true,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -46,14 +48,14 @@ describe('useAppTheme', () => {
 
   describe('theme actions', () => {
     it('should expose setTheme function', () => {
-      const mockSetTheme = jest.fn();
+      const mockSetTheme = vi.fn();
       mockUseThemeStore.mockReturnValue({
         theme: 'light',
         isDark: false,
         isSystemTheme: false,
         setTheme: mockSetTheme,
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -62,14 +64,14 @@ describe('useAppTheme', () => {
     });
 
     it('should expose toggleTheme function', () => {
-      const mockToggleTheme = jest.fn();
+      const mockToggleTheme = vi.fn();
       mockUseThemeStore.mockReturnValue({
         theme: 'light',
         isDark: false,
         isSystemTheme: false,
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         toggleTheme: mockToggleTheme,
-        setSystemTheme: jest.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -78,13 +80,13 @@ describe('useAppTheme', () => {
     });
 
     it('should expose setSystemTheme function', () => {
-      const mockSetSystemTheme = jest.fn();
+      const mockSetSystemTheme = vi.fn();
       mockUseThemeStore.mockReturnValue({
         theme: 'light',
         isDark: false,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
         setSystemTheme: mockSetSystemTheme,
       } as any);
 
@@ -100,9 +102,9 @@ describe('useAppTheme', () => {
         theme: 'dark',
         isDark: true,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -115,9 +117,9 @@ describe('useAppTheme', () => {
         theme: 'light',
         isDark: false,
         isSystemTheme: true,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result } = renderHook(() => useAppTheme());
@@ -133,9 +135,9 @@ describe('useAppTheme', () => {
         theme: 'light',
         isDark: false,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       const { result, rerender } = renderHook(() => useAppTheme());
@@ -146,9 +148,9 @@ describe('useAppTheme', () => {
         theme: 'dark',
         isDark: true,
         isSystemTheme: false,
-        setTheme: jest.fn(),
-        toggleTheme: jest.fn(),
-        setSystemTheme: jest.fn(),
+        setTheme: vi.fn(),
+        toggleTheme: vi.fn(),
+        setSystemTheme: vi.fn(),
       } as any);
 
       rerender({});

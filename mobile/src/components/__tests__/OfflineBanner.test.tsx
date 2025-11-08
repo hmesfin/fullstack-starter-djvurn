@@ -1,15 +1,17 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react';
 import { OfflineBanner } from '../OfflineBanner';
 import * as NetInfo from '@react-native-community/netinfo';
 
 // Mock NetInfo
-jest.mock('@react-native-community/netinfo');
-const mockNetInfo = NetInfo as jest.Mocked<typeof NetInfo>;
+vi.mock('@react-native-community/netinfo');
+const mockNetInfo = NetInfo as vi.Mocked<typeof NetInfo>;
 
 describe('OfflineBanner', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('when online', () => {

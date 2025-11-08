@@ -1,13 +1,15 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, setAuthToken, clearAuthToken, getAuthToken } from '../api-client';
 import { API_BASE_URL, TOKEN_STORAGE_KEYS } from '@/config/api';
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage');
+vi.mock('@react-native-async-storage/async-storage');
 
 describe('API Client', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('apiClient configuration', () => {
@@ -40,7 +42,7 @@ describe('API Client', () => {
 
     it('should handle errors when storing token fails', async () => {
       const token = 'test-token';
-      (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(
+      (AsyncStorage.setItem as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error('Storage error')
       );
 
@@ -62,7 +64,7 @@ describe('API Client', () => {
     });
 
     it('should handle errors when removing token fails', async () => {
-      (AsyncStorage.removeItem as jest.Mock).mockRejectedValueOnce(
+      (AsyncStorage.removeItem as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error('Storage error')
       );
 
@@ -74,7 +76,7 @@ describe('API Client', () => {
   describe('getAuthToken', () => {
     it('should retrieve token from AsyncStorage', async () => {
       const expectedToken = 'stored-token';
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(expectedToken);
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(expectedToken);
 
       const token = await getAuthToken();
 
@@ -85,7 +87,7 @@ describe('API Client', () => {
     });
 
     it('should return null when no token is stored', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(null);
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
 
       const token = await getAuthToken();
 
@@ -93,7 +95,7 @@ describe('API Client', () => {
     });
 
     it('should return null when storage fails', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error('Storage error')
       );
 
@@ -106,7 +108,7 @@ describe('API Client', () => {
   describe('Request interceptor', () => {
     it('should add Authorization header from AsyncStorage if token exists', async () => {
       const token = 'stored-token';
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(token);
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(token);
 
       // Access request interceptor (it's at index 0)
       const interceptor = (apiClient.interceptors.request as any).handlers[0];
@@ -118,7 +120,7 @@ describe('API Client', () => {
     });
 
     it('should not add Authorization header if no token exists', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(null);
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
 
       const interceptor = (apiClient.interceptors.request as any).handlers[0];
       const config = { headers: {} };

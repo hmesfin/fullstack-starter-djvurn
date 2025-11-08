@@ -1,16 +1,18 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for useProject query hook (single project)
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native'
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import * as projectsService from '@/services/projects.service'
 import { useProject } from '../useProject'
 
 // Mock the projects service
-jest.mock('@/services/projects.service')
+vi.mock('@/services/projects.service')
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -29,7 +31,7 @@ function createWrapper() {
 
 describe('useProject', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should fetch single project by ID successfully', async () => {
@@ -44,7 +46,7 @@ describe('useProject', () => {
       updated_at: '2024-01-01T00:00:00Z',
     }
 
-    ;(projectsService.getProject as jest.Mock).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -65,7 +67,7 @@ describe('useProject', () => {
 
   it('should handle project not found error', async () => {
     const mockError = new Error('Project not found')
-    ;(projectsService.getProject as jest.Mock).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.getProject).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useProject(999), {
       wrapper: createWrapper(),
@@ -86,7 +88,7 @@ describe('useProject', () => {
       priority: 'high',
     }
 
-    ;(projectsService.getProject as jest.Mock).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -127,7 +129,7 @@ describe('useProject', () => {
       priority: 'low',
     }
 
-    ;(projectsService.getProject as jest.Mock)
+    ;vi.mocked(projectsService.getProject)
       .mockResolvedValueOnce(mockProject1)
       .mockResolvedValueOnce(mockProject2)
 
@@ -167,7 +169,7 @@ describe('useProject', () => {
       updated_at: '2024-01-01T00:00:00Z',
     }
 
-    ;(projectsService.getProject as jest.Mock).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -196,7 +198,7 @@ describe('useProject', () => {
       priority: 'high',
     }
 
-    ;(projectsService.getProject as jest.Mock).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),

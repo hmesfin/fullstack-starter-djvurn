@@ -1,16 +1,13 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 /**
  * Tests for authentication store (Zustand + AsyncStorage)
  * Following TDD: RED phase - these tests will fail until implementation exists
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { renderHook, act, waitFor } from '@testing-library/react-native'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useAuthStore } from '../authStore'
-
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-)
 
 describe('Auth Store', () => {
   beforeEach(async () => {

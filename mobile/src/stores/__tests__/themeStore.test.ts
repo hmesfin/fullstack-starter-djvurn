@@ -1,17 +1,19 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useThemeStore } from '../themeStore';
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
+vi.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
 }));
 
 describe('themeStore', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset store state
     useThemeStore.setState({
       theme: 'light',
@@ -206,7 +208,7 @@ describe('themeStore', () => {
 
   describe('persistence', () => {
     it('should load theme from AsyncStorage on mount', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
         JSON.stringify({ theme: 'dark', isSystemTheme: false })
       );
 
@@ -220,7 +222,7 @@ describe('themeStore', () => {
     });
 
     it('should handle missing AsyncStorage data gracefully', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(null);
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
 
       const { result } = renderHook(() => useThemeStore());
 
@@ -231,7 +233,7 @@ describe('themeStore', () => {
     });
 
     it('should handle corrupted AsyncStorage data gracefully', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('invalid json');
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockResolvedValueOnce('invalid json');
 
       const { result } = renderHook(() => useThemeStore());
 
@@ -242,7 +244,7 @@ describe('themeStore', () => {
     });
 
     it('should handle AsyncStorage errors gracefully', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(
+      (AsyncStorage.getItem as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error('Storage error')
       );
 
