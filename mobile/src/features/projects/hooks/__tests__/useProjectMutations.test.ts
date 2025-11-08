@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
-import * as projectsService from '@/services/projects.service'
+import { projectsService } from '@/services/projects.service'
 import { PROJECTS_QUERY_KEY } from '../useProjects'
 import { projectQueryKey } from '../useProject'
 import {
@@ -18,7 +18,15 @@ import {
 } from '../useProjectMutations'
 
 // Mock the projects service
-vi.mock('@/services/projects.service')
+vi.mock('@/services/projects.service', () => ({
+  projectsService: {
+    list: vi.fn(),
+    get: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -56,7 +64,7 @@ describe('useCreateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.createProject).mockResolvedValue(createdProject)
+    ;vi.mocked(projectsService.create).mockResolvedValue(createdProject)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useCreateProject(), { wrapper })
@@ -68,7 +76,7 @@ describe('useCreateProject', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called correctly
-    expect(projectsService.createProject).toHaveBeenCalledWith(newProject)
+    expect(projectsService.create).toHaveBeenCalledWith(newProject)
 
     // Verify data returned
     expect(result.current.data).toEqual(createdProject)
@@ -90,7 +98,7 @@ describe('useCreateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.createProject).mockResolvedValue(createdProject)
+    ;vi.mocked(projectsService.create).mockResolvedValue(createdProject)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -111,7 +119,7 @@ describe('useCreateProject', () => {
 
   it('should handle creation errors', async () => {
     const mockError = new Error('Validation error')
-    ;vi.mocked(projectsService.createProject).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.create).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useCreateProject(), { wrapper })
@@ -150,7 +158,7 @@ describe('useUpdateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.updateProject).mockResolvedValue(updatedProject)
+    ;vi.mocked(projectsService.update).mockResolvedValue(updatedProject)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
@@ -162,7 +170,7 @@ describe('useUpdateProject', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called correctly
-    expect(projectsService.updateProject).toHaveBeenCalledWith(updateData)
+    expect(projectsService.update).toHaveBeenCalledWith(updateData)
 
     // Verify data returned
     expect(result.current.data).toEqual(updatedProject)
@@ -184,7 +192,7 @@ describe('useUpdateProject', () => {
       updated_at: '2024-01-03T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.updateProject).mockResolvedValue(updatedProject)
+    ;vi.mocked(projectsService.update).mockResolvedValue(updatedProject)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -208,7 +216,7 @@ describe('useUpdateProject', () => {
 
   it('should handle update errors', async () => {
     const mockError = new Error('Project not found')
-    ;vi.mocked(projectsService.updateProject).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.update).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
@@ -233,7 +241,7 @@ describe('useDeleteProject', () => {
   })
 
   it('should delete a project successfully', async () => {
-    ;vi.mocked(projectsService.deleteProject).mockResolvedValue(undefined)
+    ;vi.mocked(projectsService.delete).mockResolvedValue(undefined)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
@@ -245,11 +253,11 @@ describe('useDeleteProject', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called correctly
-    expect(projectsService.deleteProject).toHaveBeenCalledWith(1)
+    expect(projectsService.delete).toHaveBeenCalledWith(1)
   })
 
   it('should invalidate projects list cache after deletion', async () => {
-    ;vi.mocked(projectsService.deleteProject).mockResolvedValue(undefined)
+    ;vi.mocked(projectsService.delete).mockResolvedValue(undefined)
 
     const { wrapper, queryClient } = createWrapper()
 
@@ -272,7 +280,7 @@ describe('useDeleteProject', () => {
 
   it('should handle deletion errors', async () => {
     const mockError = new Error('Permission denied')
-    ;vi.mocked(projectsService.deleteProject).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.delete).mockRejectedValue(mockError)
 
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
@@ -285,7 +293,7 @@ describe('useDeleteProject', () => {
   })
 
   it('should provide loading state during deletion', async () => {
-    ;vi.mocked(projectsService.deleteProject).mockImplementation(
+    ;vi.mocked(projectsService.delete).mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(undefined), 100))
     )
 

@@ -8,11 +8,19 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
-import * as projectsService from '@/services/projects.service'
+import { projectsService } from '@/services/projects.service'
 import { useProjects } from '../useProjects'
 
 // Mock the projects service
-vi.mock('@/services/projects.service')
+vi.mock('@/services/projects.service', () => ({
+  projectsService: {
+    list: vi.fn(),
+    get: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -58,7 +66,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -71,14 +79,14 @@ describe('useProjects', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called
-    expect(projectsService.listProjects).toHaveBeenCalled()
+    expect(projectsService.list).toHaveBeenCalled()
 
     // Verify data is correct
     expect(result.current.data).toEqual(mockProjects)
   })
 
   it('should handle empty projects list', async () => {
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue([])
+    ;vi.mocked(projectsService.list).mockResolvedValue([])
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -91,7 +99,7 @@ describe('useProjects', () => {
 
   it('should handle fetch errors gracefully', async () => {
     const mockError = new Error('Network error')
-    ;vi.mocked(projectsService.listProjects).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.list).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -114,7 +122,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -123,7 +131,7 @@ describe('useProjects', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // First call should fetch
-    expect(projectsService.listProjects).toHaveBeenCalledTimes(1)
+    expect(projectsService.list).toHaveBeenCalledTimes(1)
 
     // Second hook should use cache
     const { result: result2 } = renderHook(() => useProjects(), {
@@ -133,7 +141,7 @@ describe('useProjects', () => {
     await waitFor(() => expect(result2.current.isSuccess).toBe(true))
 
     // Should still be called only once (cached)
-    expect(projectsService.listProjects).toHaveBeenCalledTimes(1)
+    expect(projectsService.list).toHaveBeenCalledTimes(1)
   })
 
   it('should enable refetching on window focus', async () => {
@@ -148,7 +156,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -175,7 +183,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -207,7 +215,7 @@ describe('useProjects', () => {
       },
     ]
 
-    ;vi.mocked(projectsService.listProjects).mockResolvedValue(mockProjects)
+    ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
 
     const { result } = renderHook(() => useProjects(), {
       wrapper: createWrapper(),
@@ -223,7 +231,7 @@ describe('useProjects', () => {
 
     // Service should be called again
     await waitFor(() => {
-      expect(projectsService.listProjects).toHaveBeenCalledTimes(2)
+      expect(projectsService.list).toHaveBeenCalledTimes(2)
     })
   })
 })

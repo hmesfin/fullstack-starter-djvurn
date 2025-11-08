@@ -9,11 +9,20 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import * as authService from '@/services/auth.service'
+import { authService } from '@/services/auth.service'
 import { useLogin, useRegister, useVerifyOTP, useResendOTP } from '../useAuthMutations'
 
 // Mock the auth service
-vi.mock('@/services/auth.service')
+vi.mock('@/services/auth.service', () => ({
+  authService: {
+    login: vi.fn(),
+    register: vi.fn(),
+    verifyOTP: vi.fn(),
+    resendOTP: vi.fn(),
+    refreshToken: vi.fn(),
+    getMe: vi.fn(),
+  },
+}))
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
