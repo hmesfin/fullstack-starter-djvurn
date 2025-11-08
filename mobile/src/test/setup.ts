@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import '@testing-library/jest-dom'
 
 // Define __DEV__ global
-global.__DEV__ = true
+;(global as typeof global & { __DEV__: boolean }).__DEV__ = true
 
 // Mock AsyncStorage
 const asyncStorageMock = {

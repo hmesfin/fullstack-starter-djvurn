@@ -43,7 +43,7 @@ export function renderHook<TResult, TProps = unknown>(
   }
 
   const Wrapper = options?.wrapper || React.Fragment
-  const element = React.createElement(Wrapper, {}, React.createElement(TestComponent))
+  const element = React.createElement(Wrapper, null, React.createElement(TestComponent))
 
   // Synchronously render the component
   renderer = create(element)
@@ -52,7 +52,7 @@ export function renderHook<TResult, TProps = unknown>(
     result,
     rerender: (newProps?: TProps) => {
       if (renderer) {
-        const newElement = React.createElement(Wrapper, {}, React.createElement(TestComponent))
+        const newElement = React.createElement(Wrapper, null, React.createElement(TestComponent))
         renderer.update(newElement)
       }
     },
