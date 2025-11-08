@@ -78,6 +78,69 @@ Claude will ask intelligent questions about:
 
 **Tip**: Be specific in your answers. Claude will ask follow-up questions based on your responses.
 
+### Step 2.5: Mobile Feature Selection (NEW - Week 3!)
+
+After core features are defined, Claude will ask about mobile requirements:
+
+```
+Mobile requirements for your app?
+
+[1] 🌐 Web only (no mobile app)
+[2] 📱 Mobile with full feature parity (all features)
+[3] 🎯 Mobile with selective features (choose which) ⭐ RECOMMENDED
+[4] 📱 Mobile-first (mobile is primary)
+```
+
+#### Option 1: Web Only
+No mobile planning. Generates web-only phases.
+
+#### Option 2: Full Feature Parity
+All web features → mobile. May result in complex mobile UI.
+
+#### Option 3: Selective Features (RECOMMENDED)
+
+**Step 1** - Select which web features go to mobile:
+```
+Which features do you need in the mobile app?
+
+  [✓] Product catalog
+  [✓] Shopping cart
+  [✓] Checkout
+  [✓] Order tracking
+  [ ] Admin dashboard (too complex for mobile)
+  [ ] Analytics (desktop-oriented)
+  [ ] Inventory management (bulk operations)
+```
+
+**Step 2** - Add mobile-specific features:
+```
+Any mobile-specific features?
+
+  [✓] Push notifications (order updates)
+  [✓] Biometric login (Face ID / Touch ID)
+  [✓] Offline mode (cache products)
+  [ ] Camera (scan barcodes)
+  [ ] Geolocation (nearby stores)
+```
+
+**Result** - Platform Feature Matrix in REQUIREMENTS.md:
+
+| Feature | Web | Mobile | Notes |
+|---------|-----|--------|-------|
+| Product catalog | ✅ | ✅ | Mobile: infinite scroll |
+| Shopping cart | ✅ | ✅ | Mobile: bottom sheet |
+| Checkout | ✅ | ✅ | Mobile: Apple/Google Pay |
+| Admin dashboard | ✅ | ❌ | Web only - complex UI |
+| Push notifications | ❌ | ✅ | Mobile only - FCM/APNS |
+
+**Time Savings Example**:
+- Full parity: 35 sessions total
+- Selective (4 web + 3 mobile-only): 26 sessions
+- **Saved**: ~15-20 hours, 9 sessions
+
+#### Option 4: Mobile-First
+Mobile is primary, web is optional/secondary.
+
 ### Step 3: Review Generated Documents
 
 After discovery, Claude generates:

@@ -81,7 +81,6 @@ Ask intelligent, context-aware questions to understand:
 - **Key Workflows**: What are the primary user journeys? (e.g., "User creates post → Others comment → Notifications sent")
 - **Authentication**: Email/password? OAuth? Role-based access control (RBAC)?
 - **Real-time Features**: WebSockets? Live updates? Notifications?
-- **Mobile Requirements**: Is this web-only or does it need React Native mobile app?
 - **Third-party Integrations**: Payment gateways? Email services? Cloud storage? APIs?
 - **Performance/Scale**: Expected traffic? Any specific performance requirements?
 
@@ -89,6 +88,85 @@ Ask intelligent, context-aware questions to understand:
 - If they mention "posts", ask about comments, likes, sharing, moderation
 - If they mention "products", ask about inventory, variants, pricing models
 - If they mention "payments", ask about one-time vs subscriptions, refunds, webhooks
+
+### Phase 1.5: Platform-Specific Feature Selection (NEW - Week 3!)
+
+After gathering all core features, ask about **mobile requirements** with enhanced options:
+
+```
+Mobile requirements for your app?
+
+[1] 🌐 Web only (no mobile app)
+[2] 📱 Mobile with full feature parity (all web features in mobile)
+[3] 🎯 Mobile with selective features (choose which features) ⭐ RECOMMENDED
+[4] 📱 Mobile-first (mobile is primary, web is secondary)
+
+Enter number [1-4]:
+```
+
+#### If User Selects [1] Web only:
+- Skip mobile planning entirely
+- Generate web-only phases (Backend + Frontend)
+
+#### If User Selects [2] Full feature parity:
+- All web features go to mobile
+- Add React Native phase with all features
+- Warn: "This may result in mobile UI complexity"
+
+#### If User Selects [3] Selective features (RECOMMENDED):
+
+**Step 1**: List all features discovered in Phase 1, ask user to multi-select which go to mobile:
+
+```
+You mentioned these features for your web app:
+  - [Feature 1 from discovery]
+  - [Feature 2 from discovery]
+  - [Feature 3 from discovery]
+  - ... etc
+
+Which features do you need in the mobile app? (Select multiple)
+
+  [✓] Feature 1 - [Brief description]
+  [✓] Feature 2 - [Brief description]
+  [ ] Feature 3 - [Brief description]
+  [ ] Feature 4 - [Brief description]
+
+Mark with ✓ for included, leave blank for excluded.
+```
+
+**Step 2**: Ask about mobile-specific features:
+
+```
+Any mobile-specific features NOT in web? (Select multiple)
+
+  [✓] Push notifications - Real-time alerts (FCM/APNS)
+  [✓] Biometric authentication - Face ID / Touch ID
+  [✓] Offline mode - Cache data with AsyncStorage/WatermelonDB
+  [ ] Camera integration - Take photos, scan barcodes
+  [ ] Geolocation - Location-based features
+  [ ] Background sync - Sync data in background
+  [ ] Share extensions - Native share sheet
+  [ ] Voice input - Speech-to-text
+  [ ] AR features - Augmented reality
+```
+
+**Step 3**: Document the selection:
+
+```
+Mobile App Summary:
+✅ Included from web: [List selected features]
+❌ Excluded from web: [List excluded features with rationale]
+⭐ Mobile-specific: [List mobile-only features]
+
+Estimated mobile sessions: [X] (vs [Y] if full parity)
+Time savings: ~[Z] hours
+```
+
+#### If User Selects [4] Mobile-first:
+- Mobile is primary platform
+- Web is optional/secondary
+- Prioritize mobile workflows in planning
+- Web may have subset of mobile features
 
 ### Phase 2: Requirements Document Generation
 
@@ -160,6 +238,80 @@ export const postSchema = z.object({
   published_at: z.string().datetime().optional()
 })
 ```
+```
+
+#### Platform Feature Matrix (NEW - if mobile app selected!)
+
+**IMPORTANT**: If user selected mobile app in Phase 1.5, add this section to REQUIREMENTS.md:
+
+```markdown
+## Platform Feature Matrix
+
+| Feature | Web | Mobile | Implementation Notes |
+|---------|-----|--------|---------------------|
+| [Feature 1] | ✅ | ✅ | Same API, different UI ([specific differences]) |
+| [Feature 2] | ✅ | ✅ | Web: [approach], Mobile: [approach] |
+| [Feature 3] | ✅ | ❌ | Web only - [rationale: complex UI, desktop workflow, etc.] |
+| [Feature 4] | ❌ | ✅ | Mobile only - [technology: FCM/APNS, Face ID, etc.] |
+
+### Mobile-Specific Considerations
+
+#### Features Included in Mobile ([X] core + [Y] mobile-specific)
+
+**Core Features (from web):**
+1. **[Feature Name]**
+   - UI: [Mobile UI approach vs web]
+   - Offline: [Caching strategy if applicable]
+   - Performance: [Mobile-specific optimizations]
+
+2. **[Feature Name]**
+   - UI: [Differences from web]
+   - Actions: [Touch gestures, mobile patterns]
+   - Persistence: [AsyncStorage, MMKV, WatermelonDB]
+
+**Mobile-Specific Features:**
+1. **[Mobile-only feature]**
+   - Implementation: [Technology stack]
+   - Use case: [Why mobile-only]
+   - Integration: [How it connects to backend]
+
+#### Features Excluded from Mobile
+
+**Rationale for exclusions:**
+- **[Excluded feature]**: [Reason - complex UI, desktop-oriented, bulk operations, etc.]
+- **[Excluded feature]**: [Reason - multi-window support, rich text editing, etc.]
+
+**User guidance**: "Use web app for [list of excluded feature categories]"
+
+#### API Reuse vs Mobile-Specific
+
+**Shared API Endpoints:**
+- GET /api/v1/[resource]/ (same endpoint, mobile may use different query params)
+- POST /api/v1/[resource]/ (same endpoint)
+
+**Mobile-Specific API Endpoints:**
+- POST /api/v1/devices/register/ (FCM/APNS device tokens)
+- POST /api/v1/auth/biometric/ (biometric challenge/response)
+- GET /api/v1/[resource]/offline/ (optimized payload for caching)
+```
+
+**Example - E-commerce with selective mobile**:
+```markdown
+## Platform Feature Matrix
+
+| Feature | Web | Mobile | Implementation Notes |
+|---------|-----|--------|---------------------|
+| Product catalog | ✅ | ✅ | Same API, Mobile uses infinite scroll vs pagination |
+| Shopping cart | ✅ | ✅ | Web: full page, Mobile: bottom sheet with swipe gestures |
+| Checkout | ✅ | ✅ | Web: multi-step form, Mobile: single-page with Apple/Google Pay |
+| Order tracking | ✅ | ✅ | Mobile adds push notifications for status updates |
+| Admin dashboard | ✅ | ❌ | Web only - complex tables, multi-tab UI, desktop workflow |
+| Analytics | ✅ | ❌ | Web only - data visualization, charts, export functionality |
+| Inventory | ✅ | ❌ | Web only - bulk operations, spreadsheet-like UI |
+| Bulk upload | ✅ | ❌ | Web only - CSV import, file handling |
+| Push notifications | ❌ | ✅ | Mobile only - FCM (Android) + APNS (iOS) |
+| Biometric login | ❌ | ✅ | Mobile only - Face ID / Touch ID |
+| Offline cart | ❌ | ✅ | Mobile only - AsyncStorage, syncs when online |
 ```
 
 ### Phase 3: Project Plan Generation

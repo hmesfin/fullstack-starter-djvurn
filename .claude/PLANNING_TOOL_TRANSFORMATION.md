@@ -481,22 +481,27 @@ Identifies potential issues:
 - ✅ Created transformation roadmap
 
 ### Week 2-4: Enhanced Planning Capabilities
-- **Week 2**: Pre-built app templates (5 templates)
-  - Blog Platform template
-  - E-Commerce Store template
-  - SaaS Multi-Tenant template
-  - Social Network template
-  - Project Management template
-  - Template selection flow implementation
 
-- **Week 3**: Platform-Specific Feature Selection
-  - Implement multi-select feature discovery
-  - Platform Feature Matrix generation
-  - Mobile-specific vs web-specific logic
-  - API reuse documentation
-  - Web vs mobile workflow differences
+- **Week 2**: Pre-built app templates (5 templates) ✅ COMPLETED
+  - ✅ Blog Platform template
+  - ✅ E-Commerce Store template
+  - ✅ SaaS Multi-Tenant template
+  - ✅ Social Network template
+  - ✅ Project Management template
+  - ✅ Template selection flow implementation
 
-- **Week 4**: Visual Enhancements
+- **Week 3**: Platform-Specific Feature Selection ✅ COMPLETED
+  - ✅ Implemented 4-option mobile strategy (web-only, full parity, selective, mobile-first)
+  - ✅ Multi-select feature discovery for selective mobile
+  - ✅ Platform Feature Matrix generation in REQUIREMENTS.md
+  - ✅ Mobile-specific vs web-specific logic
+  - ✅ Mobile-specific features list (push, biometric, offline, camera, geolocation, etc.)
+  - ✅ API reuse documentation (shared vs platform-specific endpoints)
+  - ✅ Web vs mobile workflow differences documentation
+  - ✅ Updated plan-app.md with Phase 1.5
+  - ✅ Updated PLANNING_GUIDE.md with examples
+
+- **Week 4**: Visual Enhancements (NEXT)
   - Mermaid ERD diagrams for data models
   - Sequence diagrams for workflows
   - Dependency graphs for sessions
