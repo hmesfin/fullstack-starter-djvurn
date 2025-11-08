@@ -8,11 +8,19 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
-import * as projectsService from '@/services/projects.service'
+import { projectsService } from '@/services/projects.service'
 import { useProject } from '../useProject'
 
 // Mock the projects service
-vi.mock('@/services/projects.service')
+vi.mock('@/services/projects.service', () => ({
+  projectsService: {
+    list: vi.fn(),
+    get: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
 
 // Helper to create a wrapper with QueryClient
 function createWrapper() {
@@ -46,7 +54,7 @@ describe('useProject', () => {
       updated_at: '2024-01-01T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -59,7 +67,7 @@ describe('useProject', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called with correct ID
-    expect(projectsService.getProject).toHaveBeenCalledWith(1)
+    expect(projectsService.get).toHaveBeenCalledWith(1)
 
     // Verify data is correct
     expect(result.current.data).toEqual(mockProject)
@@ -67,7 +75,7 @@ describe('useProject', () => {
 
   it('should handle project not found error', async () => {
     const mockError = new Error('Project not found')
-    ;vi.mocked(projectsService.getProject).mockRejectedValue(mockError)
+    ;vi.mocked(projectsService.get).mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useProject(999), {
       wrapper: createWrapper(),
@@ -88,7 +96,7 @@ describe('useProject', () => {
       priority: 'high',
     }
 
-    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -97,7 +105,7 @@ describe('useProject', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // First call should fetch
-    expect(projectsService.getProject).toHaveBeenCalledTimes(1)
+    expect(projectsService.get).toHaveBeenCalledTimes(1)
 
     // Second hook for same ID should use cache
     const { result: result2 } = renderHook(() => useProject(1), {
@@ -107,7 +115,7 @@ describe('useProject', () => {
     await waitFor(() => expect(result2.current.isSuccess).toBe(true))
 
     // Should still be called only once (cached)
-    expect(projectsService.getProject).toHaveBeenCalledTimes(1)
+    expect(projectsService.get).toHaveBeenCalledTimes(1)
   })
 
   it('should fetch different projects separately', async () => {
@@ -129,7 +137,7 @@ describe('useProject', () => {
       priority: 'low',
     }
 
-    ;vi.mocked(projectsService.getProject)
+    ;vi.mocked(projectsService.get)
       .mockResolvedValueOnce(mockProject1)
       .mockResolvedValueOnce(mockProject2)
 
@@ -148,9 +156,9 @@ describe('useProject', () => {
     await waitFor(() => expect(result2.current.isSuccess).toBe(true))
 
     // Should call service twice with different IDs
-    expect(projectsService.getProject).toHaveBeenCalledTimes(2)
-    expect(projectsService.getProject).toHaveBeenNthCalledWith(1, 1)
-    expect(projectsService.getProject).toHaveBeenNthCalledWith(2, 2)
+    expect(projectsService.get).toHaveBeenCalledTimes(2)
+    expect(projectsService.get).toHaveBeenNthCalledWith(1, 1)
+    expect(projectsService.get).toHaveBeenNthCalledWith(2, 2)
 
     // Data should be different
     expect(result1.current.data).toEqual(mockProject1)
@@ -169,7 +177,7 @@ describe('useProject', () => {
       updated_at: '2024-01-01T00:00:00Z',
     }
 
-    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -198,7 +206,7 @@ describe('useProject', () => {
       priority: 'high',
     }
 
-    ;vi.mocked(projectsService.getProject).mockResolvedValue(mockProject)
+    ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
     const { result } = renderHook(() => useProject(1), {
       wrapper: createWrapper(),
@@ -214,7 +222,7 @@ describe('useProject', () => {
 
     // Service should be called again
     await waitFor(() => {
-      expect(projectsService.getProject).toHaveBeenCalledTimes(2)
+      expect(projectsService.get).toHaveBeenCalledTimes(2)
     })
   })
 })
