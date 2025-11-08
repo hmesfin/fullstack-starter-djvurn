@@ -1,16 +1,18 @@
-# App Scaffolding System Guide
+# App Planning System Guide
 
-This starter template includes an AI-driven scaffolding system that transforms your app idea into a comprehensive, TDD-driven, session-based implementation plan.
+This starter template includes an AI-driven planning system that transforms your app idea into a comprehensive, TDD-driven, session-based implementation plan.
+
+**Philosophy**: Planning is the bottleneck, not coding. Poor planning leads to project failure. Good plans enable successful agent execution.
 
 ## Quick Start
 
-### Step 1: Invoke the Scaffolder
+### Step 1: Invoke the Planning Tool
 
 ```bash
-/scaffold-app
+/plan-app
 ```
 
-This launches an interactive discovery process where Claude will ask you questions about your app.
+This launches an interactive discovery process where Claude will ask you questions about your app to create a detailed implementation plan.
 
 ### Step 2: Answer Discovery Questions
 
@@ -70,7 +72,7 @@ Each session includes:
 
 ### Example 1: Basic Blog App
 
-**User**: `/scaffold-app`
+**User**: `/plan-app`
 
 **Claude**: "What app would you like to build?"
 
@@ -161,7 +163,7 @@ The generated plans are **markdown files** - you can edit them before execution:
 
 ## Integration with Existing Starter Features
 
-The scaffolder understands the starter's architecture:
+The planning tool understands the starter's architecture:
 
 ### Backend (Django)
 - Custom user model: `apps.users.User`
@@ -210,17 +212,17 @@ The scaffolder understands the starter's architecture:
 
 ### Multi-App Projects
 
-For complex systems, run `/scaffold-app` multiple times:
+For complex systems, run `/plan-app` multiple times:
 
-1. `/scaffold-app` → Core app (users, auth)
-2. `/scaffold-app` → Feature app (e.g., blog)
-3. `/scaffold-app` → Feature app (e.g., marketplace)
+1. `/plan-app` → Core app (users, auth)
+2. `/plan-app` → Feature app (e.g., blog)
+3. `/plan-app` → Feature app (e.g., marketplace)
 
 Each generates its own plan in `project-plans/<app-name>/`.
 
-### Partial Scaffolding
+### Partial Planning
 
-You can scaffold just backend or just frontend:
+You can plan just backend or just frontend:
 - During discovery, specify "Backend only" or "Frontend only"
 - Claude will adjust phases accordingly
 
@@ -232,7 +234,7 @@ Advanced users can modify templates in `.claude/templates/`:
 
 ## File Locations
 
-- **Slash Command**: `.claude/commands/scaffold-app.md`
+- **Slash Command**: `.claude/commands/plan-app.md`
 - **Templates**: `.claude/templates/`
 - **Generated Plans**: `project-plans/<app-name>/`
 
@@ -267,12 +269,12 @@ If you encounter issues:
 
 ## Contributing
 
-Improvements to the scaffolding system:
-1. Edit `.claude/commands/scaffold-app.md`
+Improvements to the planning system:
+1. Edit `.claude/commands/plan-app.md`
 2. Update templates in `.claude/templates/`
 3. Test with different app types
 4. Document new patterns
 
 ---
 
-**Ready to scaffold your first app?** Run `/scaffold-app` and let Claude guide you through the process! 🚀
+**Ready to plan your first app?** Run `/plan-app` and let Claude guide you through the process! 🚀

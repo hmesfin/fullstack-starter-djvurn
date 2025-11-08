@@ -7,23 +7,30 @@ This directory contains Claude Code configuration, commands, and templates for t
 ```
 .claude/
 ├── README.md                           # This file
-├── SCAFFOLDING_GUIDE.md               # User guide for the scaffolding system
+├── PLANNING_GUIDE.md                   # User guide for the planning system
+├── PLANNING_TOOL_TRANSFORMATION.md     # Transformation roadmap
 ├── commands/
-│   └── scaffold-app.md                # /scaffold-app slash command
+│   └── plan-app.md                     # /plan-app slash command
 └── templates/
-    ├── PROJECT_PLAN_TEMPLATE.md       # High-level plan template
-    └── PHASE_TASKS_TEMPLATE.md        # Detailed phase tasks template
+    ├── PROJECT_PLAN_TEMPLATE.md        # High-level plan template
+    └── PHASE_TASKS_TEMPLATE.md         # Detailed phase tasks template
 ```
+
+## Philosophy
+
+**Planning is the bottleneck, not coding.** Poor planning leads to project failure. Good plans enable successful agent execution.
+
+This planning system focuses on creating comprehensive, executable plans that agents can follow to build your app.
 
 ## Slash Commands
 
-### `/scaffold-app` - AI-Driven App Scaffolding
+### `/plan-app` - AI-Driven App Planning
 
 Transforms your app idea into a comprehensive, TDD-driven, session-based implementation plan.
 
 **Usage**:
 ```
-/scaffold-app
+/plan-app
 ```
 
 **What it does**:
@@ -37,11 +44,11 @@ Transforms your app idea into a comprehensive, TDD-driven, session-based impleme
 - `project-plans/<app-name>/PROJECT_PLAN.md` - High-level plan
 - `project-plans/<app-name>/tasks/PHASE_X_*.md` - Detailed session tasks
 
-**Learn more**: See `SCAFFOLDING_GUIDE.md`
+**Learn more**: See `PLANNING_GUIDE.md`
 
 ## Templates
 
-Templates use `{{VARIABLE}}` syntax for placeholders. The `/scaffold-app` command uses these to generate project plans.
+Templates use `{{VARIABLE}}` syntax for placeholders. The `/plan-app` command uses these to generate project plans.
 
 ### PROJECT_PLAN_TEMPLATE.md
 
@@ -132,7 +139,7 @@ Every session follows the RED-GREEN-REFACTOR cycle:
 
 ## Integration with Starter
 
-The scaffolding system understands this starter's architecture:
+The planning system understands this starter's architecture:
 
 ### Backend (Django)
 - Custom user model: `apps.users.User` (email-based, no username)
@@ -165,11 +172,11 @@ Edit templates in `.claude/templates/` to change:
 - TDD workflow steps
 - Exit criteria
 
-Changes apply to all future scaffolded apps.
+Changes apply to all future planned apps.
 
 ### Modifying the Slash Command
 
-Edit `.claude/commands/scaffold-app.md` to:
+Edit `.claude/commands/plan-app.md` to:
 - Change discovery questions
 - Adjust session sizing rules
 - Add new complexity levels
@@ -178,8 +185,8 @@ Edit `.claude/commands/scaffold-app.md` to:
 ## Example Workflow
 
 ```bash
-# 1. Invoke scaffolder
-/scaffold-app
+# 1. Invoke planner
+/plan-app
 
 # Claude asks: "What app would you like to build?"
 # User: "A task management app"
@@ -196,7 +203,7 @@ Edit `.claude/commands/scaffold-app.md` to:
 
 # 3. User reviews generated plans, edits if needed
 
-# 4. Execute Session 1
+# 4. Execute Session 1 (manually or with agents)
 # Follow PHASE_1_BACKEND_FOUNDATION.md > Session 1
 # - Write tests (RED)
 # - Implement (GREEN)
@@ -225,7 +232,7 @@ project-plans/<app-name>/
 
 ## Best Practices
 
-### Before Scaffolding
+### Before Planning
 1. Have a clear app idea
 2. Think through core features
 3. Identify main entities (data models)
@@ -244,7 +251,7 @@ project-plans/<app-name>/
 4. Commit after each session
 5. Run type checking frequently
 
-### After Scaffolding
+### After Planning
 1. Review all generated plans
 2. Edit/customize as needed
 3. Ensure realistic timelines
@@ -274,24 +281,34 @@ project-plans/<app-name>/
 
 ## Contributing
 
-To improve the scaffolding system:
+To improve the planning system:
 
-1. **Add new question types**: Edit `scaffold-app.md` discovery section
+1. **Add new question types**: Edit `plan-app.md` discovery section
 2. **Improve templates**: Update template structure in `.claude/templates/`
-3. **Add complexity presets**: Create new sections in `scaffold-app.md`
-4. **Document patterns**: Add to `SCAFFOLDING_GUIDE.md`
+3. **Add complexity presets**: Create new sections in `plan-app.md`
+4. **Document patterns**: Add to `PLANNING_GUIDE.md`
 
 ## Support Resources
 
-- **SCAFFOLDING_GUIDE.md**: Complete user guide for the scaffolding system
+- **PLANNING_GUIDE.md**: Complete user guide for the planning system
+- **PLANNING_TOOL_TRANSFORMATION.md**: Transformation roadmap and future features
 - **ARCHITECTURE.md**: Project structure and patterns (root directory)
 - **DEV_WORKFLOW.md**: Commands and workflows reference (root directory)
 - **DEBUG_DOGMA.md**: Debugging patterns and lessons (root directory)
 
+## Roadmap
+
+See `PLANNING_TOOL_TRANSFORMATION.md` for upcoming features:
+- Pre-built app templates (Blog, E-commerce, SaaS, etc.)
+- Visual diagrams (Mermaid ERDs, workflow sequences)
+- Agent integration for plan execution
+- Complexity calculator
+- Progress tracking
+
 ## Version History
 
-- **v1.0**: Initial scaffolding system
-  - `/scaffold-app` slash command
+- **v1.0**: Initial planning system
+  - `/plan-app` slash command (renamed from `/scaffold-app`)
   - AI-driven discovery phase
   - Requirements generation
   - Session-based task breakdown
@@ -300,4 +317,4 @@ To improve the scaffolding system:
 
 ---
 
-**Ready to build?** Run `/scaffold-app` to get started! 🚀
+**Ready to plan your app?** Run `/plan-app` to get started! 🚀
