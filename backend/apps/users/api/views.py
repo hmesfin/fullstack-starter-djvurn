@@ -112,7 +112,9 @@ class EmailTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         """Override to handle OTP creation outside transaction when email unverified."""
         from rest_framework.exceptions import ValidationError as DRFValidationError
-        from apps.users.models import EmailVerificationOTP, User
+
+        from apps.users.models import EmailVerificationOTP
+        from apps.users.models import User
 
         # Wrap the parent call in a transaction so successful logins are atomic
         try:
@@ -121,10 +123,10 @@ class EmailTokenObtainPairView(TokenObtainPairView):
         except DRFValidationError as e:
             # Transaction rolled back, now we can create OTP outside it
             # Check if this is an email verification required error
-            if hasattr(e, 'detail') and isinstance(e.detail, dict):
-                if 'email_verification_required' in e.detail:
+            if hasattr(e, "detail") and isinstance(e.detail, dict):
+                if "email_verification_required" in e.detail:
                     # Get user email from request
-                    email = request.data.get('email', '').lower()
+                    email = request.data.get("email", "").lower()
 
                     # Create OTP in a separate transaction (now outside the rolled-back one)
                     try:
@@ -135,6 +137,7 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
                             # Send email
                             from apps.users.tasks import send_otp_email
+
                             send_otp_email.delay(user.id, otp.code)
 
                     except User.DoesNotExist:
@@ -180,7 +183,9 @@ class PasswordResetRequestView(GenericAPIView):
         serializer.save()
 
         return Response(
-            {"message": "If an account exists with this email, you will receive password reset instructions."},
+            {
+                "message": "If an account exists with this email, you will receive password reset instructions.",
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -198,6 +203,8 @@ class PasswordResetConfirmView(GenericAPIView):
         serializer.save()
 
         return Response(
-            {"message": "Password reset successful. You can now log in with your new password."},
+            {
+                "message": "Password reset successful. You can now log in with your new password.",
+            },
             status=status.HTTP_200_OK,
         )

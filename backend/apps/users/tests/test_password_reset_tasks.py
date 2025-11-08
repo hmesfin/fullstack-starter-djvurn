@@ -6,10 +6,8 @@ Following TDD approach - tests written FIRST before implementation.
 
 import pytest
 from django.core import mail
-from django.urls import reverse
 
 from apps.users.models import PasswordResetToken
-from apps.users.models import User
 from apps.users.tasks import send_password_reset_email
 from apps.users.tests.factories import UserFactory
 
@@ -29,7 +27,9 @@ class TestSendPasswordResetEmail:
         # Check that email was sent
         assert len(mail.outbox) == 1
         assert mail.outbox[0].to == [user.email]
-        assert "Password" in mail.outbox[0].subject and "Reset" in mail.outbox[0].subject
+        assert (
+            "Password" in mail.outbox[0].subject and "Reset" in mail.outbox[0].subject
+        )
 
     def test_send_password_reset_email_contains_token(self):
         """Test that password reset email contains the reset token."""
@@ -52,7 +52,7 @@ class TestSendPasswordResetEmail:
         # Check email body contains reset URL with token
         email_body = mail.outbox[0].body
         # URL should contain the token as a parameter or path component
-        assert f"/reset" in email_body or f"/password-reset" in email_body
+        assert "/reset" in email_body or "/password-reset" in email_body
         assert token.token in email_body
 
     def test_send_password_reset_email_personalizes_greeting(self):
@@ -63,7 +63,10 @@ class TestSendPasswordResetEmail:
         send_password_reset_email(user.id, token.token)
 
         email_body = mail.outbox[0].body
-        assert f"Hello {user.first_name}" in email_body or f"Hi {user.first_name}" in email_body
+        assert (
+            f"Hello {user.first_name}" in email_body
+            or f"Hi {user.first_name}" in email_body
+        )
 
     def test_send_password_reset_email_includes_expiry_info(self):
         """Test that email includes token expiry information."""
@@ -74,7 +77,11 @@ class TestSendPasswordResetEmail:
 
         email_body = mail.outbox[0].body
         # Should mention expiry time (1 hour)
-        assert "1 hour" in email_body or "60 minute" in email_body or "expire" in email_body.lower()
+        assert (
+            "1 hour" in email_body
+            or "60 minute" in email_body
+            or "expire" in email_body.lower()
+        )
 
     def test_send_password_reset_email_with_invalid_user_id(self):
         """Test sending password reset email with non-existent user ID."""
@@ -133,5 +140,9 @@ class TestSendPasswordResetEmail:
         assert user2.email in recipients
 
         # Check each email has correct token
-        assert token1.token in mail.outbox[0].body or token1.token in mail.outbox[1].body
-        assert token2.token in mail.outbox[0].body or token2.token in mail.outbox[1].body
+        assert (
+            token1.token in mail.outbox[0].body or token1.token in mail.outbox[1].body
+        )
+        assert (
+            token2.token in mail.outbox[0].body or token2.token in mail.outbox[1].body
+        )

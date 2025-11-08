@@ -23,8 +23,16 @@ urlpatterns = [
     path("auth/register/", UserRegistrationView.as_view(), name="auth-register"),
     path("auth/verify-otp/", OTPVerificationView.as_view(), name="auth-verify-otp"),
     path("auth/resend-otp/", ResendOTPView.as_view(), name="auth-resend-otp"),
-    path("auth/password-reset/request/", PasswordResetRequestView.as_view(), name="auth-password-reset-request"),
-    path("auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="auth-password-reset-confirm"),
+    path(
+        "auth/password-reset/request/",
+        PasswordResetRequestView.as_view(),
+        name="auth-password-reset-request",
+    ),
+    path(
+        "auth/password-reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="auth-password-reset-confirm",
+    ),
     path("auth/token/", EmailTokenObtainPairView.as_view(), name="auth-token"),
     path(
         "auth/token/refresh/",

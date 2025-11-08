@@ -1,7 +1,6 @@
 """Custom throttle classes for user API endpoints."""
 
 from rest_framework.throttling import SimpleRateThrottle
-from typing import Optional
 
 
 class ResendOTPThrottle(SimpleRateThrottle):
@@ -15,7 +14,7 @@ class ResendOTPThrottle(SimpleRateThrottle):
     scope = "resend_otp"
     rate = "3/hour"
 
-    def get_cache_key(self, request, view) -> Optional[str]:
+    def get_cache_key(self, request, view) -> str | None:
         """
         Generate cache key based on email from request data.
 

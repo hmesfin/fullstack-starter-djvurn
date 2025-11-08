@@ -4,15 +4,16 @@ Tests for password reset API endpoints.
 Following TDD approach - tests written FIRST before implementation.
 """
 
-import pytest
 from datetime import timedelta
+
+import pytest
 from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.users.models import PasswordResetToken, User
+from apps.users.models import PasswordResetToken
 from apps.users.tests.factories import UserFactory
 
 
@@ -41,7 +42,10 @@ class TestPasswordResetRequest:
 
         assert response.status_code == status.HTTP_200_OK
         assert "message" in response.data
-        assert "sent" in response.data["message"].lower() or "email" in response.data["message"].lower()
+        assert (
+            "sent" in response.data["message"].lower()
+            or "email" in response.data["message"].lower()
+        )
 
     def test_password_reset_request_creates_token(self):
         """Test that password reset request creates a new token."""

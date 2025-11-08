@@ -74,6 +74,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
 
         # Send OTP email via Celery task (async)
         from apps.users.tasks import send_otp_email
+
         send_otp_email.delay(user.id, otp.code)
 
         return user
@@ -160,6 +161,7 @@ class ResendOTPSerializer(serializers.Serializer):
 
         # Send OTP email via Celery task
         from apps.users.tasks import send_otp_email
+
         send_otp_email.delay(user.id, otp.code)
 
 
@@ -222,6 +224,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
         # Send password reset email via Celery task
         from apps.users.tasks import send_password_reset_email
+
         send_password_reset_email.delay(user.id, token.token)
 
 

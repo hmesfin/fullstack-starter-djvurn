@@ -82,7 +82,7 @@ def send_password_reset_email(user_id: int, reset_token: str) -> None:
     frontend_base_url = getattr(
         settings,
         "FRONTEND_BASE_URL",
-        "http://localhost:5173"
+        "http://localhost:5173",
     )
     reset_url = f"{frontend_base_url}/reset-password?token={reset_token}"
 

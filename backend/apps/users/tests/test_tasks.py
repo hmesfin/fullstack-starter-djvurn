@@ -6,7 +6,6 @@ Following TDD approach - tests written FIRST before implementation.
 
 import pytest
 from django.core import mail
-from django.utils import timezone
 
 from apps.users.models import EmailVerificationOTP
 from apps.users.models import User

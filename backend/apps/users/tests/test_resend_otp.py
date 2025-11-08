@@ -77,9 +77,13 @@ class TestResendOTP:
         )
 
         # Check that a new OTP was created
-        new_otp = EmailVerificationOTP.objects.filter(
-            user=self.user
-        ).order_by("-created").first()
+        new_otp = (
+            EmailVerificationOTP.objects.filter(
+                user=self.user,
+            )
+            .order_by("-created")
+            .first()
+        )
 
         assert new_otp is not None
         assert new_otp.code != old_code
@@ -145,7 +149,9 @@ class TestResendOTP:
                 self.url,
                 {"email": self.user.email},
             )
-            assert response.status_code == status.HTTP_200_OK, f"Request {i+1} should succeed"
+            assert response.status_code == status.HTTP_200_OK, (
+                f"Request {i + 1} should succeed"
+            )
 
         # 4th request should be throttled (429 Too Many Requests)
         response = self.client.post(
@@ -153,7 +159,10 @@ class TestResendOTP:
             {"email": self.user.email},
         )
         assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
-        assert "throttled" in str(response.data).lower() or "rate limit" in str(response.data).lower()
+        assert (
+            "throttled" in str(response.data).lower()
+            or "rate limit" in str(response.data).lower()
+        )
 
         # Only 3 emails should be sent (4th request was blocked)
         assert len(mail.outbox) == 3
