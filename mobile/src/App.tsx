@@ -6,34 +6,59 @@
 import React from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { PaperProvider } from 'react-native-paper'
+import { PaperProvider, Button } from 'react-native-paper'
 import { QueryProvider } from '@/providers/QueryProvider'
-import { lightTheme } from '@/theme'
+import { useAppTheme } from '@/hooks/useAppTheme'
+import { OfflineBanner, FadeIn, SlideIn } from '@/components'
 import { View, Text, StyleSheet } from 'react-native'
+
+/**
+ * Root App Component with dynamic theming
+ */
+function AppContent(): React.ReactElement {
+  const { theme, isDark, toggleTheme } = useAppTheme()
+
+  return (
+    <PaperProvider theme={theme}>
+      <SafeAreaProvider>
+        <OfflineBanner />
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+          <FadeIn duration={600}>
+            <Text style={[styles.text, { color: theme.colors.onBackground }]}>
+              React Native + Dark Mode
+            </Text>
+          </FadeIn>
+          <SlideIn direction="bottom" duration={500} delay={200} distance={30}>
+            <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+              Session 5 - UI Foundation & Polish 🚀
+            </Text>
+          </SlideIn>
+          <SlideIn direction="bottom" duration={500} delay={400} distance={30}>
+            <Button mode="contained" onPress={toggleTheme} style={styles.button}>
+              Toggle {isDark ? 'Light' : 'Dark'} Mode
+            </Button>
+          </SlideIn>
+          <StatusBar style={isDark ? 'light' : 'dark'} />
+        </View>
+      </SafeAreaProvider>
+    </PaperProvider>
+  )
+}
 
 /**
  * Root App Component
  */
 export default function App(): React.ReactElement {
   return (
-    <SafeAreaProvider>
-      <QueryProvider>
-        <PaperProvider theme={lightTheme}>
-          <View style={styles.container}>
-            <Text style={styles.text}>React Native + TanStack Query + Zustand</Text>
-            <Text style={styles.subtitle}>Ready for Session 5! 🚀</Text>
-            <StatusBar style="auto" />
-          </View>
-        </PaperProvider>
-      </QueryProvider>
-    </SafeAreaProvider>
+    <QueryProvider>
+      <AppContent />
+    </QueryProvider>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -46,7 +71,10 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    marginTop: 20,
   },
 })
