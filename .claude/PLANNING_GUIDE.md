@@ -12,9 +12,57 @@ This starter template includes an AI-driven planning system that transforms your
 /plan-app
 ```
 
-This launches an interactive discovery process where Claude will ask you questions about your app to create a detailed implementation plan.
+This launches an interactive planning process. You can choose to start from a **pre-built template** (faster) or build **from scratch** (fully custom).
 
-### Step 2: Answer Discovery Questions
+### Step 1a: Choose Template or From Scratch (NEW!)
+
+**Option A: Pre-Built Template** (5-10 minutes):
+```
+[1] 📝 Blog Platform - Posts, comments, categories, tags
+[2] 🛒 E-Commerce Store - Products, cart, checkout, payments
+[3] 💼 SaaS Multi-Tenant - Organizations, teams, billing
+[4] 👥 Social Network - Posts, friends, feeds, real-time
+[5] 📊 Project Management - Projects, tasks, boards
+```
+
+**Option B: From Scratch** (15-20 minutes):
+```
+[6] ✨ Start from Scratch - Custom app with full discovery
+```
+
+**When to use templates:**
+- Building a common app type (blog, e-commerce, SaaS, social, PM)
+- Want to start quickly with proven structure
+- Need customization options (enable/disable features)
+
+**When to build from scratch:**
+- Unique app idea that doesn't fit templates
+- Need full control over every decision
+- Exploring multiple approaches
+
+### Step 1b: Template Customization (if using template)
+
+If you selected a template, Claude will ask customization questions:
+
+**Example - Blog Platform**:
+```
+1. Enable comments? [Y/n]
+2. Enable categories/tags? [Y/n]
+3. Multi-author support? [y/N]
+4. Media uploads? [Images only / Images + Videos / No]
+```
+
+**Example - E-Commerce Store**:
+```
+1. Product variants (size, color)? [y/N]
+2. Inventory tracking? [Y/n]
+3. Subscriptions? [y/N]
+4. Reviews/Ratings? [Y/n]
+```
+
+Based on your answers, Claude will customize the plan (add/remove sessions, adjust estimates).
+
+### Step 2: Answer Discovery Questions (if from scratch)
 
 Claude will ask intelligent questions about:
 - App name and purpose

@@ -13,6 +13,65 @@ Guide the user through a structured discovery process, then generate:
 
 ## Process Overview
 
+### Phase 0: Template Selection (NEW!)
+
+**FIRST**, ask the user if they want to start from a pre-built template or from scratch:
+
+```
+Would you like to start from a pre-built template or build from scratch?
+
+[1] 📝 Blog Platform - Posts, comments, categories, tags, media uploads
+[2] 🛒 E-Commerce Store - Products, cart, checkout, orders, payments
+[3] 💼 SaaS Multi-Tenant - Organizations, teams, workspaces, billing
+[4] 👥 Social Network - Posts, friends, feeds, notifications, real-time
+[5] 📊 Project Management - Projects, tasks, boards, time tracking
+[6] ✨ Start from Scratch - Custom app with guided discovery
+
+Enter number [1-6]:
+```
+
+#### If User Selects Template [1-5]:
+
+1. **Load template README** from `.claude/templates/{template}/README.md`
+2. **Ask customization questions** based on template options
+3. **Generate customized plan** using template structure
+4. **Time savings**: 5-10 minutes vs 15-20 minutes from scratch
+
+**Example - Blog Platform [1]**:
+```
+Great! Let's customize your blog platform:
+
+1. Enable comments? [Y/n] (Default: Yes)
+2. Enable categories/tags? [Y/n] (Default: Yes)
+3. Multi-author support? [y/N] (Default: No)
+4. Media uploads? [Images only / Images + Videos / No] (Default: Images only)
+
+Based on your answers:
+- Comments: Yes → +CommentSection, +2 sessions
+- Categories/Tags: Yes → +CategoryBadge, +TagInput
+- Multi-author: No → Single author, simpler
+- Media: Images only → FeaturedImage upload
+
+Estimated: 11 sessions, 30 hours, ~600 tests
+```
+
+**Template Files to Reference**:
+- `.claude/templates/blog/README.md` - Customization options
+- `.claude/templates/blog/REQUIREMENTS.md` - Full technical spec (use as base)
+- `.claude/templates/blog/PROJECT_PLAN.md` - High-level plan structure (use as base)
+
+**Template Customization Logic**:
+- Read template files
+- Apply user's customization choices
+- Adjust session count, time estimates, test count
+- Generate final `project-plans/<app-name>/` with customized content
+
+#### If User Selects "Start from Scratch" [6]:
+
+Proceed to Phase 1 (Discovery & Scoping) below.
+
+---
+
 ### Phase 1: Discovery & Scoping
 Ask intelligent, context-aware questions to understand:
 - **App Name & Purpose**: What is the app called? What problem does it solve?
