@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native'
 import { Text, TextInput, Button, ActivityIndicator, HelperText, Menu, Divider } from 'react-native-paper'
+import { DatePickerModal } from 'react-native-paper-dates'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,6 +30,10 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
   // Menu visibility state
   const [statusMenuVisible, setStatusMenuVisible] = useState(false)
   const [priorityMenuVisible, setPriorityMenuVisible] = useState(false)
+
+  // Date picker visibility state
+  const [startDatePickerVisible, setStartDatePickerVisible] = useState(false)
+  const [dueDatePickerVisible, setDueDatePickerVisible] = useState(false)
 
   // Fetch project if in edit mode
   const { data: project, isLoading, isError, error } = useProject(projectUuid || '', {
@@ -77,6 +82,14 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
       navigation.goBack()
     }
   }, [createProject.isSuccess, updateProject.isSuccess, navigation])
+
+  // Helper function to format Date to YYYY-MM-DD
+  const formatDateToString = (date: Date): string => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
 
   // Form submission handler
   const onSubmit = (data: ProjectFormData): void => {
@@ -318,17 +331,34 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
         <Controller
           control={control}
           name="start_date"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <View style={styles.fieldContainer}>
-              <TextInput
-                label="Start Date (optional)"
-                value={value || ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                mode="outlined"
-                placeholder="YYYY-MM-DD"
-                error={!!errors.start_date}
-                testID="project-start-date-input"
+              <Pressable onPress={() => setStartDatePickerVisible(true)} testID="start-date-pressable">
+                <View pointerEvents="none">
+                  <TextInput
+                    label="Start Date (optional)"
+                    value={value || ''}
+                    mode="outlined"
+                    editable={false}
+                    right={<TextInput.Icon icon="calendar" />}
+                    error={!!errors.start_date}
+                    testID="project-start-date-input"
+                  />
+                </View>
+              </Pressable>
+              <DatePickerModal
+                locale="en"
+                mode="single"
+                visible={startDatePickerVisible}
+                onDismiss={() => setStartDatePickerVisible(false)}
+                date={value ? new Date(value) : undefined}
+                onConfirm={(params) => {
+                  if (params.date) {
+                    onChange(formatDateToString(params.date))
+                  }
+                  setStartDatePickerVisible(false)
+                }}
+                testID="start-date-picker-modal"
               />
               {errors.start_date && (
                 <HelperText type="error" visible={!!errors.start_date}>
@@ -343,17 +373,34 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
         <Controller
           control={control}
           name="due_date"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <View style={styles.fieldContainer}>
-              <TextInput
-                label="Due Date (optional)"
-                value={value || ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                mode="outlined"
-                placeholder="YYYY-MM-DD"
-                error={!!errors.due_date}
-                testID="project-due-date-input"
+              <Pressable onPress={() => setDueDatePickerVisible(true)} testID="due-date-pressable">
+                <View pointerEvents="none">
+                  <TextInput
+                    label="Due Date (optional)"
+                    value={value || ''}
+                    mode="outlined"
+                    editable={false}
+                    right={<TextInput.Icon icon="calendar" />}
+                    error={!!errors.due_date}
+                    testID="project-due-date-input"
+                  />
+                </View>
+              </Pressable>
+              <DatePickerModal
+                locale="en"
+                mode="single"
+                visible={dueDatePickerVisible}
+                onDismiss={() => setDueDatePickerVisible(false)}
+                date={value ? new Date(value) : undefined}
+                onConfirm={(params) => {
+                  if (params.date) {
+                    onChange(formatDateToString(params.date))
+                  }
+                  setDueDatePickerVisible(false)
+                }}
+                testID="due-date-picker-modal"
               />
               {errors.due_date && (
                 <HelperText type="error" visible={!!errors.due_date}>

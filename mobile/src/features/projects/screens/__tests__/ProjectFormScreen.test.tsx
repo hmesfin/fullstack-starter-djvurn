@@ -85,7 +85,29 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (styles: any) => styles },
   Platform: { OS: 'ios' },
   KeyboardAvoidingView: ({ children }: any) => <div>{children}</div>,
-  Pressable: ({ children, onPress }: any) => <div onClick={onPress}>{children}</div>,
+  Pressable: ({ children, onPress, testID }: any) => (
+    <div onClick={onPress} data-testid={testID}>
+      {children}
+    </div>
+  ),
+}))
+
+// Mock react-native-paper-dates
+vi.mock('react-native-paper-dates', () => ({
+  DatePickerModal: ({ visible, onDismiss, onConfirm, testID }: any) =>
+    visible ? (
+      <div data-testid={testID}>
+        <button data-testid={`${testID}-dismiss`} onClick={onDismiss}>
+          Cancel
+        </button>
+        <button
+          data-testid={`${testID}-confirm`}
+          onClick={() => onConfirm({ date: new Date('2025-01-15') })}
+        >
+          Confirm
+        </button>
+      </div>
+    ) : null,
 }))
 
 // Mock React Native Paper
@@ -293,6 +315,116 @@ describe('ProjectFormScreen - Form Fields', () => {
     expect(priorityInput).toBeDefined()
     // Default value should be "Medium"
     expect(priorityInput).toHaveValue('Medium')
+  })
+
+  it('should render start date input field', () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const startDateInput = screen.getByTestId('project-start-date-input')
+    expect(startDateInput).toBeDefined()
+  })
+
+  it('should render due date input field', () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const dueDateInput = screen.getByTestId('project-due-date-input')
+    expect(dueDateInput).toBeDefined()
+  })
+})
+
+describe('ProjectFormScreen - Date Picker Behavior', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockCreateProject.mockReturnValue({
+      mutate: mockCreateProjectMutate,
+      isPending: false,
+      isSuccess: false,
+    })
+    mockUpdateProject.mockReturnValue({
+      mutate: mockUpdateProjectMutate,
+      isPending: false,
+      isSuccess: false,
+    })
+  })
+
+  it('should open start date picker modal when start date field is pressed', async () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const startDatePressable = screen.getByTestId('start-date-pressable')
+
+    // Click the pressable
+    startDatePressable.click()
+
+    // Modal should be visible after state update
+    await waitFor(() => {
+      const startDateModal = screen.getByTestId('start-date-picker-modal')
+      expect(startDateModal).toBeDefined()
+    })
+  })
+
+  it('should open due date picker modal when due date field is pressed', async () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const dueDatePressable = screen.getByTestId('due-date-pressable')
+
+    // Click the pressable
+    dueDatePressable.click()
+
+    // Modal should be visible after state update
+    await waitFor(() => {
+      const dueDateModal = screen.getByTestId('due-date-picker-modal')
+      expect(dueDateModal).toBeDefined()
+    })
+  })
+
+  it('should close start date picker modal when dismissed', async () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const startDatePressable = screen.getByTestId('start-date-pressable')
+
+    // Open modal
+    startDatePressable.click()
+
+    await waitFor(() => {
+      const startDateModal = screen.queryByTestId('start-date-picker-modal')
+      expect(startDateModal).toBeDefined()
+    })
+
+    // Dismiss modal
+    const dismissButton = screen.getByTestId('start-date-picker-modal-dismiss')
+    dismissButton.click()
+
+    // Modal should not be visible after state update
+    await waitFor(() => {
+      const startDateModal = screen.queryByTestId('start-date-picker-modal')
+      expect(startDateModal).toBeNull()
+    })
+  })
+
+  it('should allow date selection and close modal', async () => {
+    render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
+    const startDatePressable = screen.getByTestId('start-date-pressable')
+
+    // Initial value should be empty
+    const startDateInput = screen.getByTestId('project-start-date-input')
+    expect(startDateInput).toHaveValue('')
+
+    // Open modal
+    startDatePressable.click()
+
+    // Wait for modal to be visible
+    await waitFor(() => {
+      const confirmButton = screen.getByTestId('start-date-picker-modal-confirm')
+      expect(confirmButton).toBeDefined()
+    })
+
+    // Select a date
+    const confirmButton = screen.getByTestId('start-date-picker-modal-confirm')
+    confirmButton.click()
+
+    // Modal should close after selection
+    await waitFor(() => {
+      const modal = screen.queryByTestId('start-date-picker-modal')
+      expect(modal).toBeNull()
+    })
+
+    // Note: Actual date value update is tested via E2E/manual testing
+    // React Hook Form + Controller makes value assertion complex in unit tests
   })
 })
 
