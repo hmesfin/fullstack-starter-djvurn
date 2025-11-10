@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native'
 import { Text, TextInput, Button, ActivityIndicator, HelperText, Menu, Divider } from 'react-native-paper'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useForm, Controller } from 'react-hook-form'
@@ -190,16 +190,19 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
                 visible={statusMenuVisible}
                 onDismiss={() => setStatusMenuVisible(false)}
                 anchor={
-                  <TextInput
-                    label="Status"
-                    value={value ? STATUS_LABELS[value] : STATUS_LABELS.draft}
-                    mode="outlined"
-                    editable={false}
-                    right={<TextInput.Icon icon="menu-down" />}
-                    onPressIn={() => setStatusMenuVisible(true)}
-                    error={!!errors.status}
-                    testID="project-status-input"
-                  />
+                  <Pressable onPress={() => setStatusMenuVisible(true)}>
+                    <View pointerEvents="none">
+                      <TextInput
+                        label="Status"
+                        value={value ? STATUS_LABELS[value] : STATUS_LABELS.draft}
+                        mode="outlined"
+                        editable={false}
+                        right={<TextInput.Icon icon="menu-down" />}
+                        error={!!errors.status}
+                        testID="project-status-input"
+                      />
+                    </View>
+                  </Pressable>
                 }
               >
                 <Menu.Item
@@ -254,16 +257,19 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
                 visible={priorityMenuVisible}
                 onDismiss={() => setPriorityMenuVisible(false)}
                 anchor={
-                  <TextInput
-                    label="Priority"
-                    value={value ? PRIORITY_LABELS[value] : PRIORITY_LABELS[2]}
-                    mode="outlined"
-                    editable={false}
-                    right={<TextInput.Icon icon="menu-down" />}
-                    onPressIn={() => setPriorityMenuVisible(true)}
-                    error={!!errors.priority}
-                    testID="project-priority-input"
-                  />
+                  <Pressable onPress={() => setPriorityMenuVisible(true)}>
+                    <View pointerEvents="none">
+                      <TextInput
+                        label="Priority"
+                        value={value ? PRIORITY_LABELS[value] : PRIORITY_LABELS[2]}
+                        mode="outlined"
+                        editable={false}
+                        right={<TextInput.Icon icon="menu-down" />}
+                        error={!!errors.priority}
+                        testID="project-priority-input"
+                      />
+                    </View>
+                  </Pressable>
                 }
               >
                 <Menu.Item

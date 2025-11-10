@@ -85,6 +85,7 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (styles: any) => styles },
   Platform: { OS: 'ios' },
   KeyboardAvoidingView: ({ children }: any) => <div>{children}</div>,
+  Pressable: ({ children, onPress }: any) => <div onClick={onPress}>{children}</div>,
 }))
 
 // Mock React Native Paper

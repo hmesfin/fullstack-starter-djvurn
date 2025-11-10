@@ -10,7 +10,14 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { ProjectsStackParamList } from '@/navigation/types'
 import { useProject } from '@/features/projects/hooks/useProject'
 import { useDeleteProject } from '@/features/projects/hooks/useProjectMutations'
-import { STATUS_LABELS, STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS } from '@/constants/projects'
+import {
+  STATUS_LABELS,
+  STATUS_COLORS,
+  STATUS_TEXT_COLORS,
+  PRIORITY_LABELS,
+  PRIORITY_COLORS,
+  PRIORITY_TEXT_COLORS,
+} from '@/constants/projects'
 
 type Props = NativeStackScreenProps<ProjectsStackParamList, 'ProjectDetail'>
 
@@ -96,8 +103,10 @@ export function ProjectDetailScreen({ route, navigation }: Props): React.ReactEl
   // Success state - display project details
   const statusLabel = project.status ? STATUS_LABELS[project.status] : ''
   const statusColor = project.status ? STATUS_COLORS[project.status] : '#9e9e9e'
+  const statusTextColor = project.status ? STATUS_TEXT_COLORS[project.status] : '#ffffff'
   const priorityLabel = project.priority ? PRIORITY_LABELS[project.priority] : ''
   const priorityColor = project.priority ? PRIORITY_COLORS[project.priority] : '#9e9e9e'
+  const priorityTextColor = project.priority ? PRIORITY_TEXT_COLORS[project.priority] : '#ffffff'
 
   return (
     <ScrollView style={styles.container} testID="project-detail-content">
@@ -113,7 +122,7 @@ export function ProjectDetailScreen({ route, navigation }: Props): React.ReactEl
           {project.status && (
             <Chip
               style={[styles.badge, { backgroundColor: statusColor }]}
-              textStyle={styles.badgeText}
+              textStyle={[styles.badgeText, { color: statusTextColor }]}
               testID="project-status-badge"
             >
               {statusLabel}
@@ -124,7 +133,7 @@ export function ProjectDetailScreen({ route, navigation }: Props): React.ReactEl
           {project.priority && (
             <Chip
               style={[styles.badge, { backgroundColor: priorityColor }]}
-              textStyle={styles.badgeText}
+              textStyle={[styles.badgeText, { color: priorityTextColor }]}
               testID="project-priority-badge"
             >
               {priorityLabel}
@@ -248,8 +257,8 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 12,
-    color: '#ffffff',
     fontWeight: '600',
+    lineHeight: 16,
   },
   overdueBadge: {
     backgroundColor: '#f44336',
