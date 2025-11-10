@@ -37,7 +37,7 @@ backend/
 - All backend code in `backend/` directory for clear separation
 - Apps in `backend/apps/` directory
 - Custom User model: `apps.users.User` (email-based, no username)
-- API endpoints: `/api/v1/` namespace
+- API endpoints: `/api/` namespace
 - DRF ViewSets registered in `backend/config/api_router.py`
 - OpenAPI schema available at `/api/schema/`
 - Authentication: DRF Token Authentication (via `/api/auth-token/`)

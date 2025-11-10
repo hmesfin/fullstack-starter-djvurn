@@ -17,9 +17,10 @@ Mailpit is an email testing tool that captures all outgoing emails without sendi
 
 **Service**: `mailpit` container in docker-compose
 **SMTP**: `mailpit:1025` (captured, not sent)
-**Web UI**: http://localhost:8025 (view all sent emails)
+**Web UI**: <http://localhost:8025> (view all sent emails)
 
 **Environment variables** (`.envs/.local/.django`):
+
 ```env
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=mailpit
@@ -32,11 +33,13 @@ EMAIL_USE_TLS=False
 ### Usage
 
 1. **Start services**:
+
    ```bash
    docker compose up
    ```
 
 2. **Trigger email** (e.g., register user, send OTP):
+
    ```python
    from django.core.mail import send_mail
 
@@ -49,24 +52,26 @@ EMAIL_USE_TLS=False
    ```
 
 3. **View email in Mailpit UI**:
-   - Open http://localhost:8025
+   - Open <http://localhost:8025>
    - See all captured emails with HTML and plain text versions
    - View headers, attachments, and raw email source
 
 ### Testing Emails
 
 Mailpit captures emails sent by:
+
 - User registration (OTP verification emails)
 - Login with unverified email (OTP emails)
 - Password reset requests
 - Any `send_mail()` or Celery email tasks
 
 **Mailpit Features**:
+
 - View HTML and plain text versions
 - Inspect email headers
 - Download attachments
 - Search emails
-- API access (http://localhost:8025/api/v1/messages)
+- API access (<http://localhost:8025/api/messages>)
 
 ## Production (SendGrid)
 
@@ -77,6 +82,7 @@ SendGrid is used for actual email delivery in production via django-anymail.
 **Backend**: `anymail.backends.sendgrid.EmailBackend`
 
 **Environment variables** (production `.env`):
+
 ```env
 EMAIL_BACKEND=anymail.backends.sendgrid.EmailBackend
 SENDGRID_API_KEY=your-sendgrid-api-key-here
@@ -86,7 +92,7 @@ DJANGO_SERVER_EMAIL=server@yourdomain.com
 
 ### SendGrid Setup
 
-1. **Create SendGrid account**: https://sendgrid.com/
+1. **Create SendGrid account**: <https://sendgrid.com/>
 
 2. **Create API key**:
    - Go to Settings → API Keys
@@ -99,11 +105,13 @@ DJANGO_SERVER_EMAIL=server@yourdomain.com
    - Or create single sender (quick testing)
 
 4. **Add API key to environment**:
+
    ```env
    SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxx
    ```
 
 5. **Set from address**:
+
    ```env
    DJANGO_DEFAULT_FROM_EMAIL=noreply@yourdomain.com
    ```
@@ -132,10 +140,12 @@ Email templates are Django templates located in `backend/apps/templates/email/`.
 ### Template Structure
 
 Each email has two versions:
+
 - **HTML version**: `<template_name>.html` (styled, rich content)
 - **Plain text version**: `<template_name>.txt` (fallback for text-only clients)
 
 **Example structure**:
+
 ```tree
 backend/apps/templates/email/
 ├── base.html           # Base HTML template
@@ -209,6 +219,7 @@ If you didn't request this code, please ignore this email.
 ### Template Context Variables
 
 Common variables available in email templates:
+
 - `{{ user }}` - User object (user.first_name, user.email, etc.)
 - `{{ site_name }}` - Site name from settings
 - `{{ domain }}` - Domain from settings
@@ -356,24 +367,27 @@ docker compose run --rm django pytest apps/users/tests/test_tasks.py -v
 
 ### Local Development (Mailpit)
 
-- **Web UI**: http://localhost:8025
-- **API**: http://localhost:8025/api/v1/messages
+- **Web UI**: <http://localhost:8025>
+- **API**: <http://localhost:8025/api/messages>
 
 **Check email was captured**:
+
 ```bash
-curl http://localhost:8025/api/v1/messages
+curl http://localhost:8025/api/messages
 ```
 
 ### Production (SendGrid)
 
-**SendGrid Dashboard**: https://app.sendgrid.com/
+**SendGrid Dashboard**: <https://app.sendgrid.com/>
 
 **Email Activity Feed**:
+
 - Shows all sent emails
 - Delivery status (delivered, bounced, opened, clicked)
 - Errors and reasons
 
 **Webhook integration** (optional):
+
 ```python
 # In config/settings/production.py
 ANYMAIL = {
@@ -390,20 +404,24 @@ ANYMAIL = {
 ### Emails Not Being Sent (Local)
 
 **Check Mailpit is running**:
+
 ```bash
 docker compose ps mailpit
 # Should show "Up"
 ```
 
 **Check Mailpit logs**:
+
 ```bash
 docker compose logs mailpit
 ```
 
 **Check Django email settings**:
+
 ```bash
 docker compose run --rm django python manage.py shell
 ```
+
 ```python
 from django.conf import settings
 print(settings.EMAIL_HOST)  # Should be 'mailpit'
@@ -411,9 +429,11 @@ print(settings.EMAIL_PORT)  # Should be 1025
 ```
 
 **Test email send**:
+
 ```bash
 docker compose run --rm django python manage.py shell
 ```
+
 ```python
 from django.core.mail import send_mail
 send_mail('Test', 'Test message', 'noreply@example.com', ['test@example.com'])
@@ -423,21 +443,25 @@ send_mail('Test', 'Test message', 'noreply@example.com', ['test@example.com'])
 ### Emails Not Being Sent (Production)
 
 **Check SendGrid API key**:
+
 ```bash
 # Ensure SENDGRID_API_KEY is set correctly
 echo $SENDGRID_API_KEY
 ```
 
 **Check SendGrid dashboard**:
-- Go to https://app.sendgrid.com/email_activity
+
+- Go to <https://app.sendgrid.com/email_activity>
 - Look for errors or bounces
 
 **Check Django logs**:
+
 ```bash
 docker compose logs django --tail 100 | grep -i email
 ```
 
 **Common errors**:
+
 - **401 Unauthorized**: Invalid API key
 - **403 Forbidden**: API key missing permissions
 - **Domain not verified**: Verify your sender domain in SendGrid
@@ -445,20 +469,24 @@ docker compose logs django --tail 100 | grep -i email
 ### Celery Tasks Not Running
 
 **Check Celery worker is running**:
+
 ```bash
 docker compose ps celeryworker
 # Should show "Up"
 ```
 
 **Check Celery logs**:
+
 ```bash
 docker compose logs -f celeryworker
 ```
 
 **Check task was queued**:
+
 ```bash
 docker compose run --rm django python manage.py shell
 ```
+
 ```python
 from config.celery_app import app
 inspector = app.control.inspect()
@@ -468,6 +496,7 @@ print(inspector.reserved())    # Queued tasks
 ```
 
 **Restart Celery worker**:
+
 ```bash
 docker compose restart celeryworker
 ```
@@ -475,12 +504,14 @@ docker compose restart celeryworker
 ### Template Not Found
 
 **Check template path**:
+
 ```bash
 # Templates should be in backend/apps/templates/email/
 ls -la backend/apps/templates/email/
 ```
 
 **Check TEMPLATES setting** (`config/settings/base.py`):
+
 ```python
 TEMPLATES = [
     {
@@ -492,9 +523,11 @@ TEMPLATES = [
 ```
 
 **Test template rendering**:
+
 ```bash
 docker compose run --rm django python manage.py shell
 ```
+
 ```python
 from django.template.loader import render_to_string
 html = render_to_string('email/otp_verification.html', {'otp_code': '123456'})
@@ -602,6 +635,7 @@ def test_registration_sends_otp_email(api_client):
 ```
 
 This flow ensures:
+
 - ✅ User registration creates OTP
 - ✅ Email sent asynchronously via Celery
 - ✅ HTML and plain text versions included

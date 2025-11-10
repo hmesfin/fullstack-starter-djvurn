@@ -9,9 +9,11 @@
 ## Data Models
 
 ### Post Model
+
 **File**: `backend/apps/blog/models/post.py`
 
 **Fields**:
+
 - `id` (AutoField, primary key)
 - `uuid` (UUIDField, unique, default=uuid4, indexed) - For public API exposure
 - `title` (CharField, max_length=200, required)
@@ -27,12 +29,14 @@
 - `updated_at` (DateTimeField, auto_now=True)
 
 **Relationships**:
+
 - Author: Many-to-One with User
 - Comments: One-to-Many with Comment
 - Categories: Many-to-Many with Category
 - Tags: Many-to-Many with Tag
 
 **Indexes**:
+
 - `uuid` (unique)
 - `slug` (unique)
 - `status` (for filtering)
@@ -41,6 +45,7 @@
 - Composite: `['status', 'published_at']` (for published posts query)
 
 **Validation**:
+
 - Title: Required, max 200 chars
 - Slug: Auto-generated from title, unique
 - Content: Required, min 10 chars
@@ -49,6 +54,7 @@
 - Featured_image: Max 5MB, formats: jpg, png, webp
 
 **Custom Methods**:
+
 - `save()`: Auto-generate slug from title if not provided
 - `publish()`: Set status='published', published_at=now()
 - `get_reading_time()`: Calculate reading time based on word count
@@ -57,9 +63,11 @@
 ---
 
 ### Comment Model
+
 **File**: `backend/apps/blog/models/comment.py`
 
 **Fields**:
+
 - `id` (AutoField, primary key)
 - `uuid` (UUIDField, unique, default=uuid4, indexed)
 - `post` (ForeignKey to Post, on_delete=CASCADE, related_name='comments')
@@ -71,26 +79,31 @@
 - `updated_at` (DateTimeField, auto_now=True)
 
 **Relationships**:
+
 - Post: Many-to-One with Post
 - Author: Many-to-One with User
 - Parent: Self-referential for nested comments
 
 **Indexes**:
+
 - `uuid` (unique)
 - `post` (for filtering comments by post)
 - `author` (for filtering user's comments)
 - `created_at` (for sorting)
 
 **Validation**:
+
 - Content: Required, max 1000 chars, min 3 chars
 - Parent: If set, must be a top-level comment (no nested replies to replies)
 
 ---
 
 ### Category Model
+
 **File**: `backend/apps/blog/models/category.py`
 
 **Fields**:
+
 - `id` (AutoField, primary key)
 - `name` (CharField, max_length=100, unique)
 - `slug` (SlugField, max_length=110, unique)
@@ -98,35 +111,43 @@
 - `created_at` (DateTimeField, auto_now_add=True)
 
 **Relationships**:
+
 - Posts: Many-to-Many with Post
 
 **Indexes**:
+
 - `slug` (unique)
 - `name` (unique)
 
 **Validation**:
+
 - Name: Required, unique, max 100 chars
 - Slug: Auto-generated from name, unique
 
 ---
 
 ### Tag Model
+
 **File**: `backend/apps/blog/models/tag.py`
 
 **Fields**:
+
 - `id` (AutoField, primary key)
 - `name` (CharField, max_length=50, unique)
 - `slug` (SlugField, max_length=60, unique)
 - `created_at` (DateTimeField, auto_now_add=True)
 
 **Relationships**:
+
 - Posts: Many-to-Many with Post
 
 **Indexes**:
+
 - `slug` (unique)
 - `name` (unique)
 
 **Validation**:
+
 - Name: Required, unique, max 50 chars
 - Slug: Auto-generated from name, unique
 
@@ -135,81 +156,87 @@
 ## API Endpoints
 
 ### Posts Endpoints
-**Base URL**: `/api/v1/blog/`
+
+**Base URL**: `/api/blog/`
 
 #### List/Create Posts
-- **GET** `/api/v1/blog/posts/` - List published posts (public)
+
+- **GET** `/api/blog/posts/` - List published posts (public)
   - Query params: `?category={slug}`, `?tag={slug}`, `?search={query}`, `?ordering=-published_at`
   - Permissions: AllowAny
   - Response: Paginated list (20 per page)
 
-- **POST** `/api/v1/blog/posts/` - Create new post (authenticated)
+- **POST** `/api/blog/posts/` - Create new post (authenticated)
   - Permissions: IsAuthenticated
   - Request body: `{ title, content, excerpt?, status, category_ids[], tag_ids[] }`
   - Response: 201 Created
 
 #### Retrieve/Update/Delete Post
-- **GET** `/api/v1/blog/posts/{uuid}/` - Get post details
+
+- **GET** `/api/blog/posts/{uuid}/` - Get post details
   - Permissions: AllowAny (if published), IsAuthor (if draft)
   - Response: Full post with comments
 
-- **PATCH** `/api/v1/blog/posts/{uuid}/` - Update post
+- **PATCH** `/api/blog/posts/{uuid}/` - Update post
   - Permissions: IsAuthor
   - Request body: Partial update
   - Response: 200 OK
 
-- **DELETE** `/api/v1/blog/posts/{uuid}/` - Delete post
+- **DELETE** `/api/blog/posts/{uuid}/` - Delete post
   - Permissions: IsAuthor or IsAdmin
   - Response: 204 No Content
 
 #### Custom Actions
-- **POST** `/api/v1/blog/posts/{uuid}/publish/` - Publish draft post
+
+- **POST** `/api/blog/posts/{uuid}/publish/` - Publish draft post
   - Permissions: IsAuthor
   - Response: 200 OK
 
-- **POST** `/api/v1/blog/posts/{uuid}/increment_view/` - Increment view count
+- **POST** `/api/blog/posts/{uuid}/increment_view/` - Increment view count
   - Permissions: AllowAny
   - Response: 200 OK
 
 ### Comments Endpoints
 
 #### List/Create Comments
-- **GET** `/api/v1/blog/posts/{post_uuid}/comments/` - List comments for post
+
+- **GET** `/api/blog/posts/{post_uuid}/comments/` - List comments for post
   - Permissions: AllowAny
   - Response: Paginated list (50 per page), nested structure
 
-- **POST** `/api/v1/blog/posts/{post_uuid}/comments/` - Create comment
+- **POST** `/api/blog/posts/{post_uuid}/comments/` - Create comment
   - Permissions: IsAuthenticated
   - Request body: `{ content, parent_id? }`
   - Response: 201 Created
 
 #### Update/Delete Comment
-- **PATCH** `/api/v1/blog/comments/{uuid}/` - Update comment
+
+- **PATCH** `/api/blog/comments/{uuid}/` - Update comment
   - Permissions: IsAuthor (within 15 mins of creation)
   - Request body: `{ content }`
   - Response: 200 OK
 
-- **DELETE** `/api/v1/blog/comments/{uuid}/` - Delete comment
+- **DELETE** `/api/blog/comments/{uuid}/` - Delete comment
   - Permissions: IsAuthor or IsAdmin
   - Response: 204 No Content
 
 ### Categories Endpoints
 
-- **GET** `/api/v1/blog/categories/` - List all categories
+- **GET** `/api/blog/categories/` - List all categories
   - Permissions: AllowAny
   - Response: List with post count
 
-- **GET** `/api/v1/blog/categories/{slug}/` - Get category with posts
+- **GET** `/api/blog/categories/{slug}/` - Get category with posts
   - Permissions: AllowAny
   - Response: Category + paginated posts
 
 ### Tags Endpoints
 
-- **GET** `/api/v1/blog/tags/` - List all tags
+- **GET** `/api/blog/tags/` - List all tags
   - Permissions: AllowAny
   - Response: List with post count
 
-- **GET** `/api/v1/blog/tags/{slug}/` - Get tag with posts
+- **GET** `/api/blog/tags/{slug}/` - Get tag with posts
   - Permissions: AllowAny
   - Response: Tag + paginated posts
 
@@ -263,6 +290,7 @@ MyPostsView (authenticated)
 ### Key Composables
 
 **`usePost.ts`**:
+
 ```typescript
 export const usePost = (uuid: string) => {
   const { data: post, isLoading } = useQuery({
@@ -279,6 +307,7 @@ export const usePost = (uuid: string) => {
 ```
 
 **`usePosts.ts`**:
+
 ```typescript
 export const usePosts = (filters?: PostFilters) => {
   const { data, isLoading, fetchNextPage } = useInfiniteQuery({
@@ -293,6 +322,7 @@ export const usePosts = (filters?: PostFilters) => {
 ```
 
 **`useComments.ts`**:
+
 ```typescript
 export const useComments = (postUuid: string) => {
   const { data: comments } = useQuery({
@@ -317,6 +347,7 @@ export const useComments = (postUuid: string) => {
 ### Post Validation (Backend + Frontend)
 
 **Backend** (`apps/blog/serializers/post.py`):
+
 ```python
 class PostSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
@@ -331,6 +362,7 @@ class PostSerializer(serializers.ModelSerializer):
 ```
 
 **Frontend Zod Schema** (`frontend/src/schemas/post.ts`):
+
 ```typescript
 export const postSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(200),
@@ -351,6 +383,7 @@ export type PostFormData = z.infer<typeof postSchema>
 ### Comment Validation
 
 **Backend**:
+
 ```python
 class CommentSerializer(serializers.ModelSerializer):
     def validate_content(self, value):
@@ -362,6 +395,7 @@ class CommentSerializer(serializers.ModelSerializer):
 ```
 
 **Frontend Zod Schema**:
+
 ```typescript
 export const commentSchema = z.object({
   content: z.string().min(3).max(1000),
@@ -376,6 +410,7 @@ export const commentSchema = z.object({
 ### Backend Tests
 
 **Models** (`apps/blog/tests/test_models.py`):
+
 - Post model creation and field validation
 - Slug auto-generation from title
 - Publish method sets published_at
@@ -385,11 +420,13 @@ export const commentSchema = z.object({
 - Category and Tag uniqueness
 
 **Serializers** (`apps/blog/tests/test_serializers.py`):
+
 - Post serializer validation
 - Comment serializer with parent validation
 - Category and Tag serialization
 
 **ViewSets** (`apps/blog/tests/test_viewsets.py`):
+
 - List published posts (public)
 - Create post (authenticated)
 - Update post (author only)
@@ -400,6 +437,7 @@ export const commentSchema = z.object({
 - Nested comment replies
 
 **Permissions** (`apps/blog/tests/test_permissions.py`):
+
 - Anonymous can read published posts
 - Anonymous cannot read draft posts
 - Author can CRUD their own posts
@@ -411,6 +449,7 @@ export const commentSchema = z.object({
 ### Frontend Tests
 
 **Components** (`frontend/src/components/blog/*.test.ts`):
+
 - PostCard renders correctly
 - PostForm validation
 - CommentForm submission
@@ -418,11 +457,13 @@ export const commentSchema = z.object({
 - PostFilters emit events
 
 **Composables** (`frontend/src/composables/*.test.ts`):
+
 - usePost fetches and caches data
 - usePosts infinite scroll
 - useComments CRUD operations
 
 **Views** (`frontend/src/views/blog/*.test.ts`):
+
 - PostListView filters and pagination
 - PostDetailView renders post + comments
 - CreatePostView form submission
@@ -434,17 +475,20 @@ export const commentSchema = z.object({
 ## Performance Considerations
 
 ### Database Optimizations
+
 - Use `select_related('author')` for post queries
 - Use `prefetch_related('categories', 'tags', 'comments')` for detail views
 - Index on `status` and `published_at` for published posts query
 - Composite index on `['status', 'published_at']` for performance
 
 ### Caching Strategy
+
 - Cache published post list: 5 minutes
 - Cache post detail: 10 minutes (invalidate on update)
 - Cache categories/tags: 1 hour (rarely change)
 
 ### Image Optimization
+
 - Generate thumbnails on upload (small, medium, large)
 - Use WebP format for better compression
 - Lazy load images in post list
@@ -455,17 +499,20 @@ export const commentSchema = z.object({
 ## Security Considerations
 
 ### Permissions
+
 - Draft posts: Only author can view/edit
 - Published posts: Public read, author can edit
 - Comments: Authenticated users can create, only author can edit/delete (within 15 mins)
 - Moderation: Add `is_approved` flag for comment moderation
 
 ### Input Sanitization
+
 - Sanitize HTML in post content (allow safe tags only)
 - Escape user input in comments
 - Validate image uploads (file type, size, dimensions)
 
 ### Rate Limiting
+
 - Post creation: 10 posts per hour per user
 - Comment creation: 30 comments per hour per user
 - View count increment: 1 per IP per post per 24 hours

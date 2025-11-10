@@ -287,7 +287,7 @@ export const projectsList = <ThrowOnError extends boolean = false>(options?: Opt
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/',
+        url: '/api/projects/',
         ...options
     });
 };
@@ -311,7 +311,7 @@ export const projectsCreate = <ThrowOnError extends boolean = false>(options: Op
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/',
+        url: '/api/projects/',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -339,7 +339,7 @@ export const projectsDestroy = <ThrowOnError extends boolean = false>(options: O
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/{uuid}/',
+        url: '/api/projects/{uuid}/',
         ...options
     });
 };
@@ -363,7 +363,7 @@ export const projectsRetrieve = <ThrowOnError extends boolean = false>(options: 
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/{uuid}/',
+        url: '/api/projects/{uuid}/',
         ...options
     });
 };
@@ -387,7 +387,7 @@ export const projectsPartialUpdate = <ThrowOnError extends boolean = false>(opti
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/{uuid}/',
+        url: '/api/projects/{uuid}/',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -415,7 +415,7 @@ export const projectsUpdate = <ThrowOnError extends boolean = false>(options: Op
                 type: 'apiKey'
             }
         ],
-        url: '/api/v1/projects/{uuid}/',
+        url: '/api/projects/{uuid}/',
         ...options,
         headers: {
             'Content-Type': 'application/json',

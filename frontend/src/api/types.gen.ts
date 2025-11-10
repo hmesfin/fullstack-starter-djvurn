@@ -458,7 +458,7 @@ export type ProjectsListData = {
          */
         status?: 'active' | 'archived' | 'completed' | 'draft';
     };
-    url: '/api/v1/projects/';
+    url: '/api/projects/';
 };
 
 export type ProjectsListResponses = {
@@ -471,7 +471,7 @@ export type ProjectsCreateData = {
     body: ProjectCreateRequest;
     path?: never;
     query?: never;
-    url: '/api/v1/projects/';
+    url: '/api/projects/';
 };
 
 export type ProjectsCreateResponses = {
@@ -486,7 +486,7 @@ export type ProjectsDestroyData = {
         uuid: string;
     };
     query?: never;
-    url: '/api/v1/projects/{uuid}/';
+    url: '/api/projects/{uuid}/';
 };
 
 export type ProjectsDestroyResponses = {
@@ -504,7 +504,7 @@ export type ProjectsRetrieveData = {
         uuid: string;
     };
     query?: never;
-    url: '/api/v1/projects/{uuid}/';
+    url: '/api/projects/{uuid}/';
 };
 
 export type ProjectsRetrieveResponses = {
@@ -519,7 +519,7 @@ export type ProjectsPartialUpdateData = {
         uuid: string;
     };
     query?: never;
-    url: '/api/v1/projects/{uuid}/';
+    url: '/api/projects/{uuid}/';
 };
 
 export type ProjectsPartialUpdateResponses = {
@@ -534,7 +534,7 @@ export type ProjectsUpdateData = {
         uuid: string;
     };
     query?: never;
-    url: '/api/v1/projects/{uuid}/';
+    url: '/api/projects/{uuid}/';
 };
 
 export type ProjectsUpdateResponses = {

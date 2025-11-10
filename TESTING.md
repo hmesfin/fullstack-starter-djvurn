@@ -161,7 +161,7 @@ ACCESS_TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/token/ \
   | jq -r '.access')
 
 # Create a project
-curl -X POST http://localhost:8000/api/v1/projects/ \
+curl -X POST http://localhost:8000/api/projects/ \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

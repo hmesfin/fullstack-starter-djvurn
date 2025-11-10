@@ -322,7 +322,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
-  /api/v1/projects/:
+  /api/projects/:
     get:
       operationId: projects_list
       description: Returns a paginated list of projects owned by the current user
@@ -395,7 +395,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProjectCreate'
           description: ''
-  /api/v1/projects/{uuid}/:
+  /api/projects/{uuid}/:
     get:
       operationId: projects_retrieve
       description: |-
