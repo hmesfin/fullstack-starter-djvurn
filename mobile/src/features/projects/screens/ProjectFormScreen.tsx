@@ -358,7 +358,6 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
                   }
                   setStartDatePickerVisible(false)
                 }}
-                testID="start-date-picker-modal"
               />
               {errors.start_date && (
                 <HelperText type="error" visible={!!errors.start_date}>
@@ -400,7 +399,6 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
                   }
                   setDueDatePickerVisible(false)
                 }}
-                testID="due-date-picker-modal"
               />
               {errors.due_date && (
                 <HelperText type="error" visible={!!errors.due_date}>

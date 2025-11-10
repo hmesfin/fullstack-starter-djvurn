@@ -93,22 +93,35 @@ vi.mock('react-native', () => ({
 }))
 
 // Mock react-native-paper-dates
-vi.mock('react-native-paper-dates', () => ({
-  DatePickerModal: ({ visible, onDismiss, onConfirm, testID }: any) =>
-    visible ? (
-      <div data-testid={testID}>
-        <button data-testid={`${testID}-dismiss`} onClick={onDismiss}>
-          Cancel
-        </button>
-        <button
-          data-testid={`${testID}-confirm`}
-          onClick={() => onConfirm({ date: new Date('2025-01-15') })}
-        >
-          Confirm
-        </button>
-      </div>
-    ) : null,
-}))
+// Track modal instances to assign unique test IDs
+let modalInstanceCount = 0
+const getModalTestId = () => {
+  const count = modalInstanceCount++
+  return count === 0 ? 'start-date-picker-modal' : 'due-date-picker-modal'
+}
+
+vi.mock('react-native-paper-dates', () => {
+  return {
+    DatePickerModal: ({ visible, onDismiss, onConfirm }: any) => {
+      // Assign testID on component creation (first render)
+      const [testId] = React.useState(() => getModalTestId())
+
+      return visible ? (
+        <div data-testid={testId}>
+          <button data-testid={`${testId}-dismiss`} onClick={onDismiss}>
+            Cancel
+          </button>
+          <button
+            data-testid={`${testId}-confirm`}
+            onClick={() => onConfirm({ date: new Date('2025-01-15') })}
+          >
+            Confirm
+          </button>
+        </div>
+      ) : null
+    },
+  }
+})
 
 // Mock React Native Paper
 vi.mock('react-native-paper', () => ({
@@ -333,6 +346,8 @@ describe('ProjectFormScreen - Form Fields', () => {
 describe('ProjectFormScreen - Date Picker Behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset modal counter for consistent test IDs
+    modalInstanceCount = 0
     mockCreateProject.mockReturnValue({
       mutate: mockCreateProjectMutate,
       isPending: false,
