@@ -3,9 +3,9 @@
  * Create/Edit project form with React Hook Form + Zod validation
  */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
-import { Text, TextInput, Button, SegmentedButtons, ActivityIndicator, HelperText } from 'react-native-paper'
+import { Text, TextInput, Button, ActivityIndicator, HelperText, Menu, Divider } from 'react-native-paper'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -25,6 +25,10 @@ type ProjectFormData = ProjectCreateInput
 export function ProjectFormScreen({ route, navigation }: Props): React.ReactElement {
   const { projectUuid } = route.params || {}
   const isEditMode = !!projectUuid
+
+  // Menu visibility state
+  const [statusMenuVisible, setStatusMenuVisible] = useState(false)
+  const [priorityMenuVisible, setPriorityMenuVisible] = useState(false)
 
   // Fetch project if in edit mode
   const { data: project, isLoading, isError, error } = useProject(projectUuid || '', {
@@ -182,21 +186,55 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
           name="status"
           render={({ field: { onChange, value } }) => (
             <View style={styles.fieldContainer}>
-              <Text variant="bodyMedium" style={styles.fieldLabel}>
-                Status
-              </Text>
-              <View testID="project-status-input">
-                <SegmentedButtons
-                  value={value || 'draft'}
-                  onValueChange={onChange}
-                  buttons={[
-                    { value: 'draft', label: STATUS_LABELS.draft, testID: 'project-status-input-draft' },
-                    { value: 'active', label: STATUS_LABELS.active, testID: 'project-status-input-active' },
-                    { value: 'completed', label: STATUS_LABELS.completed, testID: 'project-status-input-completed' },
-                    { value: 'archived', label: STATUS_LABELS.archived, testID: 'project-status-input-archived' },
-                  ]}
+              <Menu
+                visible={statusMenuVisible}
+                onDismiss={() => setStatusMenuVisible(false)}
+                anchor={
+                  <TextInput
+                    label="Status"
+                    value={value ? STATUS_LABELS[value] : STATUS_LABELS.draft}
+                    mode="outlined"
+                    editable={false}
+                    right={<TextInput.Icon icon="menu-down" />}
+                    onPressIn={() => setStatusMenuVisible(true)}
+                    error={!!errors.status}
+                    testID="project-status-input"
+                  />
+                }
+              >
+                <Menu.Item
+                  onPress={() => {
+                    onChange('draft')
+                    setStatusMenuVisible(false)
+                  }}
+                  title="Draft"
+                  testID="project-status-input-draft"
                 />
-              </View>
+                <Menu.Item
+                  onPress={() => {
+                    onChange('active')
+                    setStatusMenuVisible(false)
+                  }}
+                  title="Active"
+                  testID="project-status-input-active"
+                />
+                <Menu.Item
+                  onPress={() => {
+                    onChange('completed')
+                    setStatusMenuVisible(false)
+                  }}
+                  title="Completed"
+                  testID="project-status-input-completed"
+                />
+                <Menu.Item
+                  onPress={() => {
+                    onChange('archived')
+                    setStatusMenuVisible(false)
+                  }}
+                  title="Archived"
+                  testID="project-status-input-archived"
+                />
+              </Menu>
               {errors.status && (
                 <HelperText type="error" visible={!!errors.status}>
                   {errors.status.message}
@@ -212,24 +250,108 @@ export function ProjectFormScreen({ route, navigation }: Props): React.ReactElem
           name="priority"
           render={({ field: { onChange, value } }) => (
             <View style={styles.fieldContainer}>
-              <Text variant="bodyMedium" style={styles.fieldLabel}>
-                Priority
-              </Text>
-              <View testID="project-priority-input">
-                <SegmentedButtons
-                  value={String(value || 2)}
-                  onValueChange={(v) => onChange(Number(v))}
-                  buttons={[
-                    { value: '1', label: PRIORITY_LABELS[1], testID: 'project-priority-input-1' },
-                    { value: '2', label: PRIORITY_LABELS[2], testID: 'project-priority-input-2' },
-                    { value: '3', label: PRIORITY_LABELS[3], testID: 'project-priority-input-3' },
-                    { value: '4', label: PRIORITY_LABELS[4], testID: 'project-priority-input-4' },
-                  ]}
+              <Menu
+                visible={priorityMenuVisible}
+                onDismiss={() => setPriorityMenuVisible(false)}
+                anchor={
+                  <TextInput
+                    label="Priority"
+                    value={value ? PRIORITY_LABELS[value] : PRIORITY_LABELS[2]}
+                    mode="outlined"
+                    editable={false}
+                    right={<TextInput.Icon icon="menu-down" />}
+                    onPressIn={() => setPriorityMenuVisible(true)}
+                    error={!!errors.priority}
+                    testID="project-priority-input"
+                  />
+                }
+              >
+                <Menu.Item
+                  onPress={() => {
+                    onChange(1)
+                    setPriorityMenuVisible(false)
+                  }}
+                  title="Low"
+                  testID="project-priority-input-1"
                 />
-              </View>
+                <Menu.Item
+                  onPress={() => {
+                    onChange(2)
+                    setPriorityMenuVisible(false)
+                  }}
+                  title="Medium"
+                  testID="project-priority-input-2"
+                />
+                <Menu.Item
+                  onPress={() => {
+                    onChange(3)
+                    setPriorityMenuVisible(false)
+                  }}
+                  title="High"
+                  testID="project-priority-input-3"
+                />
+                <Menu.Item
+                  onPress={() => {
+                    onChange(4)
+                    setPriorityMenuVisible(false)
+                  }}
+                  title="Urgent"
+                  testID="project-priority-input-4"
+                />
+              </Menu>
               {errors.priority && (
                 <HelperText type="error" visible={!!errors.priority}>
                   {errors.priority.message}
+                </HelperText>
+              )}
+            </View>
+          )}
+        />
+
+        {/* Start Date Field */}
+        <Controller
+          control={control}
+          name="start_date"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.fieldContainer}>
+              <TextInput
+                label="Start Date (optional)"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                mode="outlined"
+                placeholder="YYYY-MM-DD"
+                error={!!errors.start_date}
+                testID="project-start-date-input"
+              />
+              {errors.start_date && (
+                <HelperText type="error" visible={!!errors.start_date}>
+                  {errors.start_date.message}
+                </HelperText>
+              )}
+            </View>
+          )}
+        />
+
+        {/* Due Date Field */}
+        <Controller
+          control={control}
+          name="due_date"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.fieldContainer}>
+              <TextInput
+                label="Due Date (optional)"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                mode="outlined"
+                placeholder="YYYY-MM-DD"
+                error={!!errors.due_date}
+                testID="project-due-date-input"
+              />
+              {errors.due_date && (
+                <HelperText type="error" visible={!!errors.due_date}>
+                  {errors.due_date.message}
                 </HelperText>
               )}
             </View>

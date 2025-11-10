@@ -7,7 +7,14 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Card, Text, Chip } from 'react-native-paper'
 import type { Project } from '@/api/types.gen'
-import { STATUS_LABELS, STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS } from '@/constants/projects'
+import {
+  STATUS_LABELS,
+  STATUS_COLORS,
+  STATUS_TEXT_COLORS,
+  PRIORITY_LABELS,
+  PRIORITY_COLORS,
+  PRIORITY_TEXT_COLORS,
+} from '@/constants/projects'
 
 export interface ProjectCardProps {
   project: Project
@@ -35,9 +42,11 @@ export function ProjectCard({ project, onPress }: ProjectCardProps): React.React
 
   const statusLabel = project.status ? STATUS_LABELS[project.status] : ''
   const statusColor = project.status ? STATUS_COLORS[project.status] : '#9e9e9e'
+  const statusTextColor = project.status ? STATUS_TEXT_COLORS[project.status] : '#ffffff'
 
   const priorityLabel = project.priority ? PRIORITY_LABELS[project.priority] : ''
   const priorityColor = project.priority ? PRIORITY_COLORS[project.priority] : '#9e9e9e'
+  const priorityTextColor = project.priority ? PRIORITY_TEXT_COLORS[project.priority] : '#ffffff'
 
   return (
     <Card style={styles.card} onPress={handlePress} testID="project-card">
@@ -60,7 +69,7 @@ export function ProjectCard({ project, onPress }: ProjectCardProps): React.React
           {project.status && (
             <Chip
               style={[styles.badge, { backgroundColor: statusColor }]}
-              textStyle={styles.badgeText}
+              textStyle={[styles.badgeText, { color: statusTextColor }]}
               testID="project-card-status-badge"
             >
               {statusLabel}
@@ -71,7 +80,7 @@ export function ProjectCard({ project, onPress }: ProjectCardProps): React.React
           {project.priority && (
             <Chip
               style={[styles.badge, { backgroundColor: priorityColor }]}
-              textStyle={styles.badgeText}
+              textStyle={[styles.badgeText, { color: priorityTextColor }]}
               testID="project-card-priority-badge"
             >
               {priorityLabel}
@@ -121,12 +130,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   badge: {
-    height: 28,
+    height: 32,
   },
   badgeText: {
     fontSize: 12,
-    color: '#ffffff',
     fontWeight: '600',
+    lineHeight: 16,
   },
   overdueBadge: {
     backgroundColor: '#f44336',

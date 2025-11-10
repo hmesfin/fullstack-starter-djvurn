@@ -26,6 +26,16 @@ export const STATUS_COLORS: Record<StatusEnum, string> = {
 }
 
 /**
+ * Status text color mappings (for badge text - ensures proper contrast)
+ */
+export const STATUS_TEXT_COLORS: Record<StatusEnum, string> = {
+  draft: '#ffffff', // White on gray
+  active: '#ffffff', // White on blue
+  completed: '#ffffff', // White on green
+  archived: '#ffffff', // White on orange
+}
+
+/**
  * Priority label mappings
  */
 export const PRIORITY_LABELS: Record<PriorityEnum, string> = {
@@ -40,7 +50,17 @@ export const PRIORITY_LABELS: Record<PriorityEnum, string> = {
  */
 export const PRIORITY_COLORS: Record<PriorityEnum, string> = {
   1: '#9e9e9e', // Gray
-  2: '#ffeb3b', // Yellow
+  2: '#fdd835', // Darker yellow for better contrast
   3: '#ff9800', // Orange
   4: '#f44336', // Red
+}
+
+/**
+ * Priority text color mappings (for badge text - ensures proper contrast)
+ */
+export const PRIORITY_TEXT_COLORS: Record<PriorityEnum, string> = {
+  1: '#ffffff', // White on gray
+  2: '#000000', // Black on yellow (WCAG compliant)
+  3: '#ffffff', // White on orange
+  4: '#ffffff', // White on red
 }

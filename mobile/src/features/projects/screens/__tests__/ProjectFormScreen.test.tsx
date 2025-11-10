@@ -90,16 +90,23 @@ vi.mock('react-native', () => ({
 // Mock React Native Paper
 vi.mock('react-native-paper', () => ({
   Text: ({ children, testID }: any) => <div data-testid={testID}>{children}</div>,
-  TextInput: ({ label, value, onChangeText, testID, error }: any) => (
-    <div>
-      <label>{label}</label>
-      <input
-        data-testid={testID}
-        value={value}
-        onChange={(e) => onChangeText(e.target.value)}
-      />
-      {error && <span data-testid={`${testID}-error`}>{error}</span>}
-    </div>
+  TextInput: Object.assign(
+    ({ label, value, onChangeText, onPressIn, testID, error, right }: any) => (
+      <div>
+        <label>{label}</label>
+        <input
+          data-testid={testID}
+          value={value}
+          onChange={(e) => onChangeText?.(e.target.value)}
+          onFocus={onPressIn}
+        />
+        {error && <span data-testid={`${testID}-error`}>{error}</span>}
+        {right}
+      </div>
+    ),
+    {
+      Icon: ({ icon }: any) => <span data-icon={icon} />,
+    }
   ),
   Button: ({ children, onPress, testID, loading, disabled }: any) => (
     <button data-testid={testID} onClick={onPress} disabled={disabled || loading}>
@@ -112,20 +119,22 @@ vi.mock('react-native-paper', () => ({
     </div>
   ),
   ActivityIndicator: ({ testID }: any) => <div data-testid={testID}>Loading...</div>,
-  SegmentedButtons: ({ value, onValueChange, buttons, testID }: any) => (
-    <div data-testid={testID}>
-      {buttons.map((btn: any) => (
-        <button
-          key={btn.value}
-          data-testid={`${testID}-${btn.value}`}
-          onClick={() => onValueChange(btn.value)}
-          data-selected={value === btn.value}
-        >
-          {btn.label}
+  Menu: Object.assign(
+    ({ children, visible, anchor }: any) => (
+      <div>
+        {anchor}
+        {visible && <div data-testid="menu-items">{children}</div>}
+      </div>
+    ),
+    {
+      Item: ({ title, onPress, testID }: any) => (
+        <button data-testid={testID} onClick={onPress}>
+          {title}
         </button>
-      ))}
-    </div>
+      ),
+    }
   ),
+  Divider: () => <hr />,
 }))
 
 const mockProject: Project = createMockProject({
@@ -269,26 +278,20 @@ describe('ProjectFormScreen - Form Fields', () => {
     expect(descInput).toBeDefined()
   })
 
-  it('should render status segmented buttons', () => {
+  it('should render status dropdown input', () => {
     render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
     const statusInput = screen.getByTestId('project-status-input')
     expect(statusInput).toBeDefined()
-    // Individual button testIDs verified in actual component, not in mock
-    expect(screen.getByText('Draft')).toBeDefined()
-    expect(screen.getByText('Active')).toBeDefined()
-    expect(screen.getByText('Completed')).toBeDefined()
-    expect(screen.getByText('Archived')).toBeDefined()
+    // Default value should be "Draft"
+    expect(statusInput).toHaveValue('Draft')
   })
 
-  it('should render priority segmented buttons', () => {
+  it('should render priority dropdown input', () => {
     render(<ProjectFormScreen navigation={mockNavigation} route={mockRouteCreate} />)
     const priorityInput = screen.getByTestId('project-priority-input')
     expect(priorityInput).toBeDefined()
-    // Individual button testIDs verified in actual component, not in mock
-    expect(screen.getByText('Low')).toBeDefined()
-    expect(screen.getByText('Medium')).toBeDefined()
-    expect(screen.getByText('High')).toBeDefined()
-    expect(screen.getByText('Urgent')).toBeDefined()
+    // Default value should be "Medium"
+    expect(priorityInput).toHaveValue('Medium')
   })
 })
 
