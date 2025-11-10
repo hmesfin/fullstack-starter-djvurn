@@ -7,6 +7,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { User } from '@/api/types.gen'
+import { setAuthToken, clearAuthToken } from '@/services/api-client'
 
 /**
  * Authentication state interface
@@ -26,12 +27,12 @@ interface AuthState {
  * Authentication actions interface
  */
 interface AuthActions {
-  /** Set JWT tokens */
-  setTokens: (tokens: { access: string; refresh: string }) => void
+  /** Set JWT tokens (also updates API client) */
+  setTokens: (tokens: { access: string; refresh: string }) => Promise<void>
   /** Set user data */
   setUser: (user: User) => void
-  /** Logout and clear all auth state */
-  logout: () => void
+  /** Logout and clear all auth state (also clears API client) */
+  logout: () => Promise<void>
 }
 
 /**
@@ -79,22 +80,30 @@ export const useAuthStore = create<AuthStore>()(
       ...initialState,
 
       // Actions
-      setTokens: (tokens) =>
+      setTokens: async (tokens) => {
+        // Update Zustand store
         set({
           accessToken: tokens.access,
           refreshToken: tokens.refresh,
           isAuthenticated: true,
-        }),
+        })
+        // Update API client (sets Authorization header + stores in AsyncStorage)
+        await setAuthToken(tokens.access)
+      },
 
       setUser: (user) =>
         set({
           user,
         }),
 
-      logout: () =>
+      logout: async () => {
+        // Clear Zustand store
         set({
           ...initialState,
-        }),
+        })
+        // Clear API client (removes Authorization header + clears AsyncStorage)
+        await clearAuthToken()
+      },
     }),
     {
       name: 'auth-storage',

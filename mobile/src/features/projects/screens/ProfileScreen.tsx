@@ -18,7 +18,10 @@ export function ProfileScreen({ navigation }: Props): React.ReactElement {
   const { isDark, toggleTheme } = useAppTheme()
 
   const handleLogout = (): void => {
-    logout()
+    // Logout is async (clears both Zustand store and API client)
+    logout().catch((error) => {
+      console.error('Failed to logout:', error)
+    })
     // RootNavigator will automatically switch to AuthStack
   }
 

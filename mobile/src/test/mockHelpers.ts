@@ -48,9 +48,9 @@ export interface MockAuthStore {
   accessToken: string | null
   refreshToken: string | null
   isAuthenticated: boolean
-  setTokens: (tokens: { access: string; refresh: string }) => void
+  setTokens: (tokens: { access: string; refresh: string }) => Promise<void>
   setUser: (user: User) => void
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 export function createMockAuthStore(overrides?: Partial<MockAuthStore>): MockAuthStore {
@@ -59,9 +59,9 @@ export function createMockAuthStore(overrides?: Partial<MockAuthStore>): MockAut
     accessToken: null,
     refreshToken: null,
     isAuthenticated: false,
-    setTokens: () => {},
+    setTokens: async () => {},
     setUser: () => {},
-    logout: () => {},
+    logout: async () => {},
     ...overrides,
   }
 }

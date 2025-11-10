@@ -31,9 +31,12 @@ export function LoginScreen({ navigation }: Props): React.ReactElement {
   // Handle successful login
   useEffect(() => {
     if (loginMutation.isSuccess && loginMutation.data) {
+      // Store tokens (async - updates both Zustand store and API client)
       setTokens({
         access: loginMutation.data.access,
         refresh: loginMutation.data.refresh,
+      }).catch((error) => {
+        console.error('Failed to store auth tokens:', error)
       })
       reset()
       // RootNavigator will automatically switch to Main stack

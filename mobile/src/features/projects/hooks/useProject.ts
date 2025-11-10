@@ -21,6 +21,7 @@ export function projectQueryKey(projectUuid: string): readonly ['projects', 'det
  * Automatically caches and refetches on app focus and network reconnect
  *
  * @param projectUuid - UUID of the project to fetch
+ * @param options - Optional query options (e.g., enabled)
  *
  * @example
  * ```tsx
@@ -36,12 +37,16 @@ export function projectQueryKey(projectUuid: string): readonly ['projects', 'det
  * }
  * ```
  */
-export function useProject(projectUuid: string): UseQueryResult<Project, Error> {
+export function useProject(
+  projectUuid: string,
+  options?: { enabled?: boolean }
+): UseQueryResult<Project, Error> {
   return useQuery({
     queryKey: projectQueryKey(projectUuid),
     queryFn: async (): Promise<Project> => {
       const project = await projectsService.get(projectUuid)
       return project
     },
+    enabled: options?.enabled ?? true,
   })
 }
