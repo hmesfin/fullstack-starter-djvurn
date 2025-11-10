@@ -10,6 +10,7 @@ import { RegisterScreen } from '../RegisterScreen'
 import * as useAuthMutations from '@/features/auth/hooks/useAuthMutations'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { UserRegistrationRequestWritable, User } from '@/api/types.gen'
+import { createMockUser } from '@/test/mockHelpers'
 
 // Mock the auth mutations hook
 vi.mock('@/features/auth/hooks/useAuthMutations')
@@ -250,10 +251,7 @@ describe('RegisterScreen - Error Handling', () => {
       isError: false,
       error: null,
       isSuccess: true,
-      data: {
-        uuid: '123',
-        email: 'test@example.com',
-      } as User,
+      data: createMockUser({ email: 'test@example.com' }),
       reset: vi.fn(),
     } as unknown as UseMutationResult<User, Error, UserRegistrationRequestWritable, unknown>)
 
@@ -297,10 +295,7 @@ describe('RegisterScreen - Loading State', () => {
       isError: false,
       error: null,
       isSuccess: true,
-      data: {
-        uuid: '123',
-        email: 'test@example.com',
-      } as User,
+      data: createMockUser({ email: 'test@example.com' }),
       reset: vi.fn(),
     } as unknown as UseMutationResult<User, Error, UserRegistrationRequestWritable, unknown>)
 

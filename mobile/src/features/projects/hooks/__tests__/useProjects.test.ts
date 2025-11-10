@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import { projectsService } from '@/services/projects.service'
 import { useProjects } from '../useProjects'
+import { createMockProject } from '@/test/mockHelpers'
 
 // Mock the projects service
 vi.mock('@/services/projects.service', () => ({
@@ -44,26 +45,24 @@ describe('useProjects', () => {
 
   it('should fetch projects list successfully', async () => {
     const mockProjects = [
-      {
-        id: 1,
+      createMockProject({
         uuid: 'project-1-uuid',
-        title: 'Project 1',
+        name: 'Project 1',
         description: 'Description 1',
         status: 'active',
-        priority: 'high',
+        priority: 3,
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-01T00:00:00Z',
-      },
-      {
-        id: 2,
+      }),
+      createMockProject({
         uuid: 'project-2-uuid',
-        title: 'Project 2',
+        name: 'Project 2',
         description: 'Description 2',
         status: 'completed',
-        priority: 'medium',
+        priority: 2,
         created_at: '2024-01-02T00:00:00Z',
         updated_at: '2024-01-02T00:00:00Z',
-      },
+      }),
     ]
 
     ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
@@ -113,14 +112,13 @@ describe('useProjects', () => {
   // TODO: Test caching in E2E - QueryClient isolation complex in unit tests (new client per render)
   it.skip('should cache projects data', async () => {
     const mockProjects = [
-      {
-        id: 1,
+      createMockProject({
         uuid: 'project-1-uuid',
-        title: 'Project 1',
+        name: 'Project 1',
         description: 'Description 1',
         status: 'active',
-        priority: 'high',
-      },
+        priority: 3,
+      }),
     ]
 
     ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
@@ -147,14 +145,13 @@ describe('useProjects', () => {
 
   it('should enable refetching on window focus', async () => {
     const mockProjects = [
-      {
-        id: 1,
+      createMockProject({
         uuid: 'project-1-uuid',
-        title: 'Project 1',
+        name: 'Project 1',
         description: 'Description 1',
         status: 'active',
-        priority: 'high',
-      },
+        priority: 3,
+      }),
     ]
 
     ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
@@ -172,16 +169,15 @@ describe('useProjects', () => {
 
   it('should return correct TypeScript types', async () => {
     const mockProjects = [
-      {
-        id: 1,
+      createMockProject({
         uuid: 'project-1-uuid',
-        title: 'Project 1',
+        name: 'Project 1',
         description: 'Description 1',
         status: 'active',
-        priority: 'high',
+        priority: 3,
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-01T00:00:00Z',
-      },
+      }),
     ]
 
     ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)
@@ -196,24 +192,22 @@ describe('useProjects', () => {
     const projects = result.current.data
     if (projects && projects.length > 0) {
       const project = projects[0]
-      expect(typeof project?.id).toBe('number')
       expect(typeof project?.uuid).toBe('string')
-      expect(typeof project?.title).toBe('string')
+      expect(typeof project?.name).toBe('string')
       expect(typeof project?.status).toBe('string')
-      expect(typeof project?.priority).toBe('string')
+      expect(typeof project?.priority).toBe('number')
     }
   })
 
   it('should support manual refetch', async () => {
     const mockProjects = [
-      {
-        id: 1,
+      createMockProject({
         uuid: 'project-1-uuid',
-        title: 'Project 1',
+        name: 'Project 1',
         description: 'Description 1',
         status: 'active',
-        priority: 'high',
-      },
+        priority: 3,
+      }),
     ]
 
     ;vi.mocked(projectsService.list).mockResolvedValue(mockProjects)

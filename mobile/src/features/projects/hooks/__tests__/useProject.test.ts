@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import { projectsService } from '@/services/projects.service'
 import { useProject } from '../useProject'
+import { createMockProject } from '@/test/mockHelpers'
 
 // Mock the projects service
 vi.mock('@/services/projects.service', () => ({
@@ -42,21 +43,18 @@ describe('useProject', () => {
     vi.clearAllMocks()
   })
 
-  it('should fetch single project by ID successfully', async () => {
-    const mockProject = {
-      id: 1,
+  it('should fetch single project by UUID successfully', async () => {
+    const mockProject = createMockProject({
       uuid: 'project-1-uuid',
-      title: 'Project 1',
+      name: 'Project 1',
       description: 'Description 1',
       status: 'active',
-      priority: 'high',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z',
-    }
+      priority: 3,
+    })
 
     ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
-    const { result } = renderHook(() => useProject(1), {
+    const { result } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 
@@ -66,8 +64,8 @@ describe('useProject', () => {
     // Wait for query to complete
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    // Verify service was called with correct ID
-    expect(projectsService.get).toHaveBeenCalledWith(1)
+    // Verify service was called with correct UUID
+    expect(projectsService.get).toHaveBeenCalledWith('project-1-uuid')
 
     // Verify data is correct
     expect(result.current.data).toEqual(mockProject)
@@ -77,7 +75,7 @@ describe('useProject', () => {
     const mockError = new Error('Project not found')
     ;vi.mocked(projectsService.get).mockRejectedValue(mockError)
 
-    const { result } = renderHook(() => useProject(999), {
+    const { result } = renderHook(() => useProject('non-existent-uuid'), {
       wrapper: createWrapper(),
     })
 
@@ -87,19 +85,18 @@ describe('useProject', () => {
   })
 
   // TODO: Test caching in E2E - QueryClient isolation complex in unit tests (new client per render)
-  it.skip('should cache project data by ID', async () => {
-    const mockProject = {
-      id: 1,
+  it.skip('should cache project data by UUID', async () => {
+    const mockProject = createMockProject({
       uuid: 'project-1-uuid',
-      title: 'Project 1',
+      name: 'Project 1',
       description: 'Description 1',
       status: 'active',
-      priority: 'high',
-    }
+      priority: 3,
+    })
 
     ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
-    const { result } = renderHook(() => useProject(1), {
+    const { result } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 
@@ -108,8 +105,8 @@ describe('useProject', () => {
     // First call should fetch
     expect(projectsService.get).toHaveBeenCalledTimes(1)
 
-    // Second hook for same ID should use cache
-    const { result: result2 } = renderHook(() => useProject(1), {
+    // Second hook for same UUID should use cache
+    const { result: result2 } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 
@@ -120,46 +117,44 @@ describe('useProject', () => {
   })
 
   it('should fetch different projects separately', async () => {
-    const mockProject1 = {
-      id: 1,
+    const mockProject1 = createMockProject({
       uuid: 'project-1-uuid',
-      title: 'Project 1',
+      name: 'Project 1',
       description: 'Description 1',
       status: 'active',
-      priority: 'high',
-    }
+      priority: 3,
+    })
 
-    const mockProject2 = {
-      id: 2,
+    const mockProject2 = createMockProject({
       uuid: 'project-2-uuid',
-      title: 'Project 2',
+      name: 'Project 2',
       description: 'Description 2',
       status: 'completed',
-      priority: 'low',
-    }
+      priority: 1,
+    })
 
     ;vi.mocked(projectsService.get)
       .mockResolvedValueOnce(mockProject1)
       .mockResolvedValueOnce(mockProject2)
 
     // Fetch project 1
-    const { result: result1 } = renderHook(() => useProject(1), {
+    const { result: result1 } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 
     await waitFor(() => expect(result1.current.isSuccess).toBe(true))
 
     // Fetch project 2
-    const { result: result2 } = renderHook(() => useProject(2), {
+    const { result: result2 } = renderHook(() => useProject('project-2-uuid'), {
       wrapper: createWrapper(),
     })
 
     await waitFor(() => expect(result2.current.isSuccess).toBe(true))
 
-    // Should call service twice with different IDs
+    // Should call service twice with different UUIDs
     expect(projectsService.get).toHaveBeenCalledTimes(2)
-    expect(projectsService.get).toHaveBeenNthCalledWith(1, 1)
-    expect(projectsService.get).toHaveBeenNthCalledWith(2, 2)
+    expect(projectsService.get).toHaveBeenNthCalledWith(1, 'project-1-uuid')
+    expect(projectsService.get).toHaveBeenNthCalledWith(2, 'project-2-uuid')
 
     // Data should be different
     expect(result1.current.data).toEqual(mockProject1)
@@ -167,20 +162,17 @@ describe('useProject', () => {
   })
 
   it('should return correct TypeScript types', async () => {
-    const mockProject = {
-      id: 1,
+    const mockProject = createMockProject({
       uuid: 'project-1-uuid',
-      title: 'Project 1',
+      name: 'Project 1',
       description: 'Description 1',
       status: 'active',
-      priority: 'high',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z',
-    }
+      priority: 3,
+    })
 
     ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
-    const { result } = renderHook(() => useProject(1), {
+    const { result } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 
@@ -189,27 +181,25 @@ describe('useProject', () => {
     // TypeScript should infer correct project type
     const project = result.current.data
     if (project) {
-      expect(typeof project.id).toBe('number')
       expect(typeof project.uuid).toBe('string')
-      expect(typeof project.title).toBe('string')
+      expect(typeof project.name).toBe('string')
       expect(typeof project.status).toBe('string')
-      expect(typeof project.priority).toBe('string')
+      expect(typeof project.priority).toBe('number')
     }
   })
 
   it('should support manual refetch', async () => {
-    const mockProject = {
-      id: 1,
+    const mockProject = createMockProject({
       uuid: 'project-1-uuid',
-      title: 'Project 1',
+      name: 'Project 1',
       description: 'Description 1',
       status: 'active',
-      priority: 'high',
-    }
+      priority: 3,
+    })
 
     ;vi.mocked(projectsService.get).mockResolvedValue(mockProject)
 
-    const { result } = renderHook(() => useProject(1), {
+    const { result } = renderHook(() => useProject('project-1-uuid'), {
       wrapper: createWrapper(),
     })
 

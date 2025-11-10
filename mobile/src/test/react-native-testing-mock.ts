@@ -3,6 +3,7 @@
  * Provides the necessary testing utilities without Flow syntax issues
  */
 import React from 'react'
+// @ts-expect-error - react-test-renderer types not available in test environment
 import { create, act as testRendererAct } from 'react-test-renderer'
 
 export function render(component: React.ReactElement) {

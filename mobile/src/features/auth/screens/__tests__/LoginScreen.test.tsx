@@ -11,6 +11,7 @@ import * as useAuthMutations from '@/features/auth/hooks/useAuthMutations'
 import * as useAuthHook from '@/features/auth/hooks/useAuth'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { EmailTokenObtainPairRequest, TokenObtainPair } from '@/api/types.gen'
+import { createMockAuthStore } from '@/test/mockHelpers'
 
 // Mock the auth mutations hook
 vi.mock('@/features/auth/hooks/useAuthMutations')
@@ -63,13 +64,10 @@ describe('LoginScreen - Component Rendering', () => {
     } as unknown as UseMutationResult<TokenObtainPair, Error, EmailTokenObtainPairRequest, unknown>)
 
     // Default mock for useAuth
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should render without errors', () => {
@@ -152,13 +150,10 @@ describe('LoginScreen - Form Structure', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<TokenObtainPair, Error, EmailTokenObtainPairRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should have all required form fields', () => {
@@ -205,13 +200,10 @@ describe('LoginScreen - Error Handling', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should display error message when login fails', () => {
@@ -284,13 +276,10 @@ describe('LoginScreen - Loading State', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should render without errors during loading state', () => {
@@ -349,13 +338,10 @@ describe('LoginScreen - TypeScript Compliance', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<TokenObtainPair, Error, EmailTokenObtainPairRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should accept proper navigation prop types', () => {
@@ -396,13 +382,10 @@ describe('LoginScreen - Integration Requirements', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<TokenObtainPair, Error, EmailTokenObtainPairRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should use emailTokenObtainPairSchema for validation', () => {

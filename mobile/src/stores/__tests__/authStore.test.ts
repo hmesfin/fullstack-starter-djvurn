@@ -8,6 +8,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useAuthStore } from '../authStore'
+import { createMockUser } from '@/test/mockHelpers'
 
 describe('Auth Store', () => {
   beforeEach(async () => {
@@ -89,16 +90,11 @@ describe('Auth Store', () => {
     it('should set user data', () => {
       const { result } = renderHook(() => useAuthStore())
 
-      const mockUser = {
-        uuid: 'user-uuid',
+      const mockUser = createMockUser({
         email: 'test@example.com',
         first_name: 'Test',
         last_name: 'User',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false,
-        date_joined: '2024-01-01T00:00:00Z',
-      }
+      })
 
       act(() => {
         result.current.setUser(mockUser)
@@ -110,16 +106,11 @@ describe('Auth Store', () => {
     it('should set user in state (persistence mocked in tests)', () => {
       const { result } = renderHook(() => useAuthStore())
 
-      const mockUser = {
-        uuid: 'user-uuid',
+      const mockUser = createMockUser({
         email: 'test@example.com',
         first_name: 'Test',
         last_name: 'User',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false,
-        date_joined: '2024-01-01T00:00:00Z',
-      }
+      })
 
       act(() => {
         result.current.setUser(mockUser)
@@ -134,16 +125,11 @@ describe('Auth Store', () => {
     it('should clear user data', () => {
       const { result } = renderHook(() => useAuthStore())
 
-      const mockUser = {
-        uuid: 'user-uuid',
+      const mockUser = createMockUser({
         email: 'test@example.com',
         first_name: 'Test',
         last_name: 'User',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false,
-        date_joined: '2024-01-01T00:00:00Z',
-      }
+      })
 
       act(() => {
         result.current.setUser(mockUser)
@@ -227,16 +213,11 @@ describe('Auth Store', () => {
     it('should return false after logout even if user exists', () => {
       const { result } = renderHook(() => useAuthStore())
 
-      const mockUser = {
-        uuid: 'user-uuid',
+      const mockUser = createMockUser({
         email: 'test@example.com',
         first_name: 'Test',
         last_name: 'User',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false,
-        date_joined: '2024-01-01T00:00:00Z',
-      }
+      })
 
       act(() => {
         result.current.setUser(mockUser)
@@ -261,16 +242,11 @@ describe('Auth Store', () => {
       // This test verifies store state management works correctly
       const { result } = renderHook(() => useAuthStore())
 
-      const mockUser = {
-        uuid: 'user-uuid',
+      const mockUser = createMockUser({
         email: 'test@example.com',
         first_name: 'Test',
         last_name: 'User',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false,
-        date_joined: '2024-01-01T00:00:00Z',
-      }
+      })
 
       act(() => {
         result.current.setUser(mockUser)

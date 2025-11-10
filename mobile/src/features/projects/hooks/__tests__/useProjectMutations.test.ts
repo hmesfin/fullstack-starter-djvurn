@@ -16,6 +16,8 @@ import {
   useUpdateProject,
   useDeleteProject,
 } from '../useProjectMutations'
+import { createMockProject } from '@/test/mockHelpers'
+import type { StatusEnum, PriorityEnum } from '@/api/types.gen'
 
 // Mock the projects service
 vi.mock('@/services/projects.service', () => ({
@@ -50,19 +52,16 @@ describe('useCreateProject', () => {
 
   it('should create a new project successfully', async () => {
     const newProject = {
-      title: 'New Project',
+      name: 'New Project',
       description: 'New Description',
-      status: 'active' as const,
-      priority: 'high' as const,
+      status: 'active' as StatusEnum,
+      priority: 3 as PriorityEnum,
     }
 
-    const createdProject = {
-      id: 3,
+    const createdProject = createMockProject({
       uuid: 'new-project-uuid',
       ...newProject,
-      created_at: '2024-01-03T00:00:00Z',
-      updated_at: '2024-01-03T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(projectsService.create).mockResolvedValue(createdProject)
 
@@ -84,19 +83,16 @@ describe('useCreateProject', () => {
 
   it('should invalidate projects list cache after creation', async () => {
     const newProject = {
-      title: 'New Project',
+      name: 'New Project',
       description: 'New Description',
-      status: 'active' as const,
-      priority: 'high' as const,
+      status: 'active' as StatusEnum,
+      priority: 3 as PriorityEnum,
     }
 
-    const createdProject = {
-      id: 3,
+    const createdProject = createMockProject({
       uuid: 'new-project-uuid',
       ...newProject,
-      created_at: '2024-01-03T00:00:00Z',
-      updated_at: '2024-01-03T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(projectsService.create).mockResolvedValue(createdProject)
 
@@ -125,10 +121,10 @@ describe('useCreateProject', () => {
     const { result } = renderHook(() => useCreateProject(), { wrapper })
 
     result.current.mutate({
-      title: '',
+      name: '',
       description: '',
-      status: 'active',
-      priority: 'high',
+      status: 'active' as StatusEnum,
+      priority: 3 as PriorityEnum,
     })
 
     await waitFor(() => expect(result.current.isError).toBe(true))
@@ -142,22 +138,19 @@ describe('useUpdateProject', () => {
     vi.clearAllMocks()
   })
 
-  // TODO: Fix mutation arguments - verify hook signature matches test expectations
-  it.skip('should update an existing project successfully', async () => {
+  it('should update an existing project successfully', async () => {
+    const uuid = 'project-1-uuid'
     const updateData = {
-      id: 1,
-      title: 'Updated Project',
+      name: 'Updated Project',
       description: 'Updated Description',
-      status: 'completed' as const,
-      priority: 'low' as const,
+      status: 'completed' as StatusEnum,
+      priority: 1 as PriorityEnum,
     }
 
-    const updatedProject = {
+    const updatedProject = createMockProject({
+      uuid,
       ...updateData,
-      uuid: 'project-1-uuid',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-03T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(projectsService.update).mockResolvedValue(updatedProject)
 
@@ -165,49 +158,47 @@ describe('useUpdateProject', () => {
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
 
     // Trigger the mutation
-    result.current.mutate(updateData)
+    result.current.mutate({ uuid, data: updateData })
 
     // Wait for mutation to complete
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called correctly
-    expect(projectsService.update).toHaveBeenCalledWith(updateData)
+    expect(projectsService.update).toHaveBeenCalledWith(uuid, updateData)
 
     // Verify data returned
     expect(result.current.data).toEqual(updatedProject)
   })
 
   it('should invalidate project detail cache after update', async () => {
+    const uuid = 'project-1-uuid'
     const updateData = {
-      id: 1,
-      title: 'Updated Project',
+      name: 'Updated Project',
       description: 'Updated Description',
-      status: 'completed' as const,
-      priority: 'low' as const,
+      status: 'completed' as StatusEnum,
+      priority: 1 as PriorityEnum,
     }
 
-    const updatedProject = {
+    const updatedProject = createMockProject({
+      uuid,
       ...updateData,
-      uuid: 'project-1-uuid',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-03T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(projectsService.update).mockResolvedValue(updatedProject)
 
     const { wrapper, queryClient } = createWrapper()
 
     // Set initial cache data for project detail
-    queryClient.setQueryData(projectQueryKey(1), {
-      id: 1,
-      title: 'Old Title',
+    queryClient.setQueryData(projectQueryKey(uuid), createMockProject({
+      uuid,
+      name: 'Old Title',
       status: 'active',
-    })
+    }))
 
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
 
     // Trigger the mutation
-    result.current.mutate(updateData)
+    result.current.mutate({ uuid, data: updateData })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
@@ -223,11 +214,13 @@ describe('useUpdateProject', () => {
     const { result } = renderHook(() => useUpdateProject(), { wrapper })
 
     result.current.mutate({
-      id: 999,
-      title: 'Non-existent',
-      description: 'Does not exist',
-      status: 'active',
-      priority: 'high',
+      uuid: 'non-existent-uuid',
+      data: {
+        name: 'Non-existent',
+        description: 'Does not exist',
+        status: 'active' as StatusEnum,
+        priority: 3 as PriorityEnum,
+      },
     })
 
     await waitFor(() => expect(result.current.isError).toBe(true))
@@ -248,13 +241,13 @@ describe('useDeleteProject', () => {
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
 
     // Trigger the mutation
-    result.current.mutate(1)
+    result.current.mutate('project-1-uuid')
 
     // Wait for mutation to complete
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     // Verify service was called correctly
-    expect(projectsService.delete).toHaveBeenCalledWith(1)
+    expect(projectsService.delete).toHaveBeenCalledWith('project-1-uuid')
   })
 
   it('should invalidate projects list cache after deletion', async () => {
@@ -264,14 +257,14 @@ describe('useDeleteProject', () => {
 
     // Set initial cache data
     queryClient.setQueryData(PROJECTS_QUERY_KEY, [
-      { id: 1, title: 'Project 1' },
-      { id: 2, title: 'Project 2' },
+      createMockProject({ uuid: 'project-1-uuid', name: 'Project 1' }),
+      createMockProject({ uuid: 'project-2-uuid', name: 'Project 2' }),
     ])
 
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
 
     // Trigger the mutation
-    result.current.mutate(1)
+    result.current.mutate('project-1-uuid')
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
@@ -286,7 +279,7 @@ describe('useDeleteProject', () => {
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
 
-    result.current.mutate(1)
+    result.current.mutate('project-1-uuid')
 
     await waitFor(() => expect(result.current.isError).toBe(true))
 
@@ -302,7 +295,7 @@ describe('useDeleteProject', () => {
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDeleteProject(), { wrapper })
 
-    result.current.mutate(1)
+    result.current.mutate('project-1-uuid')
 
     // Should be loading immediately
     expect(result.current.isPending).toBe(true)

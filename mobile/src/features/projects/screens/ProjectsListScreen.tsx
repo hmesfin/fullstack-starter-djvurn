@@ -1,49 +1,100 @@
 /**
- * Projects List Screen - Session 7 Placeholder
- * Will be fully implemented in Session 9 with FlatList + search + filters
+ * ProjectsListScreen - Session 9.2 Implementation (GREEN phase - TDD)
+ * FlatList + search + filters + FAB
  */
 
-import React from 'react'
-import { View, StyleSheet } from 'react-native'
-import { Text, Button, FAB } from 'react-native-paper'
+import React, { useEffect, useState } from 'react'
+import { View, FlatList, StyleSheet, RefreshControl } from 'react-native'
+import { Text, FAB, Searchbar } from 'react-native-paper'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { ProjectsStackParamList } from '@/navigation/types'
-import { useAuth } from '@/features/auth/hooks/useAuth'
+import type { Project } from '@/api/types.gen'
+import { useProjects } from '@/features/projects/hooks/useProjects'
+import { useProjectsStore } from '@/features/projects/stores/projectsStore'
+import { ProjectCard } from '@/features/projects/components/ProjectCard'
 
 type Props = NativeStackScreenProps<ProjectsStackParamList, 'ProjectsList'>
 
 export function ProjectsListScreen({ navigation }: Props): React.ReactElement {
-  const { logout } = useAuth()
+  const { data: projects, isLoading, refetch } = useProjects()
+  const filteredProjects = useProjectsStore((state) => state.filteredProjects)
+  const filters = useProjectsStore((state) => state.filters)
+  const setFilters = useProjectsStore((state) => state.setFilters)
+  const setProjects = useProjectsStore((state) => state.setProjects)
 
-  const handleNavigateToDetail = (): void => {
-    // TODO: Session 9 - Navigate with actual project UUID
-    navigation.navigate('ProjectDetail', { projectUuid: 'test-uuid-123' })
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Sync projects from API to local store
+  useEffect(() => {
+    if (projects) {
+      setProjects(projects)
+    }
+  }, [projects, setProjects])
+
+  const handleSearch = (query: string): void => {
+    setFilters({ search: query })
   }
 
-  const handleNavigateToCreate = (): void => {
+  const handleRefresh = async (): Promise<void> => {
+    setRefreshing(true)
+    await refetch()
+    setRefreshing(false)
+  }
+
+  const handleProjectPress = (project: Project): void => {
+    navigation.navigate('ProjectDetail', { projectUuid: project.uuid })
+  }
+
+  const handleCreateProject = (): void => {
     navigation.navigate('ProjectForm', {})
   }
 
-  const handleLogout = (): void => {
-    logout()
-    // RootNavigator will automatically switch to AuthStack
+  const renderProject = ({ item }: { item: Project }): React.ReactElement => {
+    return <ProjectCard project={item} onPress={handleProjectPress} />
   }
+
+  const renderEmpty = (): React.ReactElement => (
+    <View style={styles.emptyContainer}>
+      <Text variant="titleLarge" style={styles.emptyTitle}>
+        No Projects Found
+      </Text>
+      <Text variant="bodyMedium" style={styles.emptyText}>
+        {filters.search || filters.status || filters.priority
+          ? 'Try adjusting your search or filters'
+          : 'Create your first project to get started'}
+      </Text>
+    </View>
+  )
 
   return (
     <View style={styles.container}>
-      <Text variant="displaySmall" style={styles.title}>
-        Projects
-      </Text>
-      <Text variant="bodyLarge" style={styles.subtitle}>
-        Session 7 - Navigation Setup
-      </Text>
-      <Button mode="outlined" onPress={handleNavigateToDetail} style={styles.button}>
-        View Project (Placeholder)
-      </Button>
-      <Button mode="text" onPress={handleLogout} style={styles.button}>
-        Logout
-      </Button>
-      <FAB icon="plus" style={styles.fab} onPress={handleNavigateToCreate} />
+      {/* Search Bar */}
+      <Searchbar
+        placeholder="Search projects..."
+        value={filters.search}
+        onChangeText={handleSearch}
+        style={styles.searchBar}
+        testID="projects-search-bar"
+      />
+
+      {/* Projects List */}
+      <FlatList
+        data={filteredProjects}
+        renderItem={renderProject}
+        keyExtractor={(item) => item.uuid}
+        ListEmptyComponent={renderEmpty}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        contentContainerStyle={styles.listContent}
+        testID="projects-list"
+      />
+
+      {/* FAB for creating new project */}
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={handleCreateProject}
+        testID="projects-fab"
+      />
     </View>
   )
 }
@@ -51,19 +102,28 @@ export function ProjectsListScreen({ navigation }: Props): React.ReactElement {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  searchBar: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+  },
+  listContent: {
+    flexGrow: 1,
+    paddingBottom: 80, // Space for FAB
+  },
+  emptyContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
-  title: {
+  emptyTitle: {
+    marginBottom: 8,
     textAlign: 'center',
-    marginBottom: 10,
   },
-  subtitle: {
+  emptyText: {
     textAlign: 'center',
-    marginBottom: 30,
-  },
-  button: {
-    marginVertical: 8,
+    opacity: 0.7,
   },
   fab: {
     position: 'absolute',

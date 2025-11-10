@@ -11,6 +11,7 @@ import * as useAuthMutations from '@/features/auth/hooks/useAuthMutations'
 import * as useAuthHook from '@/features/auth/hooks/useAuth'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { OtpVerificationRequest, OtpVerification, ResendOtpRequest, ResendOtp } from '@/api/types.gen'
+import { createMockAuthStore } from '@/test/mockHelpers'
 
 // Mock the auth mutations hook
 vi.mock('@/features/auth/hooks/useAuthMutations')
@@ -58,13 +59,10 @@ describe('OTPVerificationScreen - Component Rendering', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should render without errors', () => {
@@ -156,13 +154,10 @@ describe('OTPVerificationScreen - Form Structure', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should have all required form elements', () => {
@@ -200,13 +195,10 @@ describe('OTPVerificationScreen - Error Handling', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should display error message when OTP verification fails', () => {
@@ -289,13 +281,10 @@ describe('OTPVerificationScreen - Loading State', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should render without errors during loading state', () => {
@@ -364,13 +353,10 @@ describe('OTPVerificationScreen - TypeScript Compliance', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should accept proper navigation prop types', () => {
@@ -421,13 +407,10 @@ describe('OTPVerificationScreen - Integration Requirements', () => {
       reset: vi.fn(),
     } as unknown as UseMutationResult<ResendOtp, Error, ResendOtpRequest, unknown>)
 
-    vi.mocked(useAuthHook.useAuth).mockReturnValue({
+    vi.mocked(useAuthHook.useAuth).mockReturnValue(createMockAuthStore({
       setTokens: vi.fn(),
       logout: vi.fn(),
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-    })
+    }))
   })
 
   it('should use otpVerificationSchema for validation', () => {

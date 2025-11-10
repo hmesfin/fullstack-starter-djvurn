@@ -11,6 +11,7 @@ import React from 'react'
 import { authService } from '@/services/auth.service'
 import * as apiClient from '@/services/api-client'
 import { useCurrentUser } from '../useCurrentUser'
+import { createMockUser } from '@/test/mockHelpers'
 
 // Mock the auth service
 vi.mock('@/services/auth.service', () => ({
@@ -48,16 +49,11 @@ describe('useCurrentUser', () => {
   })
 
   it('should fetch current user when authenticated', async () => {
-    const mockUser = {
-      id: 1,
+    const mockUser = createMockUser({
       email: 'test@example.com',
       first_name: 'Test',
       last_name: 'User',
-      is_active: true,
-      is_staff: false,
-      is_superuser: false,
-      date_joined: '2024-01-01T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(apiClient.getAuthToken).mockResolvedValue('mock-token')
     ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
@@ -117,12 +113,11 @@ describe('useCurrentUser', () => {
   })
 
   it('should enable refetching on window focus', async () => {
-    const mockUser = {
-      id: 1,
+    const mockUser = createMockUser({
       email: 'test@example.com',
       first_name: 'Test',
       last_name: 'User',
-    }
+    })
 
     ;vi.mocked(apiClient.getAuthToken).mockResolvedValue('mock-token')
     ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
@@ -140,12 +135,11 @@ describe('useCurrentUser', () => {
 
   // TODO: Test caching in E2E - QueryClient isolation complex in unit tests (new client per render)
   it.skip('should use stale time from global config', async () => {
-    const mockUser = {
-      id: 1,
+    const mockUser = createMockUser({
       email: 'test@example.com',
       first_name: 'Test',
       last_name: 'User',
-    }
+    })
 
     ;vi.mocked(apiClient.getAuthToken).mockResolvedValue('mock-token')
     ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
@@ -171,16 +165,11 @@ describe('useCurrentUser', () => {
   })
 
   it('should return user object with correct TypeScript types', async () => {
-    const mockUser = {
-      id: 1,
+    const mockUser = createMockUser({
       email: 'test@example.com',
       first_name: 'Test',
       last_name: 'User',
-      is_active: true,
-      is_staff: false,
-      is_superuser: false,
-      date_joined: '2024-01-01T00:00:00Z',
-    }
+    })
 
     ;vi.mocked(apiClient.getAuthToken).mockResolvedValue('mock-token')
     ;vi.mocked(authService.getMe).mockResolvedValue(mockUser)
@@ -194,10 +183,10 @@ describe('useCurrentUser', () => {
     // TypeScript should infer correct types
     const user = result.current.data
     if (user) {
-      expect(typeof user.id).toBe('number')
       expect(typeof user.email).toBe('string')
       expect(typeof user.first_name).toBe('string')
       expect(typeof user.last_name).toBe('string')
+      expect(typeof user.url).toBe('string')
     }
   })
 })

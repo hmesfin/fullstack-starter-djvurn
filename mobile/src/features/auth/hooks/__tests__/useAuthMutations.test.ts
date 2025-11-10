@@ -11,6 +11,8 @@ import React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { authService } from '@/services/auth.service'
 import { useLogin, useRegister, useVerifyOTP, useResendOTP } from '../useAuthMutations'
+import { createMockUser } from '@/test/mockHelpers'
+import type { TokenObtainPair, OtpVerification, ResendOtp } from '@/api/types.gen'
 
 // Mock the auth service
 vi.mock('@/services/auth.service', () => ({
@@ -46,15 +48,9 @@ describe('useLogin', () => {
   })
 
   it('should successfully login and store tokens', async () => {
-    const mockResponse = {
+    const mockResponse: TokenObtainPair = {
       access: 'mock-access-token',
       refresh: 'mock-refresh-token',
-      user: {
-        id: 1,
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-      },
     }
 
     ;vi.mocked(authService.login).mockResolvedValue(mockResponse)
@@ -102,16 +98,16 @@ describe('useLogin', () => {
 
   // TODO: Test loading states in E2E - synchronous mocks complete before isPending can be checked
   it.skip('should set loading state during mutation', async () => {
+    const mockResponse: TokenObtainPair = {
+      access: 'token',
+      refresh: 'token',
+    }
+
     ;vi.mocked(authService.login).mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(
-            () =>
-              resolve({
-                access: 'token',
-                refresh: 'token',
-                user: { id: 1, email: 'test@example.com' },
-              }),
+            () => resolve(mockResponse),
             100
           )
         )
@@ -143,10 +139,11 @@ describe('useRegister', () => {
   })
 
   it('should successfully register a new user', async () => {
-    const mockResponse = {
+    const mockResponse = createMockUser({
       email: 'newuser@example.com',
-      message: 'OTP sent to your email',
-    }
+      first_name: 'New',
+      last_name: 'User',
+    })
 
     ;vi.mocked(authService.register).mockResolvedValue(mockResponse)
 
@@ -201,15 +198,9 @@ describe('useVerifyOTP', () => {
   })
 
   it('should successfully verify OTP and store tokens', async () => {
-    const mockResponse = {
-      access: 'mock-access-token',
-      refresh: 'mock-refresh-token',
-      user: {
-        id: 1,
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-      },
+    const mockResponse: OtpVerification = {
+      email: 'test@example.com',
+      code: '123456',
     }
 
     ;vi.mocked(authService.verifyOTP).mockResolvedValue(mockResponse)
@@ -220,14 +211,14 @@ describe('useVerifyOTP', () => {
 
     result.current.mutate({
       email: 'test@example.com',
-      otp_code: '123456',
+      code: '123456',
     })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(authService.verifyOTP).toHaveBeenCalledWith({
       email: 'test@example.com',
-      otp_code: '123456',
+      code: '123456',
     })
 
     expect(result.current.data).toEqual(mockResponse)
@@ -243,7 +234,7 @@ describe('useVerifyOTP', () => {
 
     result.current.mutate({
       email: 'test@example.com',
-      otp_code: 'wrong-code',
+      code: 'wrong-code',
     })
 
     await waitFor(() => expect(result.current.isError).toBe(true))
@@ -259,8 +250,8 @@ describe('useResendOTP', () => {
   })
 
   it('should successfully resend OTP', async () => {
-    const mockResponse = {
-      message: 'OTP sent successfully',
+    const mockResponse: ResendOtp = {
+      email: 'test@example.com',
     }
 
     ;vi.mocked(authService.resendOTP).mockResolvedValue(mockResponse)

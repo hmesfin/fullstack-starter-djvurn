@@ -7,7 +7,7 @@ import { lightTheme, darkTheme } from '@/theme';
 
 // Mock the theme store
 vi.mock('@/stores/themeStore');
-const mockUseThemeStore = useThemeStore as vi.MockedFunction<typeof useThemeStore>;
+const mockUseThemeStore = vi.mocked(useThemeStore);
 
 describe('useAppTheme', () => {
   beforeEach(() => {
