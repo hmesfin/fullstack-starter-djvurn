@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from .models import User
 
@@ -33,7 +32,7 @@ def send_otp_email(user_id: int, otp_code: str) -> None:
     context = {
         "user": user,
         "otp_code": otp_code,
-        "year": datetime.now().year,
+        "year": timezone.now().year,
     }
 
     # Render email templates
@@ -90,7 +89,7 @@ def send_password_reset_email(user_id: int, reset_token: str) -> None:
     context = {
         "user": user,
         "reset_url": reset_url,
-        "year": datetime.now().year,
+        "year": timezone.now().year,
     }
 
     # Render email templates

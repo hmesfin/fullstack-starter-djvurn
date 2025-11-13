@@ -1,10 +1,12 @@
 """Tests for User API endpoints."""
 
 from datetime import timedelta
+from io import BytesIO
 
 import pytest
 from django.urls import reverse
 from django.utils import timezone
+from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -730,10 +732,6 @@ class TestUserProfileUpdate:
         authenticated_user: User,
     ) -> None:
         """Test user can update profile with avatar upload."""
-        from io import BytesIO
-
-        from PIL import Image
-
         # Create a test image
         image = Image.new("RGB", (100, 100), color="red")
         image_file = BytesIO()
@@ -796,8 +794,6 @@ class TestUserProfileUpdate:
         authenticated_user: User,
     ) -> None:
         """Test updating profile with non-image file fails."""
-        from io import BytesIO
-
         # Create a text file pretending to be an image
         text_file = BytesIO(b"This is not an image")
         text_file.name = "fake.txt"
@@ -820,8 +816,6 @@ class TestUserProfileUpdate:
         authenticated_user: User,
     ) -> None:
         """Test updating profile with oversized image fails."""
-        from io import BytesIO
-
         # Create a file that's exactly 6MB (exceeds 5MB limit)
         large_file_content = b"x" * (6 * 1024 * 1024)  # 6MB of data
         large_file = BytesIO(large_file_content)

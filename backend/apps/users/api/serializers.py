@@ -8,6 +8,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.users.models import EmailVerificationOTP
 from apps.users.models import PasswordResetToken
 from apps.users.models import User
+from apps.users.tasks import send_otp_email
+from apps.users.tasks import send_password_reset_email
 
 
 class UserSerializer(serializers.ModelSerializer[User]):
@@ -74,8 +76,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         otp = EmailVerificationOTP.create_for_user(user)
 
         # Send OTP email via Celery task (async)
-        from apps.users.tasks import send_otp_email
-
         send_otp_email.delay(user.id, otp.code)
 
         return user
@@ -144,7 +144,7 @@ class ResendOTPSerializer(serializers.Serializer):
         """Create new OTP and send email."""
         email = self.validated_data["email"]
 
-        # Try to get user (return same response for security - don't leak user existence)
+        # Try to get user (security: don't leak user existence)
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -161,8 +161,6 @@ class ResendOTPSerializer(serializers.Serializer):
         otp = EmailVerificationOTP.create_for_user(user)
 
         # Send OTP email via Celery task
-        from apps.users.tasks import send_otp_email
-
         send_otp_email.delay(user.id, otp.code)
 
 
@@ -212,7 +210,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         """Create password reset token and send email."""
         email = self.validated_data["email"]
 
-        # Try to get user (return same response for security - don't leak user existence)
+        # Try to get user (security: don't leak user existence)
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -224,8 +222,6 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         token = PasswordResetToken.create_for_user(user)
 
         # Send password reset email via Celery task
-        from apps.users.tasks import send_password_reset_email
-
         send_password_reset_email.delay(user.id, token.token)
 
 

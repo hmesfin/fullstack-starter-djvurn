@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import CreateAPIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin
@@ -15,7 +16,9 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 
+from apps.users.models import EmailVerificationOTP
 from apps.users.models import User
+from apps.users.tasks import send_otp_email
 
 from .serializers import EmailTokenObtainPairSerializer
 from .serializers import OTPVerificationSerializer
@@ -124,12 +127,7 @@ class EmailTokenObtainPairView(TokenObtainPairView):
         return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """Override to handle OTP creation outside transaction when email unverified."""
-        from rest_framework.exceptions import ValidationError as DRFValidationError
-
-        from apps.users.models import EmailVerificationOTP
-        from apps.users.models import User
-
+        """Override to handle OTP creation outside transaction."""
         # Wrap the parent call in a transaction so successful logins are atomic
         try:
             with transaction.atomic():
@@ -142,7 +140,7 @@ class EmailTokenObtainPairView(TokenObtainPairView):
                     # Get user email from request
                     email = request.data.get("email", "").lower()
 
-                    # Create OTP in a separate transaction (now outside the rolled-back one)
+                    # Create OTP outside the rolled-back transaction
                     try:
                         user = User.objects.get(email=email)
 
@@ -150,8 +148,6 @@ class EmailTokenObtainPairView(TokenObtainPairView):
                             otp = EmailVerificationOTP.create_for_user(user)
 
                             # Send email
-                            from apps.users.tasks import send_otp_email
-
                             send_otp_email.delay(user.id, otp.code)
 
                     except User.DoesNotExist:
@@ -198,7 +194,10 @@ class PasswordResetRequestView(GenericAPIView):
 
         return Response(
             {
-                "message": "If an account exists with this email, you will receive password reset instructions.",
+                "message": (
+                    "If an account exists with this email, "
+                    "you will receive password reset instructions."
+                ),
             },
             status=status.HTTP_200_OK,
         )
@@ -218,7 +217,10 @@ class PasswordResetConfirmView(GenericAPIView):
 
         return Response(
             {
-                "message": "Password reset successful. You can now log in with your new password.",
+                "message": (
+                    "Password reset successful. "
+                    "You can now log in with your new password."
+                ),
             },
             status=status.HTTP_200_OK,
         )
