@@ -35,17 +35,49 @@ ignore_errors = true
 django_settings_module = "config.settings.test"
 
 # ==== djLint ====
+# Balanced configuration for production-ready Django starter
+# Philosophy: Keep security & accessibility strict, relax style pedantry
 [tool.djlint]
+profile = "django"
+indent = 2
+max_line_length = 120
+max_attribute_length = 70
+
+# Formatting options
 blank_line_after_tag = "load,extends"
 close_void_tags = true
 format_css = true
 format_js = true
-# TODO: remove T002 when fixed https://github.com/djlint/djLint/issues/687
-ignore = "H006,H030,H031,T002"
-include = "H017,H035"
-indent = 2
-max_line_length = 119
-profile = "django"
+preserve_blank_lines = true
+format_attribute_template_tags = false
+preserve_leading_space = true
+
+# Ignore overly pedantic rules while keeping important ones
+#
+# DISABLED RULES (too strict for starters):
+# H013 - img tag should have height/width (conflicts with responsive design)
+# H014 - More than 2 blank lines (readability flexibility)
+# H016 - Missing language attribute (handled by base template)
+# H017 - Avoid using <style> tags (useful in development)
+# H020 - Empty tag pairs (sometimes intentional)
+# H021 - Inline styles (required for email templates)
+# H023 - Entity references (&copy;, &nbsp;, etc. are valid HTML)
+# H024 - Omit entity references (conflicts with H023)
+# H030 - Consider adding meta description (not needed for email templates)
+# H031 - Missing meta description (SEO - not critical for starter)
+# H035 - Attributes should be ordered alphabetically (pointless nitpick)
+# T001 - Variables should be wrapped in whitespace (too strict)
+# T002 - Double quotes should be used in tags (has upstream bug)
+# T003 - Endblock should have name (not always necessary for small blocks)
+ignore = "H013,H014,H016,H017,H020,H021,H023,H024,H030,H031,H035,T001,T002,T003"
+
+# KEPT RULES (important for quality):
+# H006 - img tag missing alt attribute (accessibility) ✓
+# H025 - Tag seems to be an orphan (security) ✓
+# D018 - Internal links should use {% url %} tag (Django best practice) ✓
+
+# Linter output format
+linter_output_format = "{filename}:{line}: {code} {message}"
 
 [tool.djlint.css]
 indent_size = 2
