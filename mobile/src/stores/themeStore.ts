@@ -74,20 +74,16 @@ export const useThemeStore = create<ThemeState>()(
     (set, get) => ({
       theme: 'light',
       isSystemTheme: true,
-
-      // Computed property
-      get isDark(): boolean {
-        return get().theme === 'dark';
-      },
+      isDark: false,
 
       setTheme: async (theme: Theme): Promise<void> => {
-        set({ theme, isSystemTheme: false });
+        set({ theme, isSystemTheme: false, isDark: theme === 'dark' });
       },
 
       toggleTheme: async (): Promise<void> => {
         const currentTheme = get().theme;
         const newTheme: Theme = currentTheme === 'light' ? 'dark' : 'light';
-        set({ theme: newTheme, isSystemTheme: false });
+        set({ theme: newTheme, isSystemTheme: false, isDark: newTheme === 'dark' });
       },
 
       setSystemTheme: async (enabled: boolean): Promise<void> => {
@@ -101,6 +97,12 @@ export const useThemeStore = create<ThemeState>()(
         theme: state.theme,
         isSystemTheme: state.isSystemTheme,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Recompute isDark after rehydration
+        if (state) {
+          state.isDark = state.theme === 'dark';
+        }
+      },
     }
   )
 );

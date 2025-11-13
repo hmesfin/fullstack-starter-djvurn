@@ -1,20 +1,22 @@
 /**
- * Profile Screen - Session 7 Placeholder
- * Will be enhanced in later sessions with user settings, preferences, etc.
+ * ProfileScreen - Session 11 Implementation (GREEN phase - TDD)
+ * User profile with theme toggle and logout
  */
 
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Text, Button } from 'react-native-paper'
+import { Text, Button, Divider, ActivityIndicator } from 'react-native-paper'
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import type { MainTabParamList } from '@/navigation/types'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
 import { useAppTheme } from '@/hooks/useAppTheme'
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Profile'>
 
 export function ProfileScreen({ navigation }: Props): React.ReactElement {
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
+  const { data: user, isLoading } = useCurrentUser()
   const { isDark, toggleTheme } = useAppTheme()
 
   const handleLogout = (): void => {
@@ -27,21 +29,66 @@ export function ProfileScreen({ navigation }: Props): React.ReactElement {
 
   return (
     <View style={styles.container}>
-      <Text variant="displaySmall" style={styles.title}>
-        Profile
-      </Text>
-      <Text variant="bodyLarge" style={styles.subtitle}>
-        {user?.email || 'Not logged in'}
-      </Text>
-      <Text variant="bodyMedium" style={styles.info}>
-        Session 7 - Navigation Setup
-      </Text>
-      <Button mode="outlined" onPress={toggleTheme} style={styles.button}>
-        Toggle {isDark ? 'Light' : 'Dark'} Mode
-      </Button>
-      <Button mode="text" onPress={handleLogout} style={styles.button}>
-        Logout
-      </Button>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text variant="headlineLarge" style={styles.title}>
+          Profile
+        </Text>
+      </View>
+
+      {/* User Info Section */}
+      <View style={styles.section}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Account Information
+        </Text>
+        {isLoading ? (
+          <ActivityIndicator size="small" style={styles.loader} />
+        ) : (
+          <>
+            {(user?.first_name || user?.last_name) && (
+              <Text variant="bodyLarge" style={styles.userInfo}>
+                {[user?.first_name, user?.last_name].filter(Boolean).join(' ')}
+              </Text>
+            )}
+            <Text variant="bodyMedium" style={styles.userInfo}>
+              {user?.email || 'Guest'}
+            </Text>
+          </>
+        )}
+      </View>
+
+      <Divider style={styles.divider} />
+
+      {/* Preferences Section */}
+      <View style={styles.section}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Preferences
+        </Text>
+        <Button
+          mode="outlined"
+          onPress={toggleTheme}
+          style={styles.button}
+          icon={isDark ? 'white-balance-sunny' : 'moon-waning-crescent'}
+          testID="theme-toggle-button"
+        >
+          Switch to {isDark ? 'Light' : 'Dark'} Mode
+        </Button>
+      </View>
+
+      <Divider style={styles.divider} />
+
+      {/* Actions Section */}
+      <View style={styles.section}>
+        <Button
+          mode="contained"
+          onPress={handleLogout}
+          style={styles.button}
+          icon="logout"
+          testID="logout-button"
+        >
+          Logout
+        </Button>
+      </View>
     </View>
   )
 }
@@ -49,20 +96,29 @@ export function ProfileScreen({ navigation }: Props): React.ReactElement {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
   },
+  header: {
+    marginBottom: 24,
+  },
   title: {
-    textAlign: 'center',
-    marginBottom: 10,
+    fontWeight: 'bold',
   },
-  subtitle: {
-    textAlign: 'center',
-    marginBottom: 10,
+  section: {
+    marginVertical: 16,
   },
-  info: {
-    textAlign: 'center',
-    marginBottom: 30,
+  sectionTitle: {
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  userInfo: {
+    marginBottom: 8,
+  },
+  loader: {
+    marginVertical: 16,
+  },
+  divider: {
+    marginVertical: 8,
   },
   button: {
     marginVertical: 8,

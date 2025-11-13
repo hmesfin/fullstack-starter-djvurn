@@ -8,6 +8,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { User } from '@/api/types.gen'
 import { setAuthToken, clearAuthToken } from '@/services/api-client'
+import { queryClient } from '@/services/query-client'
+import { CURRENT_USER_QUERY_KEY } from '@/features/auth/hooks/useCurrentUser'
 
 /**
  * Authentication state interface
@@ -89,6 +91,8 @@ export const useAuthStore = create<AuthStore>()(
         })
         // Update API client (sets Authorization header + stores in AsyncStorage)
         await setAuthToken(tokens.access)
+        // Invalidate current user query to force fresh fetch with new token
+        queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY })
       },
 
       setUser: (user) =>
@@ -103,6 +107,10 @@ export const useAuthStore = create<AuthStore>()(
         })
         // Clear API client (removes Authorization header + clears AsyncStorage)
         await clearAuthToken()
+        // Clear TanStack Query cache for current user
+        queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY })
+        // Clear all project queries as well (user-specific data)
+        queryClient.removeQueries({ queryKey: ['projects'] })
       },
     }),
     {
