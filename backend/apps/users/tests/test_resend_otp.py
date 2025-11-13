@@ -204,7 +204,7 @@ class TestResendOTP:
         assert len(mail.outbox) == 4
 
     def test_resend_otp_does_not_expose_user_existence(self):
-        """Test that response is same for existing and non-existing emails (security)."""
+        """Test response is same for existing and non-existing emails."""
         # Response for existing user
         response1 = self.client.post(
             self.url,

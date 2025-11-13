@@ -154,4 +154,3 @@ const SORT_OPTIONS = [
     </Button>
   </div>
 </template>
-

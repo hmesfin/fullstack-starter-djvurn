@@ -169,4 +169,3 @@ function handleProjectClick(project: Project): void {
     </div>
   </div>
 </template>
-

@@ -75,7 +75,7 @@ class TestPasswordResetRequest:
         assert mail.outbox[0].to == [self.user.email]
 
     def test_password_reset_request_with_nonexistent_email_returns_success(self):
-        """Test that requesting reset for non-existent email returns success (security)."""
+        """Test requesting reset for non-existent email returns success."""
         response = self.client.post(
             self.url,
             {"email": "nonexistent@example.com"},
@@ -124,7 +124,7 @@ class TestPasswordResetRequest:
         assert mail.outbox[0].to == [self.user.email]
 
     def test_password_reset_request_does_not_expose_user_existence(self):
-        """Test that response is same for existing and non-existing emails (security)."""
+        """Test response is same for existing and non-existing emails."""
         # Response for existing user
         response1 = self.client.post(
             self.url,
