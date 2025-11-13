@@ -106,27 +106,41 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>✉️ Email Verification</h1>
+        <h1>
+✉️ Email Verification
+        </h1>
       </div>
       <div class="content">
-        <p class="greeting">Hello {{ user.first_name }},</p>
+        <p class="greeting">
+Hello {{ user.first_name }},
+        </p>
         <p>
           Thank you for registering! To complete your account setup, please verify your email address using the One-Time Password (OTP) below:
         </p>
         <div class="otp-code">
-          <h2>{{ otp_code }}</h2>
-          <p class="otp-label">Your Verification Code</p>
+          <h2>
+{{ otp_code }}
+          </h2>
+          <p class="otp-label">
+Your Verification Code
+          </p>
         </div>
         <div class="info-box">
           <p>
             <strong>⏱️ Important:</strong> This code will expire in <strong>15 minutes</strong>.
           </p>
         </div>
-        <p>If you didn't create an account with us, you can safely ignore this email.</p>
+        <p>
+If you didn't create an account with us, you can safely ignore this email.
+        </p>
       </div>
       <div class="footer">
-        <p>This is an automated message, please do not reply to this email.</p>
-        <p>&copy; {{ year }} Your Application Name. All rights reserved.</p>
+        <p>
+This is an automated message, please do not reply to this email.
+        </p>
+        <p>
+&copy; {{ year }} Your Application Name. All rights reserved.
+        </p>
       </div>
     </div>
   </body>

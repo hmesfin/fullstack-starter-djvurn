@@ -21,7 +21,11 @@ router.register("users", UserViewSet)
 app_name = "api"
 urlpatterns = [
     # User-specific endpoints (must come before router.urls to avoid conflicts)
-    path("users/change-password/", PasswordChangeView.as_view(), name="user-change-password"),
+    path(
+        "users/change-password/",
+        PasswordChangeView.as_view(),
+        name="user-change-password",
+    ),
     # Router URLs (includes UserViewSet)
     *router.urls,
     # Auth endpoints

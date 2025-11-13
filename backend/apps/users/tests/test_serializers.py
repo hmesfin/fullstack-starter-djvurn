@@ -35,7 +35,7 @@ class TestUserSerializer:
         serializer = UserSerializer(user, context={"request": request})
         data = serializer.data
 
-        expected_fields = {"email", "first_name", "last_name", "url"}
+        expected_fields = {"email", "first_name", "last_name", "url", "avatar"}
         assert set(data.keys()) == expected_fields
 
     def test_serializer_does_not_expose_sensitive_fields(self) -> None:
