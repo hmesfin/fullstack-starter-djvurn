@@ -8,6 +8,19 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import PasswordInput from '@/components/PasswordInput.vue'
 
+// Form data interface
+interface PasswordChangeFormData {
+  old_password: string
+  new_password: string
+}
+
+// Field errors interface
+interface PasswordChangeFieldErrors {
+  old_password?: string
+  new_password?: string
+  confirmPassword?: string
+}
+
 // Emits
 const emit = defineEmits<{
   success: []
@@ -18,7 +31,7 @@ const { changePassword, isChangingPassword, passwordChangeError, resetPasswordCh
   useUser()
 
 // Form state
-const formData = ref({
+const formData = ref<PasswordChangeFormData>({
   old_password: '',
   new_password: '',
 })
@@ -27,7 +40,7 @@ const formData = ref({
 const confirmPassword = ref('')
 
 // Field errors
-const fieldErrors = ref<Record<string, string>>({})
+const fieldErrors = ref<PasswordChangeFieldErrors>({})
 
 // Success message
 const successMessage = ref<string | null>(null)
@@ -55,7 +68,7 @@ async function handleSubmit(): Promise<void> {
     result.error.issues.forEach((issue: ZodIssue) => {
       const field = issue.path[0]
       if (field && typeof field === 'string') {
-        fieldErrors.value[field] = issue.message
+        fieldErrors.value[field as keyof PasswordChangeFieldErrors] = issue.message
       }
     })
     return
@@ -77,10 +90,10 @@ async function handleSubmit(): Promise<void> {
     emit('success')
   } catch {
     // Error is handled by useUser composable
-    if (passwordChangeError.value?.details) {
+    if (passwordChangeError?.details) {
       // Map API errors to field errors
-      for (const [field, messages] of Object.entries(passwordChangeError.value.details)) {
-        fieldErrors.value[field] = messages[0] ?? 'Invalid value'
+      for (const [field, messages] of Object.entries(passwordChangeError.details)) {
+        fieldErrors.value[field as keyof PasswordChangeFieldErrors] = messages[0] ?? 'Invalid value'
       }
     }
   }
@@ -89,7 +102,7 @@ async function handleSubmit(): Promise<void> {
 /**
  * Clear error for a specific field on input
  */
-function clearFieldError(field: string): void {
+function clearFieldError(field: keyof PasswordChangeFieldErrors): void {
   delete fieldErrors.value[field]
 }
 </script>
@@ -103,7 +116,7 @@ function clearFieldError(field: string): void {
         id="old_password"
         v-model="formData.old_password"
         placeholder="Enter your current password"
-        :class="{ 'border-destructive': fieldErrors.old_password }"
+        :class="fieldErrors.old_password ? 'border-destructive' : ''"
         @input="clearFieldError('old_password')"
       />
       <p v-if="fieldErrors.old_password" class="text-sm text-destructive">
@@ -118,7 +131,7 @@ function clearFieldError(field: string): void {
         id="new_password"
         v-model="formData.new_password"
         placeholder="Enter your new password (min 8 characters)"
-        :class="{ 'border-destructive': fieldErrors.new_password }"
+        :class="fieldErrors.new_password ? 'border-destructive' : ''"
         @input="clearFieldError('new_password')"
       />
       <p v-if="fieldErrors.new_password" class="text-sm text-destructive">
@@ -136,7 +149,7 @@ function clearFieldError(field: string): void {
         id="confirm_password"
         v-model="confirmPassword"
         placeholder="Confirm your new password"
-        :class="{ 'border-destructive': fieldErrors.confirmPassword }"
+        :class="fieldErrors.confirmPassword ? 'border-destructive' : ''"
         @input="clearFieldError('confirmPassword')"
       />
       <p v-if="fieldErrors.confirmPassword" class="text-sm text-destructive">

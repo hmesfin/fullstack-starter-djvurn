@@ -8,12 +8,12 @@
 import { computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import {
-  projectsList,
-  projectsRetrieve,
-  projectsCreate,
-  projectsUpdate,
-  projectsPartialUpdate,
-  projectsDestroy,
+  apiProjectsList,
+  apiProjectsRetrieve,
+  apiProjectsCreate,
+  apiProjectsUpdate,
+  apiProjectsPartialUpdate,
+  apiProjectsDestroy,
 } from '@/api/sdk.gen'
 import { apiClient } from '@/lib/api-client'
 import { queryKeys } from '@/lib/query-client'
@@ -22,11 +22,11 @@ import type {
   ProjectCreateRequest,
   ProjectRequest,
   PatchedProjectRequest,
-  ProjectsListData,
+  ApiProjectsListData,
 } from '@/api/types.gen'
 import type { AxiosError } from 'axios'
 
-export const useProjects = (filters?: ProjectsListData['query']) => {
+export const useProjects = (filters?: ApiProjectsListData['query']) => {
   const queryClient = useQueryClient()
 
   // List projects with filters
@@ -38,7 +38,7 @@ export const useProjects = (filters?: ProjectsListData['query']) => {
   } = useQuery({
     queryKey: queryKeys.projects.list(filters),
     queryFn: async () => {
-      const response = await projectsList({
+      const response = await apiProjectsList({
         client: apiClient,
         query: filters,
       })
@@ -54,7 +54,7 @@ export const useProjects = (filters?: ProjectsListData['query']) => {
   // Create project mutation
   const createProjectMutation = useMutation({
     mutationFn: async (projectData: ProjectCreateRequest) => {
-      const response = await projectsCreate({
+      const response = await apiProjectsCreate({
         client: apiClient,
         body: projectData,
       })
@@ -71,7 +71,7 @@ export const useProjects = (filters?: ProjectsListData['query']) => {
   // Update project mutation (PATCH - partial update with optimistic updates)
   const updateProjectMutation = useMutation({
     mutationFn: async ({ uuid, data }: { uuid: string; data: PatchedProjectRequest }) => {
-      const response = await projectsPartialUpdate({
+      const response = await apiProjectsPartialUpdate({
         client: apiClient,
         path: { uuid },
         body: data,
@@ -119,7 +119,7 @@ export const useProjects = (filters?: ProjectsListData['query']) => {
   // Full update mutation (PUT)
   const fullUpdateProjectMutation = useMutation({
     mutationFn: async ({ uuid, data }: { uuid: string; data: ProjectRequest }) => {
-      const response = await projectsUpdate({
+      const response = await apiProjectsUpdate({
         client: apiClient,
         path: { uuid },
         body: data,
@@ -143,7 +143,7 @@ export const useProjects = (filters?: ProjectsListData['query']) => {
   // Delete project mutation (with optimistic updates)
   const deleteProjectMutation = useMutation({
     mutationFn: async (uuid: string) => {
-      await projectsDestroy({
+      await apiProjectsDestroy({
         client: apiClient,
         path: { uuid },
       })
@@ -262,7 +262,7 @@ export const useProject = (uuid: string) => {
     queryFn: async () => {
       if (!uuid) return null
 
-      const response = await projectsRetrieve({
+      const response = await apiProjectsRetrieve({
         client: apiClient,
         path: { uuid },
       })

@@ -12,12 +12,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import PasswordChangeForm from '@/components/user/PasswordChangeForm.vue'
 
+// Form data interface
+interface ProfileFormData {
+  first_name: string
+  last_name: string
+  email: string
+}
+
+// Field errors interface
+interface ProfileFieldErrors {
+  first_name?: string
+  last_name?: string
+  email?: string
+  avatar?: string
+}
+
 // Composables
 const authStore = useAuthStore()
 const { updateProfile, isUpdatingProfile, profileUpdateError, resetProfileUpdateError } = useUser()
 
 // Form state
-const formData = ref({
+const formData = ref<ProfileFormData>({
   first_name: authStore.user?.first_name || '',
   last_name: authStore.user?.last_name || '',
   email: authStore.user?.email || '',
@@ -28,7 +43,7 @@ const selectedAvatar = ref<File | null>(null)
 const avatarPreview = ref<string | null>(null)
 
 // Field errors
-const fieldErrors = ref<Record<string, string>>({})
+const fieldErrors = ref<ProfileFieldErrors>({})
 
 // Success message
 const successMessage = ref<string | null>(null)
@@ -47,7 +62,7 @@ const userInitials = computed(() => {
  */
 const avatarUrl = computed(() => {
   if (avatarPreview.value) return avatarPreview.value
-  return authStore.user?.avatar || null
+  return authStore.user?.avatar || ''
 })
 
 /**
@@ -128,7 +143,7 @@ async function handleSubmit(): Promise<void> {
     result.error.issues.forEach((issue: ZodIssue) => {
       const field = issue.path[0]
       if (field && typeof field === 'string') {
-        fieldErrors.value[field] = issue.message
+        fieldErrors.value[field as keyof ProfileFieldErrors] = issue.message
       }
     })
     return
@@ -142,10 +157,10 @@ async function handleSubmit(): Promise<void> {
     avatarPreview.value = null
   } catch {
     // Error is handled by useUser composable
-    if (profileUpdateError.value?.details) {
+    if (profileUpdateError?.details) {
       // Map API errors to field errors
-      for (const [field, messages] of Object.entries(profileUpdateError.value.details)) {
-        fieldErrors.value[field] = messages[0] ?? 'Invalid value'
+      for (const [field, messages] of Object.entries(profileUpdateError.details)) {
+        fieldErrors.value[field as keyof ProfileFieldErrors] = messages[0] ?? 'Invalid value'
       }
     }
   }
@@ -154,7 +169,7 @@ async function handleSubmit(): Promise<void> {
 /**
  * Clear error for a specific field on input
  */
-function clearFieldError(field: string): void {
+function clearFieldError(field: keyof ProfileFieldErrors): void {
   delete fieldErrors.value[field]
 }
 
