@@ -85,6 +85,28 @@ describe('userRequestSchema', () => {
 })
 
 describe('patchedUserRequestSchema', () => {
+  it('validates partial update with avatar File', () => {
+    const mockFile = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+    const validData = {
+      avatar: mockFile,
+    }
+
+    const result = patchedUserRequestSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.avatar).toBeInstanceOf(File)
+    }
+  })
+
+  it('validates partial update with avatar undefined', () => {
+    const validData = {
+      avatar: undefined,
+    }
+
+    const result = patchedUserRequestSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+  })
+
   it('validates partial update with only first_name', () => {
     const validData = {
       first_name: 'John',
@@ -193,12 +215,29 @@ describe('patchedUserRequestSchema', () => {
 })
 
 describe('userResponseSchema', () => {
-  it('validates correct user response data', () => {
+  it('validates correct user response data without avatar', () => {
     const validData = {
       first_name: 'John',
       last_name: 'Doe',
       email: 'john.doe@example.com',
       url: 'http://localhost:8000/api/users/123e4567-e89b-12d3-a456-426614174000/',
+      avatar: null,
+    }
+
+    const result = userResponseSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data).toEqual(validData)
+    }
+  })
+
+  it('validates correct user response data with avatar URL', () => {
+    const validData = {
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john.doe@example.com',
+      url: 'http://localhost:8000/api/users/123e4567-e89b-12d3-a456-426614174000/',
+      avatar: 'http://localhost:8000/media/avatars/avatar.png',
     }
 
     const result = userResponseSchema.safeParse(validData)

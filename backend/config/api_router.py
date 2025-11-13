@@ -6,6 +6,7 @@ from rest_framework.routers import SimpleRouter
 from apps.users.api.views import EmailTokenObtainPairView
 from apps.users.api.views import EmailTokenRefreshView
 from apps.users.api.views import OTPVerificationView
+from apps.users.api.views import PasswordChangeView
 from apps.users.api.views import PasswordResetConfirmView
 from apps.users.api.views import PasswordResetRequestView
 from apps.users.api.views import ResendOTPView
@@ -19,7 +20,11 @@ router.register("users", UserViewSet)
 
 app_name = "api"
 urlpatterns = [
+    # User-specific endpoints (must come before router.urls to avoid conflicts)
+    path("users/change-password/", PasswordChangeView.as_view(), name="user-change-password"),
+    # Router URLs (includes UserViewSet)
     *router.urls,
+    # Auth endpoints
     path("auth/register/", UserRegistrationView.as_view(), name="auth-register"),
     path("auth/verify-otp/", OTPVerificationView.as_view(), name="auth-verify-otp"),
     path("auth/resend-otp/", ResendOTPView.as_view(), name="auth-resend-otp"),

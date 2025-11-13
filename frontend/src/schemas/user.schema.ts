@@ -8,6 +8,7 @@ export const userRequestSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email format'),
+  avatar: z.instanceof(File).optional(),
 }).strict()
 
 /**
@@ -18,6 +19,7 @@ export const patchedUserRequestSchema = z.object({
   first_name: z.string().min(1, 'First name cannot be empty').optional(),
   last_name: z.string().min(1, 'Last name cannot be empty').optional(),
   email: z.string().email('Invalid email format').optional(),
+  avatar: z.instanceof(File).optional(),
 }).strict()
 
 /**
@@ -29,6 +31,7 @@ export const userResponseSchema = z.object({
   last_name: z.string(),
   email: z.string().email('Invalid email format'),
   url: z.string().url('Invalid URL format'),
+  avatar: z.string().url('Invalid avatar URL').nullable(),
 }).strict()
 
 /**

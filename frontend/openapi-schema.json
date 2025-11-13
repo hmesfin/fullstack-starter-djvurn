@@ -200,6 +200,199 @@ paths:
               schema:
                 $ref: '#/components/schemas/OTPVerification'
           description: ''
+  /api/projects/:
+    get:
+      operationId: api_projects_list
+      description: Returns a paginated list of projects owned by the current user
+      summary: List all projects for the authenticated user
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - active
+          - archived
+          - completed
+          - draft
+        description: Filter by project status
+      tags:
+      - projects
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+          description: ''
+    post:
+      operationId: api_projects_create
+      description: |-
+        ViewSet for managing projects.
+
+        All endpoints require authentication.
+        Projects are filtered to show only those owned by the current user.
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCreate'
+          description: ''
+  /api/projects/{uuid}/:
+    get:
+      operationId: api_projects_retrieve
+      description: |-
+        ViewSet for managing projects.
+
+        All endpoints require authentication.
+        Projects are filtered to show only those owned by the current user.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - projects
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    put:
+      operationId: api_projects_update
+      description: |-
+        ViewSet for managing projects.
+
+        All endpoints require authentication.
+        Projects are filtered to show only those owned by the current user.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    patch:
+      operationId: api_projects_partial_update
+      description: |-
+        ViewSet for managing projects.
+
+        All endpoints require authentication.
+        Projects are filtered to show only those owned by the current user.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    delete:
+      operationId: api_projects_destroy
+      description: |-
+        ViewSet for managing projects.
+
+        All endpoints require authentication.
+        Projects are filtered to show only those owned by the current user.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - projects
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/users/:
     get:
       operationId: api_users_list
@@ -307,9 +500,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+  /api/users/change-password/:
+    post:
+      operationId: api_users_change_password_create
+      description: Change user password with old password verification.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/users/me/:
     get:
       operationId: api_users_me_retrieve
+      description: Get or update the current user's profile.
       tags:
       - api
       security:
@@ -322,168 +540,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
-  /api/projects/:
-    get:
-      operationId: projects_list
-      description: Returns a paginated list of projects owned by the current user
-      summary: List all projects for the authenticated user
-      parameters:
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum:
-          - active
-          - archived
-          - completed
-          - draft
-        description: Filter by project status
-      tags:
-      - projects
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Project'
-          description: ''
-    post:
-      operationId: projects_create
-      description: |-
-        ViewSet for managing projects.
-
-        All endpoints require authentication.
-        Projects are filtered to show only those owned by the current user.
-      tags:
-      - projects
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectCreateRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProjectCreateRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProjectCreateRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectCreate'
-          description: ''
-  /api/projects/{uuid}/:
-    get:
-      operationId: projects_retrieve
-      description: |-
-        ViewSet for managing projects.
-
-        All endpoints require authentication.
-        Projects are filtered to show only those owned by the current user.
-      parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
-      tags:
-      - projects
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
-    put:
-      operationId: projects_update
-      description: |-
-        ViewSet for managing projects.
-
-        All endpoints require authentication.
-        Projects are filtered to show only those owned by the current user.
-      parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
-      tags:
-      - projects
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
     patch:
-      operationId: projects_partial_update
-      description: |-
-        ViewSet for managing projects.
-
-        All endpoints require authentication.
-        Projects are filtered to show only those owned by the current user.
-      parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
+      operationId: api_users_me_partial_update
+      description: Get or update the current user's profile.
       tags:
-      - projects
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -492,29 +564,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                $ref: '#/components/schemas/User'
           description: ''
-    delete:
-      operationId: projects_destroy
-      description: |-
-        ViewSet for managing projects.
-
-        All endpoints require authentication.
-        Projects are filtered to show only those owned by the current user.
-      parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
-      tags:
-      - projects
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '204':
-          description: No response body
 components:
   schemas:
     EmailTokenObtainPairRequest:
@@ -561,6 +612,21 @@ components:
       required:
       - code
       - email
+    PasswordChangeRequest:
+      type: object
+      description: Serializer for changing password (authenticated users).
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - new_password
+      - old_password
     PasswordResetConfirm:
       type: object
       description: Serializer for password reset confirmation.
@@ -645,6 +711,10 @@ components:
           minLength: 1
           title: Email address
           maxLength: 254
+        avatar:
+          type: string
+          format: binary
+          nullable: true
     PriorityEnum:
       enum:
       - 1
@@ -899,6 +969,10 @@ components:
           type: string
           format: uri
           readOnly: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
       required:
       - email
       - first_name
@@ -967,6 +1041,10 @@ components:
           minLength: 1
           title: Email address
           maxLength: 254
+        avatar:
+          type: string
+          format: binary
+          nullable: true
       required:
       - email
       - first_name

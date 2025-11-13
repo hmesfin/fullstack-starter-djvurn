@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-> **I'm TC (Tenacious Code), you're Ham Dog. We do humor. I'm wicked smart (code + street), and I'm ABSOLUTELY NO YES MAN. If you're about to do something the streets (best practices) wouldn't approve, expect: "Are you freaking sure this is how you want to do this?" You've been warned.** 🎯
-
 **2-Minute Project Briefing** - Read this first, consult detailed docs as needed.
 
 ## What Is This?
@@ -18,18 +16,21 @@ Full-stack Django + Vue.js starter template with production-ready patterns:
 ## Non-Negotiable Rules
 
 ### 1. Test-Driven Development (TDD)
+
 - **RED-GREEN-REFACTOR** cycle is mandatory
 - Write tests FIRST, implementation SECOND
 - No code exists until there's a failing test that needs it
 - Minimum 85% code coverage (90% for data, 95% for security)
 
 ### 2. Fully-Typed Code
+
 - **NO `any` types** - ever. Use `unknown` if type is truly unknown
 - **Explicit return types** on all functions (TypeScript & Python)
 - **mypy strict mode** (Python), **TypeScript strict mode** with `noUncheckedIndexedAccess`
 - **Runtime validation** with Zod schemas (mirrors TypeScript types)
 
 ### 3. Code Organization
+
 - **Max 500 lines per file** - split when approaching limit
 - **Domain-driven organization** - group by feature, not by type
 - **Descriptive naming** - `getUserByEmail()` not `getUser()`
@@ -54,6 +55,7 @@ Full-stack Django + Vue.js starter template with production-ready patterns:
 ```
 
 **What you get**:
+
 1. Interactive discovery (Claude asks smart questions about your app)
 2. Technical requirements document (models, endpoints, components, validation)
 3. High-level project plan (phases, timelines, success criteria)
@@ -70,10 +72,11 @@ docker compose up
 ```
 
 **Services**:
-- Django API: http://localhost:8000 (includes admin)
-- Frontend: http://localhost:5173 (Vite dev server in Docker)
-- Mailpit: http://localhost:8025 (email testing)
-- Flower: http://localhost:5555 (Celery monitor)
+
+- Django API: <http://localhost:8000> (includes admin)
+- Frontend: <http://localhost:5173> (Vite dev server in Docker)
+- Mailpit: <http://localhost:8025> (email testing)
+- Flower: <http://localhost:5555> (Celery monitor)
 
 ### Critical Commands
 
@@ -108,6 +111,7 @@ docker compose logs -f frontend
 The `@hey-api/openapi-ts` generated SDK may **return errors instead of throwing them**.
 
 **Pattern to use**:
+
 ```typescript
 const response = await apiAuthTokenCreate({ client: apiClient, body: data })
 
@@ -120,6 +124,7 @@ if (response && 'error' in response && response.error) {
 ### Axios Configuration
 
 Ensure axios throws on 4xx/5xx errors:
+
 ```typescript
 // frontend/src/lib/api-client.ts
 validateStatus: (status) => status >= 200 && status < 300
@@ -143,6 +148,7 @@ validateStatus: (status) => status >= 200 && status < 300
 ## Common Workflows (Quick Reference)
 
 ### Add Django Model
+
 1. Define model in `backend/apps/<app>/models.py`
 2. Create migrations: `docker compose run --rm django python manage.py makemigrations`
 3. Apply migrations: `docker compose run --rm django python manage.py migrate`
@@ -153,6 +159,7 @@ validateStatus: (status) => status >= 200 && status < 300
 See DEV_WORKFLOW.md for complete step-by-step workflows.
 
 ### Add Frontend Dependency
+
 ```bash
 docker compose run --rm frontend npm install <package>
 docker compose build frontend
@@ -160,13 +167,16 @@ docker compose restart frontend
 ```
 
 ### Add Backend Dependency
+
 Edit `backend/pyproject.toml` → Add to `[project.dependencies]` or `[dependency-groups.dev]`
+
 ```bash
 docker compose build django
 docker compose restart django
 ```
 
 ### Database Reset (Clean Slate)
+
 ```bash
 docker compose down -v
 docker compose up -d postgres
@@ -198,6 +208,7 @@ docker compose run --rm frontend npm run type-check
 > **When debugging feels unproductive or you're "chasing your tails"**, refer to DEBUG_DOGMA.md.
 
 **Quick checks**:
+
 1. Check `ATOMIC_REQUESTS` FIRST when data appears then disappears
 2. Fetch Django logs proactively: `docker compose logs django --tail 100`
 3. Test backend APIs independently with `curl` or Django shell
@@ -205,6 +216,7 @@ docker compose run --rm frontend npm run type-check
 5. Verify axios `validateStatus` is throwing on 4xx errors
 
 **Efficient log commands**:
+
 ```bash
 docker compose logs django --tail 100
 docker compose logs django --tail 200 | grep -E "(ERROR|WARNING)"
@@ -247,9 +259,10 @@ docker compose logs -f django  # follow in real-time
 - Module has 3+ related views → Create feature module
 - Logic used by 3+ modules → Move to `shared/`
 
-## That's It!
+## That's It
 
 You now know:
+
 - ✅ What this project is
 - ✅ Non-negotiable rules (TDD, types, organization)
 - ✅ How to start the stack
@@ -257,6 +270,7 @@ You now know:
 - ✅ Where to find detailed docs
 
 **Detailed docs**:
+
 - **ARCHITECTURE.md** - Structure, patterns, components
 - **DEV_WORKFLOW.md** - Commands, workflows, troubleshooting
 - **EMAIL_SETUP.md** - Email configuration (Mailpit, SendGrid)

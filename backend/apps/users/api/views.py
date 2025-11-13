@@ -19,6 +19,7 @@ from apps.users.models import User
 
 from .serializers import EmailTokenObtainPairSerializer
 from .serializers import OTPVerificationSerializer
+from .serializers import PasswordChangeSerializer
 from .serializers import PasswordResetConfirmSerializer
 from .serializers import PasswordResetRequestSerializer
 from .serializers import ResendOTPSerializer
@@ -38,8 +39,21 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             return self.queryset.filter(id=self.request.user.pk)
         return self.queryset.none()
 
-    @action(detail=False)
+    @action(detail=False, methods=["get", "patch"])
     def me(self, request):
+        """Get or update the current user's profile."""
+        if request.method == "PATCH":
+            serializer = UserSerializer(
+                request.user,
+                data=request.data,
+                partial=True,
+                context={"request": request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+        # GET request
         serializer = UserSerializer(request.user, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -205,6 +219,26 @@ class PasswordResetConfirmView(GenericAPIView):
         return Response(
             {
                 "message": "Password reset successful. You can now log in with your new password.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordChangeView(GenericAPIView):
+    """API endpoint for changing password (authenticated users)."""
+
+    serializer_class = PasswordChangeSerializer
+    http_method_names = ["post"]  # Explicitly allow POST method
+
+    def post(self, request, *args, **kwargs):
+        """Change user password with old password verification."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {
+                "message": "Password changed successfully.",
             },
             status=status.HTTP_200_OK,
         )

@@ -42,6 +42,12 @@ export {
   type UserResponse,
 } from './user.schema'
 
+// Password schemas
+export {
+  passwordChangeRequestSchema,
+  type PasswordChangeRequestInput,
+} from './password.schema'
+
 // Project schemas
 export {
   projectCreateSchema,

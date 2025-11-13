@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Settings,
+  User,
   Menu,
   X,
 } from 'lucide-vue-next'
@@ -29,6 +30,7 @@ function toggleSidebar(): void {
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, route: 'dashboard' },
   { name: 'Projects', icon: FolderKanban, route: 'dashboard' },
+  { name: 'Profile', icon: User, route: 'profile' },
   { name: 'Settings', icon: Settings, route: 'dashboard' },
 ]
 </script>

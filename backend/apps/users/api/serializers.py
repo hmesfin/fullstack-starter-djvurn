@@ -13,10 +13,11 @@ from apps.users.models import User
 class UserSerializer(serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "url"]
+        fields = ["first_name", "last_name", "email", "url", "avatar"]
 
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "pk"},
+            "avatar": {"required": False, "allow_null": True},
         }
 
 
@@ -284,5 +285,43 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
         # Mark token as used
         reset_token.mark_as_used()
+
+        return user
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    """Serializer for changing password (authenticated users)."""
+
+    old_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={"input_type": "password"},
+    )
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={"input_type": "password"},
+    )
+
+    def validate_new_password(self, value: str) -> str:
+        """Validate new password using Django's password validators."""
+        validate_password(value)
+        return value
+
+    def validate_old_password(self, value: str) -> str:
+        """Validate that old password is correct."""
+        user = self.context["request"].user
+        if not user.check_password(value):
+            msg = _("Incorrect password.")
+            raise serializers.ValidationError(msg)
+        return value
+
+    def save(self, **kwargs: Any) -> User:
+        """Change user password."""
+        user = self.context["request"].user
+        new_password = self.validated_data["new_password"]
+
+        user.set_password(new_password)
+        user.save(update_fields=["password", "modified"])
 
         return user
