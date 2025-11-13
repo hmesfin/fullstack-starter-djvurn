@@ -159,7 +159,12 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**/*.py" = ["S105"]  # Ignore hardcoded password in test files
+"**/tests/**/*.py" = [
+    "S105",     # Hardcoded password strings (safe in tests)
+    "S106",     # Hardcoded password arguments (safe in tests)
+    "PLR2004",  # Magic value comparisons (common in test assertions)
+    "PT018",    # Composite assertions (pytest allows compound assertions)
+]
 
 [tool.ruff.lint.isort]
 force-single-line = true
