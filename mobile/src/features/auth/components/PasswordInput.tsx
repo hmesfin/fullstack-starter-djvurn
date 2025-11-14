@@ -65,7 +65,7 @@ export function PasswordInput({
       testID={testID}
       right={
         <TextInput.Icon
-          icon={showPassword ? 'eye-off' : 'eye'}
+          icon={showPassword ? 'eye' : 'eye-closed'}
           onPress={togglePasswordVisibility}
           accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
           testID={testID ? `${testID}-toggle` : 'password-toggle'}
