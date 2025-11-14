@@ -136,6 +136,7 @@ validateStatus: (status) => status >= 200 && status < 300
 - **DEV_WORKFLOW.md** - All commands, workflows, troubleshooting (database, testing, code quality)
 - **EMAIL_SETUP.md** - Email configuration (Mailpit, SendGrid, templates, Celery tasks)
 - **DEBUG_DOGMA.md** - Hard-won debugging lessons (when "chasing your tails")
+- **GREEN_CICD.md** - Keeping CI/CD green: testing workflows, failure patterns, best practices
 
 ## Key Architecture Decisions
 
@@ -187,6 +188,8 @@ docker compose up
 
 ## Testing
 
+> **IMPORTANT**: Run tests locally BEFORE pushing. CI is your safety net, not your test runner.
+
 ```bash
 # Backend
 docker compose run --rm django pytest                  # all tests
@@ -198,10 +201,17 @@ docker compose run --rm django coverage run -m pytest  # with coverage
 docker compose run --rm frontend npm run test:run      # all tests
 docker compose run --rm frontend npm test              # watch mode
 
+# Mobile
+cd mobile && npm run test:run                          # all tests
+cd mobile && npm test                                  # watch mode
+
 # Type checking
 docker compose run --rm django mypy apps
 docker compose run --rm frontend npm run type-check
+cd mobile && npm run type-check
 ```
+
+**See GREEN_CICD.md for complete testing workflows, failure patterns, and best practices.**
 
 ## Debugging
 
@@ -275,5 +285,6 @@ You now know:
 - **DEV_WORKFLOW.md** - Commands, workflows, troubleshooting
 - **EMAIL_SETUP.md** - Email configuration (Mailpit, SendGrid)
 - **DEBUG_DOGMA.md** - Debugging patterns and lessons
+- **GREEN_CICD.md** - Keeping CI/CD green: testing workflows, pre-push checklists, failure patterns
 
 Now go build something! 🚀
