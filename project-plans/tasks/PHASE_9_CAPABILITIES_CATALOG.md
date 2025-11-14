@@ -8,7 +8,8 @@
 
 ## Decision Framework: Package vs Microservice
 
-### Use Django Package When:
+### Use Django Package When
+
 - ✅ Tightly coupled to Django ORM/models
 - ✅ Needs direct database access for performance
 - ✅ Simple install/config is important (`pip install`)
@@ -18,7 +19,8 @@
 
 **Examples**: RBAC, Audit Logging, Comments, Tagging
 
-### Use Microservice When:
+### Use Microservice When
+
 - ✅ Independent scaling requirements
 - ✅ Different technology stack may be better (Node.js, Go, Python)
 - ✅ External dependencies/integrations (Twilio, SendGrid, Stripe)
@@ -35,6 +37,7 @@
 ### 1. Authentication & Authorization
 
 #### 1.1 Advanced RBAC (Role-Based Access Control)
+
 - **Type**: Django Package (`djvurn-rbac`)
 - **Reasoning**: Tightly coupled to Django permissions, needs ORM access
 - **Scope**:
@@ -51,11 +54,13 @@
 - **Data Models**: Owns teams, roles, memberships tables
 
 #### 1.2 Social Authentication
+
 - **Type**: Django Package (use `django-allauth`)
 - **Reasoning**: Already exists, well-maintained
 - **Scope**: OAuth2 (Google, GitHub, Twitter, etc.)
 
 #### 1.3 Two-Factor Authentication (2FA)
+
 - **Type**: Django Package (`djvurn-2fa`)
 - **Reasoning**: Tightly coupled to user authentication flow
 - **Scope**:
@@ -72,6 +77,7 @@
 ### 2. Communication & Messaging
 
 #### 2.1 Notifications Service
+
 - **Type**: Microservice (`djvurn-notifications`)
 - **Reasoning**: Multiple channels, high volume, independent scaling, external integrations
 - **Scope**:
@@ -90,6 +96,7 @@
 - **Data Models**: Owns notifications, templates, preferences tables
 
 #### 2.2 Real-Time Messaging (Chat)
+
 - **Type**: Microservice (`djvurn-messaging`)
 - **Reasoning**: WebSocket-heavy, independent scaling, real-time infrastructure
 - **Scope**:
@@ -108,6 +115,7 @@
 - **Data Models**: Owns messages, channels, participants tables
 
 #### 2.3 Email Service (Transactional)
+
 - **Type**: Microservice (`djvurn-communications-email`)
 - **Reasoning**: External API integration (SendGrid), high volume, template management
 - **Scope**:
@@ -124,6 +132,7 @@
 - **External Dependencies**: SendGrid, Mailgun, or AWS SES
 
 #### 2.4 SMS Service
+
 - **Type**: Microservice (`djvurn-communications-sms`)
 - **Reasoning**: External API (Twilio), cost management, compliance (opt-in/out)
 - **Scope**:
@@ -138,6 +147,7 @@
 - **External Dependencies**: Twilio, AWS SNS
 
 #### 2.5 Newsletters
+
 - **Type**: Microservice (`djvurn-newsletters`)
 - **Reasoning**: Marketing focus, large audience, scheduling, analytics
 - **Scope**:
@@ -158,6 +168,7 @@
 ### 3. User Engagement & Social Features
 
 #### 3.1 Comments System
+
 - **Type**: Django Package (`djvurn-comments`)
 - **Reasoning**: Tightly coupled to content (projects, posts), needs ORM for joins
 - **Scope**:
@@ -174,6 +185,7 @@
 - **Dependencies**: Main app for user auth, notifications service
 
 #### 3.2 Invitations System
+
 - **Type**: Django Package (`djvurn-invitations`)
 - **Reasoning**: Tightly coupled to user/team models, simple workflow
 - **Scope**:
@@ -188,6 +200,7 @@
   - Email: Uses email service for sending
 
 #### 3.3 Activity Feeds
+
 - **Type**: Django Package (`djvurn-activity`)
 - **Reasoning**: Needs access to all models, activity aggregation
 - **Scope**:
@@ -200,6 +213,7 @@
   - Vue components: `ActivityFeed.vue`, `ActivityItem.vue`
 
 #### 3.4 Bookmarks / Favorites
+
 - **Type**: Django Package (`djvurn-bookmarks`)
 - **Reasoning**: Simple functionality, tightly coupled to content models
 - **Scope**:
@@ -215,6 +229,7 @@
 ### 4. Content Management
 
 #### 4.1 Tagging System
+
 - **Type**: Django Package (`djvurn-tags`)
 - **Reasoning**: Tightly coupled to multiple models, simple queries
 - **Scope**:
@@ -227,6 +242,7 @@
   - Vue components: `TagInput.vue`, `TagCloud.vue`
 
 #### 4.2 File Storage & Media Management
+
 - **Type**: Django Package (`djvurn-storage`)
 - **Reasoning**: Django storage backend abstraction, simple interface
 - **Scope**:
@@ -241,6 +257,7 @@
 - **External Dependencies**: AWS S3, Cloudinary
 
 #### 4.3 Rich Text Editor
+
 - **Type**: Django Package (`djvurn-editor`)
 - **Reasoning**: Frontend + backend integration, content sanitization
 - **Scope**:
@@ -254,6 +271,7 @@
   - Django field: `RichTextField`
 
 #### 4.4 Search Service
+
 - **Type**: Microservice (`djvurn-search`)
 - **Reasoning**: Different tech stack (Elasticsearch, Meilisearch), independent scaling
 - **Scope**:
@@ -272,6 +290,7 @@
 ### 5. Payments & Billing
 
 #### 5.1 Payments Service
+
 - **Type**: Microservice (`djvurn-payments`)
 - **Reasoning**: External API (Stripe), PCI compliance, independent scaling
 - **Scope**:
@@ -288,6 +307,7 @@
 - **External Dependencies**: Stripe, PayPal
 
 #### 5.2 Subscription Management
+
 - **Type**: Django Package (`djvurn-subscriptions`)
 - **Reasoning**: Tightly coupled to users/teams, plan management
 - **Scope**:
@@ -306,6 +326,7 @@
 ### 6. Analytics & Monitoring
 
 #### 6.1 Audit Logging
+
 - **Type**: Django Package (`djvurn-audit`)
 - **Reasoning**: Needs access to all models, tight integration with ORM
 - **Scope**:
@@ -320,6 +341,7 @@
   - Vue component: `AuditLogViewer.vue`
 
 #### 6.2 Analytics Service
+
 - **Type**: Microservice (`djvurn-analytics`)
 - **Reasoning**: High volume events, time-series data, complex queries
 - **Scope**:
@@ -336,6 +358,7 @@
   - Event-driven: Subscribe to application events
 
 #### 6.3 Error Tracking
+
 - **Type**: Microservice or SaaS (Sentry)
 - **Reasoning**: Cross-stack (frontend + backend), specialized tooling
 - **Scope**: Use existing tools like Sentry, Rollbar
@@ -345,6 +368,7 @@
 ### 7. Workflow & Automation
 
 #### 7.1 Task Scheduler
+
 - **Type**: Django Package (`djvurn-scheduler`)
 - **Reasoning**: Tightly coupled to Django models, Celery integration
 - **Scope**:
@@ -357,6 +381,7 @@
   - Admin UI for managing schedules
 
 #### 7.2 Workflow Engine
+
 - **Type**: Django Package (`djvurn-workflows`)
 - **Reasoning**: Tightly coupled to business logic, state machines
 - **Scope**:
@@ -370,6 +395,7 @@
   - Signals for state changes
 
 #### 7.3 Background Jobs Dashboard
+
 - **Type**: Django Package (`djvurn-jobs`)
 - **Reasoning**: Celery monitoring, Django admin integration
 - **Scope**:
@@ -386,6 +412,7 @@
 ### 8. Compliance & Security
 
 #### 8.1 GDPR Compliance Kit
+
 - **Type**: Django Package (`djvurn-gdpr`)
 - **Reasoning**: Tightly coupled to user data models
 - **Scope**:
@@ -400,6 +427,7 @@
   - Admin: GDPR compliance dashboard
 
 #### 8.2 Rate Limiting
+
 - **Type**: Django Package (`djvurn-ratelimit`)
 - **Reasoning**: Request-level middleware, tight integration
 - **Scope**:
@@ -412,6 +440,7 @@
   - Decorators: `@ratelimit(rate="100/hour")`
 
 #### 8.3 Content Moderation
+
 - **Type**: Microservice (`djvurn-moderation`)
 - **Reasoning**: External ML APIs (OpenAI moderation), independent scaling
 - **Scope**:
@@ -430,6 +459,7 @@
 ### 9. Collaboration
 
 #### 9.1 Team Management
+
 - **Type**: Django Package (part of `djvurn-rbac`)
 - **Reasoning**: Core to multi-tenancy, tightly coupled
 - **Scope**:
@@ -439,6 +469,7 @@
   - Team switching UI
 
 #### 9.2 Shared Workspaces
+
 - **Type**: Django Package (`djvurn-workspaces`)
 - **Reasoning**: Tightly coupled to content models
 - **Scope**:
@@ -450,6 +481,7 @@
   - Middleware: Current workspace context
 
 #### 9.3 Real-Time Collaboration (Operational Transform)
+
 - **Type**: Microservice (`djvurn-collab`)
 - **Reasoning**: Complex real-time sync, WebSocket-heavy
 - **Scope**:
@@ -466,6 +498,7 @@
 ### 10. Integrations
 
 #### 10.1 Webhooks Service
+
 - **Type**: Django Package (`djvurn-webhooks`)
 - **Reasoning**: Tightly coupled to application events
 - **Scope**:
@@ -479,6 +512,7 @@
   - Signals: Trigger webhooks on events
 
 #### 10.2 API Client SDKs
+
 - **Type**: Standalone Libraries (npm, pip packages)
 - **Reasoning**: Client libraries in multiple languages
 - **Scope**:
@@ -490,6 +524,7 @@
   - Published to npm, PyPI
 
 #### 10.3 OAuth2 Provider
+
 - **Type**: Django Package (`djvurn-oauth2`)
 - **Reasoning**: Tightly coupled to Django auth
 - **Scope**:
@@ -505,6 +540,7 @@
 ### 11. Developer Experience
 
 #### 11.1 Admin Dashboard (Enhanced)
+
 - **Type**: Django Package (`djvurn-admin`)
 - **Reasoning**: Django admin extension
 - **Scope**:
@@ -517,6 +553,7 @@
   - Replace Django admin
 
 #### 11.2 API Documentation (Interactive)
+
 - **Type**: Django Package (`djvurn-docs`)
 - **Reasoning**: Auto-generated from DRF
 - **Scope**:
@@ -528,6 +565,7 @@
   - drf-spectacular extension
 
 #### 11.3 Feature Flags
+
 - **Type**: Django Package (`djvurn-flags`)
 - **Reasoning**: Application-level feature control
 - **Scope**:
@@ -552,6 +590,7 @@ To support all these capabilities, the starter needs:
 **Purpose**: Publish/subscribe pattern for application events
 
 **Implementation**:
+
 ```python
 # Publish event
 from djvurn_events import publish_event
@@ -578,6 +617,7 @@ def on_user_created(event_data):
 **Purpose**: Centralized configuration for all services
 
 **Configuration** (`settings/services.py`):
+
 ```python
 SERVICES = {
     "notifications": {
@@ -597,6 +637,7 @@ SERVICES = {
 ### 3. Unified Authentication (JWT)
 
 All services accept JWT tokens from main app:
+
 - Main app issues JWT with user_id, roles, teams
 - Microservices validate JWT signature
 - No shared database for auth
@@ -608,6 +649,7 @@ All services accept JWT tokens from main app:
 **Purpose**: Single entry point for all services
 
 **Routing**:
+
 ```
 /api/projects/*     → Django app
 /api/notifications/* → Notifications service
@@ -620,6 +662,7 @@ All services accept JWT tokens from main app:
 ## Prioritization Matrix
 
 ### Phase 9A: Essential Capabilities (Build First)
+
 1. **djvurn-rbac** - Advanced RBAC (teams, roles, permissions)
 2. **djvurn-notifications** - Multi-channel notifications
 3. **djvurn-audit** - Audit logging
@@ -627,6 +670,7 @@ All services accept JWT tokens from main app:
 5. **djvurn-events** - Event bus for microservices
 
 ### Phase 9B: High-Value Capabilities
+
 6. **djvurn-messaging** - Real-time chat
 7. **djvurn-communications-email** - Email service
 8. **djvurn-comments** - Comment system
@@ -634,6 +678,7 @@ All services accept JWT tokens from main app:
 10. **djvurn-webhooks** - Webhook system
 
 ### Phase 9C: Specialized Capabilities
+
 11. **djvurn-payments** - Payment processing
 12. **djvurn-newsletters** - Newsletter management
 13. **djvurn-search** - Full-text search
@@ -647,22 +692,26 @@ All services accept JWT tokens from main app:
 To prepare this starter for all capabilities:
 
 ### Code Structure Changes
+
 - [ ] Add `settings/services.py` for service registry
 - [ ] Add `apps/events/` for event bus
 - [ ] Add `apps/integrations/` for third-party webhooks
 - [ ] Create `docs/INTEGRATIONS.md` guide
 
 ### Configuration
+
 - [ ] Environment variables for service URLs
 - [ ] Service authentication (API keys, JWT)
 - [ ] Feature flags configuration
 
 ### Frontend
+
 - [ ] Create `src/lib/services/` for service clients
 - [ ] WebSocket connection manager
 - [ ] Event listener utilities
 
 ### Documentation
+
 - [ ] Integration guide for each capability type
 - [ ] Event schema documentation
 - [ ] API contract versioning guide
@@ -690,6 +739,7 @@ For each capability we decide to build, create a spec like:
 **Tech Stack**: FastAPI + PostgreSQL + Redis + Celery
 
 **API Specification**:
+
 ```
 POST /api/notifications/send
 GET /api/notifications/user/{user_id}
@@ -698,10 +748,12 @@ WebSocket /ws/notifications
 ```
 
 **Event Subscriptions**:
+
 - `user.created` → Send welcome notification
 - `project.shared` → Send collaboration notification
 
 **Environment Variables**:
+
 ```
 SENDGRID_API_KEY
 TWILIO_ACCOUNT_SID
@@ -709,6 +761,7 @@ FIREBASE_SERVER_KEY
 ```
 
 **Django Integration**:
+
 ```python
 # Install
 pip install djvurn-notifications-client
@@ -728,6 +781,7 @@ send_notification(
 ```
 
 **Vue Integration**:
+
 ```typescript
 // Composable
 import { useNotifications } from '@djvurn/notifications'

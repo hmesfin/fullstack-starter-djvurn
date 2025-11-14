@@ -9,7 +9,9 @@
 ## Decision Framework
 
 ### ✅ USE EXISTING (No djvurn package needed)
+
 **When**:
+
 - Well-maintained package exists (recent commits, active maintainers)
 - Battle-tested (used in production by many projects)
 - Good documentation
@@ -24,7 +26,9 @@
 ---
 
 ### 🔧 WRAP EXISTING (Create djvurn-* integration package)
+
 **When**:
+
 - Good underlying package exists
 - Needs opinionated defaults for this starter
 - Needs DRF integration (serializers, ViewSets, permissions)
@@ -34,6 +38,7 @@
 - Needs enhanced documentation for our use case
 
 **Action**: Create `djvurn-*` package that:
+
 - Wraps the underlying package
 - Provides DRF integration layer
 - Includes Vue components
@@ -46,7 +51,9 @@
 ---
 
 ### 🏗️ BUILD FROM SCRATCH
+
 **When**:
+
 - No good existing package
 - Existing packages are abandoned/unmaintained
 - Very specific requirements not covered
@@ -64,6 +71,7 @@
 ### 1. Authentication & Authorization
 
 #### 1.1 Social Authentication
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `django-allauth` (Jazzband)
 - **Why**: Industry standard, supports 50+ providers, well-maintained
@@ -71,12 +79,14 @@
 - **Integration Docs**: Add to `docs/AUTHENTICATION.md`
 
 #### 1.2 JWT Authentication
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `djangorestframework-simplejwt` (Jazzband) - **ALREADY USING**
 - **Why**: Perfect for DRF, well-maintained, we already use it
 - **djvurn Action**: None
 
 #### 1.3 Two-Factor Authentication (2FA)
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `django-two-factor-auth` or `django-otp`
 - **Why**: Both well-maintained, support TOTP, SMS, backup codes
@@ -84,6 +94,7 @@
 - **Integration Docs**: Add to `docs/TWO_FACTOR_AUTH.md`
 
 #### 1.4 Advanced RBAC (Roles, Teams, Permissions)
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Packages**:
   - `django-guardian` (object-level permissions)
@@ -96,11 +107,13 @@
   - TypeScript types for roles/permissions
   - Integration with JWT (embed roles in token)
 - **What djvurn-rbac Provides**:
+
   ```python
   from djvurn_rbac.models import Team, Role, Permission
   from djvurn_rbac.permissions import HasRolePermission
   from djvurn_rbac.serializers import TeamSerializer, RoleSerializer
   ```
+
   ```typescript
   import { useRBAC } from '@djvurn/rbac'
   import { TeamManager } from '@djvurn/rbac/components'
@@ -111,6 +124,7 @@
 ### 2. Communication & Messaging
 
 #### 2.1 Email (Transactional)
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-communications-email` (microservice)
 - **Why**:
@@ -121,6 +135,7 @@
 - **Tech Stack**: FastAPI + PostgreSQL + Celery + Redis
 
 #### 2.2 SMS
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-communications-sms` (microservice)
 - **Why**:
@@ -130,19 +145,23 @@
 - **Tech Stack**: FastAPI + PostgreSQL
 
 #### 2.3 Push Notifications (Mobile)
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-push-notifications` (Jazzband)
 - **djvurn Package**: `djvurn-push`
 - **Why Wrap**: Add DRF integration, TypeScript types, React Native components
 - **What djvurn-push Provides**:
+
   ```python
   from djvurn_push.api import PushNotificationViewSet
   ```
+
   ```typescript
   import { usePushNotifications } from '@djvurn/push'
   ```
 
 #### 2.4 In-App Notifications
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-notifications-hq` (well-maintained, 2k+ stars)
 - **djvurn Package**: `djvurn-notifications`
@@ -153,15 +172,18 @@
   - TypeScript types
   - Notification preferences UI
 - **What djvurn-notifications Provides**:
+
   ```python
   from djvurn_notifications.api import NotificationViewSet
   from djvurn_notifications.websocket import NotificationConsumer
   ```
+
   ```typescript
   import { NotificationCenter } from '@djvurn/notifications'
   ```
 
 #### 2.5 Newsletters
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-newsletter` (Jazzband)
 - **djvurn Package**: `djvurn-newsletters`
@@ -172,6 +194,7 @@
   - A/B testing UI
 
 #### 2.6 Real-Time Chat/Messaging
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-messaging` (microservice)
 - **Why**:
@@ -185,6 +208,7 @@
 ### 3. Content & Social Features
 
 #### 3.1 Tagging
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `django-taggit` (Jazzband)
 - **Why**: Perfect as-is, supports generic relations, well-maintained
@@ -192,6 +216,7 @@
 - **Provide**: Vue components package `@djvurn/taggit-components`
 
 #### 3.2 Comments
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-contrib-comments` or `django-threadedcomments`
 - **djvurn Package**: `djvurn-comments`
@@ -203,28 +228,34 @@
   - DRF serializers
   - Vue.js comment thread component
 - **What djvurn-comments Provides**:
+
   ```python
   from djvurn_comments.api import CommentViewSet
   from djvurn_comments.models import ThreadedComment, Reaction
   ```
+
   ```typescript
   import { CommentThread } from '@djvurn/comments'
   ```
 
 #### 3.3 Activity Feeds
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-activity-stream` (1.5k+ stars, active)
 - **djvurn Package**: `djvurn-activity`
 - **Why Wrap**: Add DRF API, Vue components, real-time WebSocket updates
 - **What djvurn-activity Provides**:
+
   ```python
   from djvurn_activity.api import ActivityFeedViewSet
   ```
+
   ```typescript
   import { ActivityFeed } from '@djvurn/activity'
   ```
 
 #### 3.4 Invitations
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-invitations` (800+ stars)
 - **djvurn Package**: `djvurn-invitations`
@@ -235,6 +266,7 @@
   - Vue.js invitation flow components
 
 #### 3.5 Bookmarks/Favorites
+
 - **Strategy**: 🏗️ **BUILD FROM SCRATCH**
 - **Package**: `djvurn-bookmarks`
 - **Why**: Simple enough to build, no great existing package
@@ -245,6 +277,7 @@
 ### 4. File & Media Management
 
 #### 4.1 File Storage (S3, Local, CDN)
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `django-storages` (Jazzband)
 - **Why**: Industry standard, supports all major providers (S3, GCS, Azure)
@@ -252,12 +285,14 @@
 - **Provide**: Vue components `@djvurn/upload-components`
 
 #### 4.2 Image Processing
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `Pillow` + `easy-thumbnails` or `sorl-thumbnail`
 - **Why**: Battle-tested, handles resizing, optimization
 - **djvurn Action**: Document setup
 
 #### 4.3 Rich Text Editor
+
 - **Strategy**: ✅ **USE EXISTING** (frontend)
 - **Package**: `TipTap` or `ProseMirror` (JavaScript)
 - **djvurn Action**: Provide Vue component wrapper
@@ -268,12 +303,14 @@
 ### 5. Workflows & Automation
 
 #### 5.1 Task Scheduling
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `django-celery-beat` (Jazzband)
 - **Why**: Perfect for Celery-based scheduling, well-maintained
 - **djvurn Action**: Document setup, provide admin UI enhancements
 
 #### 5.2 State Machines / Workflows
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-fsm` (finite state machine)
 - **djvurn Package**: `djvurn-workflows`
@@ -284,6 +321,7 @@
   - Workflow templates
 
 #### 5.3 Background Jobs Dashboard
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `flower` (Celery monitoring)
 - **djvurn Package**: `djvurn-jobs` (optional enhancement)
@@ -295,36 +333,43 @@
 ### 6. Security & Compliance
 
 #### 6.1 Rate Limiting
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-ratelimit` (Jazzband)
 - **djvurn Package**: `djvurn-ratelimit`
 - **Why Wrap**: Add per-user, per-team limits, DRF integration
 - **What djvurn-ratelimit Provides**:
+
   ```python
   from djvurn_ratelimit.decorators import ratelimit
   from djvurn_ratelimit.throttles import UserRateThrottle
   ```
 
 #### 6.2 Audit Logging
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-auditlog` (Jazzband)
 - **djvurn Package**: `djvurn-audit`
 - **Why Wrap**: Add DRF API, Vue.js audit log viewer, advanced filtering
 - **What djvurn-audit Provides**:
+
   ```python
   from djvurn_audit.api import AuditLogViewSet
   ```
+
   ```typescript
   import { AuditLogViewer } from '@djvurn/audit'
   ```
 
 #### 6.3 GDPR Compliance
+
 - **Strategy**: 🏗️ **BUILD FROM SCRATCH**
 - **Package**: `djvurn-gdpr`
 - **Why**: No comprehensive package exists, very app-specific
 - **Scope**: Data export, deletion, consent management
 
 #### 6.4 Content Moderation
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-moderation` (microservice)
 - **Why**: External ML APIs (OpenAI moderation), independent scaling
@@ -335,6 +380,7 @@
 ### 7. Payments & Billing
 
 #### 7.1 Payments
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE** (wrapper around Stripe/PayPal SDKs)
 - **Package**: `djvurn-payments` (microservice)
 - **Why**:
@@ -345,6 +391,7 @@
 - **Note**: Could also be a Django package using `dj-stripe`
 
 #### 7.2 Subscriptions
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `dj-stripe` (Stripe integration for Django)
 - **djvurn Package**: `djvurn-subscriptions`
@@ -359,20 +406,24 @@
 ### 8. Developer Tools
 
 #### 8.1 Feature Flags
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-flags` (maintained by CFPB, 500+ stars)
 - **djvurn Package**: `djvurn-flags`
 - **Why Wrap**: Add DRF API, Vue.js toggle UI, TypeScript composable
 - **What djvurn-flags Provides**:
+
   ```python
   from djvurn_flags.decorators import feature_flag
   from djvurn_flags.api import FeatureFlagViewSet
   ```
+
   ```typescript
   import { useFeatureFlag } from '@djvurn/flags'
   ```
 
 #### 8.2 Webhooks
+
 - **Strategy**: 🔧 **WRAP EXISTING**
 - **Base Package**: `django-webhook` or build simple custom
 - **djvurn Package**: `djvurn-webhooks`
@@ -383,6 +434,7 @@
   - Delivery logs
 
 #### 8.3 API Documentation
+
 - **Strategy**: ✅ **USE EXISTING**
 - **Package**: `drf-spectacular` - **ALREADY USING**
 - **Why**: Perfect for DRF, auto-generates OpenAPI schema
@@ -393,6 +445,7 @@
 ### 9. Search & Analytics
 
 #### 9.1 Full-Text Search
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-search` (microservice)
 - **Why**:
@@ -402,6 +455,7 @@
 - **Tech Stack**: Meilisearch or Elasticsearch + Python indexer
 
 #### 9.2 Analytics
+
 - **Strategy**: 🏗️ **BUILD MICROSERVICE**
 - **Package**: `djvurn-analytics` (microservice)
 - **Why**:
@@ -415,12 +469,14 @@
 ### 10. Infrastructure
 
 #### 10.1 Event Bus
+
 - **Strategy**: 🏗️ **BUILD FROM SCRATCH**
 - **Package**: `djvurn-events` (Django package)
 - **Why**: Core infrastructure for microservices communication
 - **Scope**: Publish/subscribe, event schemas, Redis Pub/Sub or RabbitMQ
 
 #### 10.2 Service Registry
+
 - **Strategy**: 🏗️ **BUILD FROM SCRATCH**
 - **Package**: Configuration in starter project
 - **Why**: Simple config file for service URLs
@@ -431,6 +487,7 @@
 ## Summary: Package Counts
 
 ### ✅ USE EXISTING (No djvurn package): **15 packages**
+
 - django-allauth
 - djangorestframework-simplejwt (already using)
 - django-two-factor-auth
@@ -448,6 +505,7 @@
 - Sentry SDK
 
 ### 🔧 WRAP EXISTING (Create djvurn-* wrapper): **15 packages**
+
 1. djvurn-rbac (wraps django-guardian + django-rules)
 2. djvurn-push (wraps django-push-notifications)
 3. djvurn-notifications (wraps django-notifications-hq)
@@ -467,12 +525,14 @@
 ### 🏗️ BUILD FROM SCRATCH: **10 items**
 
 **Django Packages (4)**:
+
 1. djvurn-bookmarks
 2. djvurn-gdpr
 3. djvurn-events (event bus)
 4. djvurn-workspaces
 
 **Microservices (6)**:
+
 1. djvurn-communications-email
 2. djvurn-communications-sms
 3. djvurn-messaging (chat)
@@ -487,6 +547,7 @@
 All `djvurn-*` wrapper packages follow this pattern:
 
 ### Package Structure
+
 ```
 djvurn-{capability}/
 ├── backend/                    # Python package
@@ -514,6 +575,7 @@ djvurn-{capability}/
 ```
 
 ### Installation Experience
+
 ```bash
 # Backend
 pip install djvurn-notifications
@@ -525,6 +587,7 @@ npm install @djvurn/notifications
 ### Integration Example (djvurn-notifications)
 
 **Backend** (`pyproject.toml`):
+
 ```toml
 [project]
 dependencies = [
@@ -536,6 +599,7 @@ dependencies = [
 ```
 
 **Python API**:
+
 ```python
 # settings.py
 INSTALLED_APPS += [
@@ -563,6 +627,7 @@ urlpatterns = [
 ```
 
 **Frontend** (`@djvurn/notifications`):
+
 ```typescript
 // Vue component
 import { NotificationCenter } from '@djvurn/notifications'
@@ -572,6 +637,7 @@ const { notifications, unreadCount, markAsRead } = useNotifications()
 ```
 
 **What the wrapper adds**:
+
 1. ✅ DRF serializers and ViewSets
 2. ✅ WebSocket real-time delivery
 3. ✅ Multi-channel support (in-app, email, push)
@@ -585,6 +651,7 @@ const { notifications, unreadCount, markAsRead } = useNotifications()
 ## Prioritization
 
 ### Phase 9A: Essential Wrappers (Build First)
+
 1. **djvurn-rbac** - RBAC with teams (wrap django-guardian)
 2. **djvurn-notifications** - In-app notifications (wrap django-notifications-hq)
 3. **djvurn-audit** - Audit logging (wrap django-auditlog)
@@ -592,6 +659,7 @@ const { notifications, unreadCount, markAsRead } = useNotifications()
 5. **djvurn-events** - Event bus (build from scratch)
 
 ### Phase 9B: High-Value Wrappers
+
 6. **djvurn-comments** - Comment system (wrap django-contrib-comments)
 7. **djvurn-activity** - Activity feeds (wrap django-activity-stream)
 8. **djvurn-flags** - Feature flags (wrap django-flags)
@@ -599,6 +667,7 @@ const { notifications, unreadCount, markAsRead } = useNotifications()
 10. **djvurn-ratelimit** - Rate limiting (wrap django-ratelimit)
 
 ### Phase 9C: Microservices
+
 11. **djvurn-communications-email** - Email service
 12. **djvurn-messaging** - Real-time chat
 13. **djvurn-search** - Full-text search
@@ -618,6 +687,6 @@ const { notifications, unreadCount, markAsRead } = useNotifications()
 
 ## Resources
 
-- **Jazzband packages**: https://jazzband.co/
-- **Django Packages**: https://djangopackages.org/
-- **Awesome Django**: https://github.com/wsvincent/awesome-django
+- **Jazzband packages**: <https://jazzband.co/>
+- **Django Packages**: <https://djangopackages.org/>
+- **Awesome Django**: <https://github.com/wsvincent/awesome-django>
