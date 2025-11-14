@@ -1,5 +1,4 @@
 # apps/projects/tests/test_views.py
-from typing import Any
 
 import pytest
 from django.urls import reverse
@@ -279,7 +278,7 @@ class TestProjectViewSetSearch:
         user: User,
     ) -> None:
         """Test search is case-insensitive"""
-        project = ProjectFactory(owner=user, name="Django Project")
+        project = ProjectFactory(owner=user, name="Django Project")  # noqa: F841
 
         url = reverse("projects:project-list")
 

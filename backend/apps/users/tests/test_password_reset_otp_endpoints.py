@@ -38,11 +38,14 @@ class TestPasswordResetOTPRequestEndpoint:
         assert response.status_code == status.HTTP_200_OK
         assert "message" in response.data
         # Security: Don't leak user existence
-        assert "otp" in response.data["message"].lower() or "code" in response.data["message"].lower()
+        assert (
+            "otp" in response.data["message"].lower()
+            or "code" in response.data["message"].lower()
+        )
 
     def test_request_password_reset_otp_creates_otp_record(self):
         """Test that OTP record is created in database."""
-        from apps.users.models import PasswordResetOTP
+        from apps.users.models import PasswordResetOTP  # noqa: PLC0415
 
         data = {"email": "test@example.com"}
 
@@ -58,7 +61,7 @@ class TestPasswordResetOTPRequestEndpoint:
 
     def test_request_password_reset_otp_invalidates_old_codes(self):
         """Test that requesting new OTP invalidates previous unused codes."""
-        from apps.users.models import PasswordResetOTP
+        from apps.users.models import PasswordResetOTP  # noqa: PLC0415
 
         # Create first OTP
         self.client.post(self.url, {"email": "test@example.com"}, format="json")
@@ -78,7 +81,7 @@ class TestPasswordResetOTPRequestEndpoint:
         assert new_otp.code != first_code
 
     def test_request_password_reset_otp_nonexistent_email(self):
-        """Test password reset request with non-existent email (security: don't leak info)."""
+        """Test password reset request with non-existent email (security: don't leak info)."""  # noqa: E501
         data = {"email": "nonexistent@example.com"}
 
         response = self.client.post(self.url, data, format="json")
@@ -124,7 +127,7 @@ class TestPasswordResetOTPConfirmEndpoint:
 
     def _create_valid_otp(self):
         """Helper to create a valid OTP code."""
-        from apps.users.models import PasswordResetOTP
+        from apps.users.models import PasswordResetOTP  # noqa: PLC0415
 
         otp = PasswordResetOTP.create_for_user(self.user)
         return otp.code
@@ -149,7 +152,7 @@ class TestPasswordResetOTPConfirmEndpoint:
 
     def test_confirm_password_reset_otp_marks_code_as_used(self):
         """Test that OTP code is marked as used after successful reset."""
-        from apps.users.models import PasswordResetOTP
+        from apps.users.models import PasswordResetOTP  # noqa: PLC0415
 
         code = self._create_valid_otp()
         data = {
@@ -177,11 +180,12 @@ class TestPasswordResetOTPConfirmEndpoint:
         response = self.client.post(self.url, data, format="json")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "code" in str(response.data).lower() or "otp" in str(response.data).lower()
+        assert (
+            "code" in str(response.data).lower() or "otp" in str(response.data).lower()
+        )
 
     def test_confirm_password_reset_otp_already_used(self):
         """Test password reset with already used OTP code."""
-        from apps.users.models import PasswordResetOTP
 
         code = self._create_valid_otp()
 
@@ -201,11 +205,11 @@ class TestPasswordResetOTPConfirmEndpoint:
 
     def test_confirm_password_reset_otp_expired_code(self):
         """Test password reset with expired OTP code."""
-        from datetime import timedelta
+        from datetime import timedelta  # noqa: PLC0415
 
-        from django.utils import timezone
+        from django.utils import timezone  # noqa: PLC0415
 
-        from apps.users.models import PasswordResetOTP
+        from apps.users.models import PasswordResetOTP  # noqa: PLC0415
 
         # Create OTP and manually expire it
         otp = PasswordResetOTP.create_for_user(self.user)

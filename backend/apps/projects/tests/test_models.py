@@ -1,5 +1,6 @@
 # apps/projects/tests/test_models.py
-from datetime import date, timedelta
+from datetime import date
+from datetime import timedelta
 
 import pytest
 from django.db import IntegrityError
@@ -183,7 +184,7 @@ class TestProjectModel:
         with pytest.raises(IntegrityError):
             Project.objects.create(
                 name="Test",
-                owner=None,  # type: ignore
+                owner=None,
             )
 
     def test_factory_traits_draft(self) -> None:
@@ -229,7 +230,7 @@ class TestProjectModel:
         project = ProjectFactory(overdue=True)
         assert project.status == Project.Status.ACTIVE
         assert project.due_date is not None
-        assert project.due_date < date.today()
+        assert project.due_date < date.today()  # noqa: DTZ011
 
     def test_factory_traits_starting_soon(self) -> None:
         """Test factory starting_soon trait"""
@@ -237,8 +238,10 @@ class TestProjectModel:
         assert project.status == Project.Status.DRAFT
         assert project.start_date is not None
         # start_date should be between today and +7 days
-        assert project.start_date >= date.today()
-        assert project.start_date <= date.today() + timedelta(days=8)  # Allow up to +8 days to be safe
+        assert project.start_date >= date.today()  # noqa: DTZ011
+        assert project.start_date <= date.today() + timedelta(  # noqa: DTZ011
+            days=8,
+        )  # Allow up to +8 days to be safe
 
     def test_combined_traits(self) -> None:
         """Test combining multiple factory traits"""

@@ -324,6 +324,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
         return user
 
+
 class PasswordResetOTPRequestSerializer(serializers.Serializer):
     """Serializer for OTP-based password reset request."""
 

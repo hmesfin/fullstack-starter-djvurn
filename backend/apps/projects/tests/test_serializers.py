@@ -1,13 +1,13 @@
 # apps/projects/tests/test_serializers.py
-from datetime import date, timedelta
-from typing import Any
+from datetime import date
+from datetime import timedelta
 
 import pytest
 from django.utils import timezone
-from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
-from apps.projects.api.serializers import ProjectCreateSerializer, ProjectSerializer
+from apps.projects.api.serializers import ProjectCreateSerializer
+from apps.projects.api.serializers import ProjectSerializer
 from apps.projects.models import Project
 from apps.projects.tests.factories import ProjectFactory
 from apps.users.tests.factories import UserFactory
@@ -124,7 +124,7 @@ class TestProjectSerializer:
         """Test is_overdue is True when due_date is past and status is not COMPLETED"""
         project = ProjectFactory(
             status=Project.Status.ACTIVE,
-            due_date=date.today() - timedelta(days=1),
+            due_date=date.today() - timedelta(days=1),  # noqa: DTZ011
         )
 
         serializer = ProjectSerializer(project)
@@ -134,7 +134,7 @@ class TestProjectSerializer:
         """Test is_overdue is False when status is COMPLETED even if past due"""
         project = ProjectFactory(
             status=Project.Status.COMPLETED,
-            due_date=date.today() - timedelta(days=1),
+            due_date=date.today() - timedelta(days=1),  # noqa: DTZ011
         )
 
         serializer = ProjectSerializer(project)
@@ -154,7 +154,7 @@ class TestProjectSerializer:
         """Test is_overdue is False when due_date is in the future"""
         project = ProjectFactory(
             status=Project.Status.ACTIVE,
-            due_date=date.today() + timedelta(days=1),
+            due_date=date.today() + timedelta(days=1),  # noqa: DTZ011
         )
 
         serializer = ProjectSerializer(project)
@@ -173,7 +173,7 @@ class TestProjectSerializer:
 
     def test_is_overdue_for_different_statuses(self) -> None:
         """Test is_overdue behavior for all statuses with past due_date"""
-        past_date = date.today() - timedelta(days=1)
+        past_date = date.today() - timedelta(days=1)  # noqa: DTZ011
 
         # ACTIVE - should be overdue
         active = ProjectFactory(status=Project.Status.ACTIVE, due_date=past_date)
@@ -349,9 +349,7 @@ class TestProjectCreateSerializer:
 
     def test_has_same_fields_as_project_serializer(self) -> None:
         """Test that fields match ProjectSerializer"""
-        assert (
-            ProjectCreateSerializer.Meta.fields == ProjectSerializer.Meta.fields
-        )
+        assert ProjectCreateSerializer.Meta.fields == ProjectSerializer.Meta.fields
 
     def test_create_with_all_fields(self) -> None:
         """Test creating project with all optional fields"""
