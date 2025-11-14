@@ -61,7 +61,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         # Date traits
         with_dates = factory.Trait(
             start_date=factory.Faker(
-                "date_between", start_date="-30d", end_date="today",
+                "date_between",
+                start_date="-30d",
+                end_date="today",
             ),
             due_date=factory.Faker("date_between", start_date="today", end_date="+60d"),
         )
@@ -70,7 +72,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         overdue = factory.Trait(
             status=Project.Status.ACTIVE,
             start_date=factory.Faker(
-                "date_between", start_date="-60d", end_date="-30d",
+                "date_between",
+                start_date="-60d",
+                end_date="-30d",
             ),
             due_date=factory.Faker("date_between", start_date="-29d", end_date="-1d"),
         )
@@ -79,7 +83,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         starting_soon = factory.Trait(
             status=Project.Status.DRAFT,
             start_date=factory.Faker(
-                "date_between", start_date="today", end_date="+7d",
+                "date_between",
+                start_date="today",
+                end_date="+7d",
             ),
             due_date=factory.Faker("date_between", start_date="+8d", end_date="+30d"),
         )
