@@ -8,6 +8,8 @@ from apps.users.api.views import EmailTokenRefreshView
 from apps.users.api.views import OTPVerificationView
 from apps.users.api.views import PasswordChangeView
 from apps.users.api.views import PasswordResetConfirmView
+from apps.users.api.views import PasswordResetOTPConfirmView
+from apps.users.api.views import PasswordResetOTPRequestView
 from apps.users.api.views import PasswordResetRequestView
 from apps.users.api.views import ResendOTPView
 from apps.users.api.views import UserRegistrationView
@@ -41,6 +43,16 @@ urlpatterns = [
         "auth/password-reset/confirm/",
         PasswordResetConfirmView.as_view(),
         name="auth-password-reset-confirm",
+    ),
+    path(
+        "auth/password-reset-otp/request/",
+        PasswordResetOTPRequestView.as_view(),
+        name="auth-password-reset-otp-request",
+    ),
+    path(
+        "auth/password-reset-otp/confirm/",
+        PasswordResetOTPConfirmView.as_view(),
+        name="auth-password-reset-otp-confirm",
     ),
     path("auth/token/", EmailTokenObtainPairView.as_view(), name="auth-token"),
     path(

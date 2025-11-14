@@ -65,6 +65,36 @@ export type PasswordResetConfirmRequest = {
 };
 
 /**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirm = {
+    email: string;
+    code: string;
+};
+
+/**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirmRequest = {
+    email: string;
+    code: string;
+};
+
+/**
+ * Serializer for OTP-based password reset request.
+ */
+export type PasswordResetOtpRequest = {
+    email: string;
+};
+
+/**
+ * Serializer for OTP-based password reset request.
+ */
+export type PasswordResetOtpRequestRequest = {
+    email: string;
+};
+
+/**
  * Serializer for password reset request.
  */
 export type PasswordResetRequest = {
@@ -248,6 +278,15 @@ export type PasswordResetConfirmRequestWritable = {
     password: string;
 };
 
+/**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirmRequestWritable = {
+    email: string;
+    code: string;
+    password: string;
+};
+
 export type ProjectWritable = {
     name: string;
     description?: string;
@@ -295,6 +334,32 @@ export type UserRegistrationRequestWritable = {
     first_name: string;
     last_name: string;
 };
+
+export type ApiAuthPasswordResetOtpConfirmCreateData = {
+    body: PasswordResetOtpConfirmRequestWritable;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset-otp/confirm/';
+};
+
+export type ApiAuthPasswordResetOtpConfirmCreateResponses = {
+    200: PasswordResetOtpConfirm;
+};
+
+export type ApiAuthPasswordResetOtpConfirmCreateResponse = ApiAuthPasswordResetOtpConfirmCreateResponses[keyof ApiAuthPasswordResetOtpConfirmCreateResponses];
+
+export type ApiAuthPasswordResetOtpRequestCreateData = {
+    body: PasswordResetOtpRequestRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset-otp/request/';
+};
+
+export type ApiAuthPasswordResetOtpRequestCreateResponses = {
+    200: PasswordResetOtpRequest;
+};
+
+export type ApiAuthPasswordResetOtpRequestCreateResponse = ApiAuthPasswordResetOtpRequestCreateResponses[keyof ApiAuthPasswordResetOtpRequestCreateResponses];
 
 export type ApiAuthPasswordResetConfirmCreateData = {
     body: PasswordResetConfirmRequestWritable;

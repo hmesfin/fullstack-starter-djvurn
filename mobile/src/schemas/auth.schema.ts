@@ -60,6 +60,29 @@ export const passwordResetConfirmSchema = z.object({
 }).strict()
 
 /**
+ * Schema for OTP-based password reset request.
+ * Mirrors PasswordResetOtpRequestRequest from types.gen.ts
+ */
+export const passwordResetOTPRequestSchema = z.object({
+  email: z.string().email('Invalid email format'),
+}).strict()
+
+/**
+ * Schema for OTP-based password reset confirm request.
+ * Mirrors PasswordResetOtpConfirmRequestWritable from types.gen.ts
+ */
+export const passwordResetOTPConfirmSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  code: z.string().length(6, 'OTP code must be exactly 6 digits').regex(/^\d{6}$/, 'OTP code must contain only digits'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+}).strict()
+
+/**
  * Type exports for use in components and composables
  */
 export type UserRegistrationInput = z.infer<typeof userRegistrationSchema>
@@ -68,3 +91,5 @@ export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>
 export type TokenRefreshInput = z.infer<typeof tokenRefreshSchema>
 export type PasswordResetRequestInput = z.infer<typeof passwordResetRequestSchema>
 export type PasswordResetConfirmInput = z.infer<typeof passwordResetConfirmSchema>
+export type PasswordResetOTPRequestInput = z.infer<typeof passwordResetOTPRequestSchema>
+export type PasswordResetOTPConfirmInput = z.infer<typeof passwordResetOTPConfirmSchema>

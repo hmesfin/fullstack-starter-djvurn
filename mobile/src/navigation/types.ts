@@ -16,6 +16,10 @@ export type AuthStackParamList = {
   OTPVerification: {
     email: string
   }
+  ForgotPassword: undefined
+  ResetPassword: {
+    email: string
+  }
 }
 
 /**

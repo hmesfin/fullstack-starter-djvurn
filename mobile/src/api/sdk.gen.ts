@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApiAuthPasswordResetConfirmCreateData, ApiAuthPasswordResetConfirmCreateResponses, ApiAuthPasswordResetRequestCreateData, ApiAuthPasswordResetRequestCreateResponses, ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthResendOtpCreateData, ApiAuthResendOtpCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDestroyData, ProjectsDestroyResponses, ProjectsListData, ProjectsListResponses, ProjectsPartialUpdateData, ProjectsPartialUpdateResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { ApiAuthPasswordResetConfirmCreateData, ApiAuthPasswordResetConfirmCreateResponses, ApiAuthPasswordResetOtpConfirmCreateData, ApiAuthPasswordResetOtpConfirmCreateResponses, ApiAuthPasswordResetOtpRequestCreateData, ApiAuthPasswordResetOtpRequestCreateResponses, ApiAuthPasswordResetRequestCreateData, ApiAuthPasswordResetRequestCreateResponses, ApiAuthRegisterCreateData, ApiAuthRegisterCreateResponses, ApiAuthResendOtpCreateData, ApiAuthResendOtpCreateResponses, ApiAuthTokenCreateData, ApiAuthTokenCreateResponses, ApiAuthTokenRefreshCreateData, ApiAuthTokenRefreshCreateResponses, ApiAuthVerifyOtpCreateData, ApiAuthVerifyOtpCreateResponses, ApiProjectsCreateData, ApiProjectsCreateResponses, ApiProjectsDestroyData, ApiProjectsDestroyResponses, ApiProjectsListData, ApiProjectsListResponses, ApiProjectsPartialUpdateData, ApiProjectsPartialUpdateResponses, ApiProjectsRetrieveData, ApiProjectsRetrieveResponses, ApiProjectsUpdateData, ApiProjectsUpdateResponses, ApiUsersChangePasswordCreateData, ApiUsersChangePasswordCreateResponses, ApiUsersListData, ApiUsersListResponses, ApiUsersMePartialUpdateData, ApiUsersMePartialUpdateResponses, ApiUsersMeRetrieveData, ApiUsersMeRetrieveResponses, ApiUsersPartialUpdateData, ApiUsersPartialUpdateResponses, ApiUsersRetrieveData, ApiUsersRetrieveResponses, ApiUsersUpdateData, ApiUsersUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -16,6 +16,56 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
+};
+
+/**
+ * Reset password using valid OTP code.
+ */
+export const apiAuthPasswordResetOtpConfirmCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthPasswordResetOtpConfirmCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthPasswordResetOtpConfirmCreateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/password-reset-otp/confirm/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Request password reset and send OTP code via email.
+ */
+export const apiAuthPasswordResetOtpRequestCreate = <ThrowOnError extends boolean = false>(options: Options<ApiAuthPasswordResetOtpRequestCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiAuthPasswordResetOtpRequestCreateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/auth/password-reset-otp/request/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
 };
 
 /**
@@ -171,6 +221,161 @@ export const apiAuthVerifyOtpCreate = <ThrowOnError extends boolean = false>(opt
     });
 };
 
+/**
+ * List all projects for the authenticated user
+ *
+ * Returns a paginated list of projects owned by the current user
+ */
+export const apiProjectsList = <ThrowOnError extends boolean = false>(options?: Options<ApiProjectsListData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ApiProjectsListResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/',
+        ...options
+    });
+};
+
+/**
+ * ViewSet for managing projects.
+ *
+ * All endpoints require authentication.
+ * Projects are filtered to show only those owned by the current user.
+ */
+export const apiProjectsCreate = <ThrowOnError extends boolean = false>(options: Options<ApiProjectsCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiProjectsCreateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * ViewSet for managing projects.
+ *
+ * All endpoints require authentication.
+ * Projects are filtered to show only those owned by the current user.
+ */
+export const apiProjectsDestroy = <ThrowOnError extends boolean = false>(options: Options<ApiProjectsDestroyData, ThrowOnError>) => {
+    return (options.client ?? client).delete<ApiProjectsDestroyResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/{uuid}/',
+        ...options
+    });
+};
+
+/**
+ * ViewSet for managing projects.
+ *
+ * All endpoints require authentication.
+ * Projects are filtered to show only those owned by the current user.
+ */
+export const apiProjectsRetrieve = <ThrowOnError extends boolean = false>(options: Options<ApiProjectsRetrieveData, ThrowOnError>) => {
+    return (options.client ?? client).get<ApiProjectsRetrieveResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/{uuid}/',
+        ...options
+    });
+};
+
+/**
+ * ViewSet for managing projects.
+ *
+ * All endpoints require authentication.
+ * Projects are filtered to show only those owned by the current user.
+ */
+export const apiProjectsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<ApiProjectsPartialUpdateData, ThrowOnError>) => {
+    return (options.client ?? client).patch<ApiProjectsPartialUpdateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/{uuid}/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * ViewSet for managing projects.
+ *
+ * All endpoints require authentication.
+ * Projects are filtered to show only those owned by the current user.
+ */
+export const apiProjectsUpdate = <ThrowOnError extends boolean = false>(options: Options<ApiProjectsUpdateData, ThrowOnError>) => {
+    return (options.client ?? client).put<ApiProjectsUpdateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/projects/{uuid}/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
 export const apiUsersList = <ThrowOnError extends boolean = false>(options?: Options<ApiUsersListData, ThrowOnError>) => {
     return (options?.client ?? client).get<ApiUsersListResponses, unknown, ThrowOnError>({
         security: [
@@ -251,6 +456,34 @@ export const apiUsersUpdate = <ThrowOnError extends boolean = false>(options: Op
     });
 };
 
+/**
+ * Change user password with old password verification.
+ */
+export const apiUsersChangePasswordCreate = <ThrowOnError extends boolean = false>(options: Options<ApiUsersChangePasswordCreateData, ThrowOnError>) => {
+    return (options.client ?? client).post<ApiUsersChangePasswordCreateResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            },
+            {
+                in: 'cookie',
+                name: 'sessionid',
+                type: 'apiKey'
+            }
+        ],
+        url: '/api/users/change-password/',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Get or update the current user's profile.
+ */
 export const apiUsersMeRetrieve = <ThrowOnError extends boolean = false>(options?: Options<ApiUsersMeRetrieveData, ThrowOnError>) => {
     return (options?.client ?? client).get<ApiUsersMeRetrieveResponses, unknown, ThrowOnError>({
         security: [
@@ -270,12 +503,10 @@ export const apiUsersMeRetrieve = <ThrowOnError extends boolean = false>(options
 };
 
 /**
- * List all projects for the authenticated user
- *
- * Returns a paginated list of projects owned by the current user
+ * Get or update the current user's profile.
  */
-export const projectsList = <ThrowOnError extends boolean = false>(options?: Options<ProjectsListData, ThrowOnError>) => {
-    return (options?.client ?? client).get<ProjectsListResponses, unknown, ThrowOnError>({
+export const apiUsersMePartialUpdate = <ThrowOnError extends boolean = false>(options?: Options<ApiUsersMePartialUpdateData, ThrowOnError>) => {
+    return (options?.client ?? client).patch<ApiUsersMePartialUpdateResponses, unknown, ThrowOnError>({
         security: [
             {
                 scheme: 'bearer',
@@ -287,139 +518,11 @@ export const projectsList = <ThrowOnError extends boolean = false>(options?: Opt
                 type: 'apiKey'
             }
         ],
-        url: '/api/projects/',
-        ...options
-    });
-};
-
-/**
- * ViewSet for managing projects.
- *
- * All endpoints require authentication.
- * Projects are filtered to show only those owned by the current user.
- */
-export const projectsCreate = <ThrowOnError extends boolean = false>(options: Options<ProjectsCreateData, ThrowOnError>) => {
-    return (options.client ?? client).post<ProjectsCreateResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            },
-            {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
-            }
-        ],
-        url: '/api/projects/',
+        url: '/api/users/me/',
         ...options,
         headers: {
             'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
-
-/**
- * ViewSet for managing projects.
- *
- * All endpoints require authentication.
- * Projects are filtered to show only those owned by the current user.
- */
-export const projectsDestroy = <ThrowOnError extends boolean = false>(options: Options<ProjectsDestroyData, ThrowOnError>) => {
-    return (options.client ?? client).delete<ProjectsDestroyResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            },
-            {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
-            }
-        ],
-        url: '/api/projects/{uuid}/',
-        ...options
-    });
-};
-
-/**
- * ViewSet for managing projects.
- *
- * All endpoints require authentication.
- * Projects are filtered to show only those owned by the current user.
- */
-export const projectsRetrieve = <ThrowOnError extends boolean = false>(options: Options<ProjectsRetrieveData, ThrowOnError>) => {
-    return (options.client ?? client).get<ProjectsRetrieveResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            },
-            {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
-            }
-        ],
-        url: '/api/projects/{uuid}/',
-        ...options
-    });
-};
-
-/**
- * ViewSet for managing projects.
- *
- * All endpoints require authentication.
- * Projects are filtered to show only those owned by the current user.
- */
-export const projectsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<ProjectsPartialUpdateData, ThrowOnError>) => {
-    return (options.client ?? client).patch<ProjectsPartialUpdateResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            },
-            {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
-            }
-        ],
-        url: '/api/projects/{uuid}/',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
-
-/**
- * ViewSet for managing projects.
- *
- * All endpoints require authentication.
- * Projects are filtered to show only those owned by the current user.
- */
-export const projectsUpdate = <ThrowOnError extends boolean = false>(options: Options<ProjectsUpdateData, ThrowOnError>) => {
-    return (options.client ?? client).put<ProjectsUpdateResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            },
-            {
-                in: 'cookie',
-                name: 'sessionid',
-                type: 'apiKey'
-            }
-        ],
-        url: '/api/projects/{uuid}/',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
+            ...options?.headers
         }
     });
 };

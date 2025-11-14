@@ -10,9 +10,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { authService } from '@/services/auth.service'
-import { useLogin, useRegister, useVerifyOTP, useResendOTP } from '../useAuthMutations'
+import {
+  useLogin,
+  useRegister,
+  useVerifyOTP,
+  useResendOTP,
+  useRequestPasswordResetOTP,
+  useConfirmPasswordResetOTP,
+} from '../useAuthMutations'
 import { createMockUser } from '@/test/mockHelpers'
-import type { TokenObtainPair, OtpVerification, ResendOtp } from '@/api/types.gen'
+import type {
+  TokenObtainPair,
+  OtpVerification,
+  ResendOtp,
+  PasswordResetOtpRequest,
+  PasswordResetOtpConfirm,
+} from '@/api/types.gen'
 
 // Mock the auth service
 vi.mock('@/services/auth.service', () => ({
@@ -21,6 +34,8 @@ vi.mock('@/services/auth.service', () => ({
     register: vi.fn(),
     verifyOTP: vi.fn(),
     resendOTP: vi.fn(),
+    requestPasswordResetOTP: vi.fn(),
+    confirmPasswordResetOTP: vi.fn(),
     refreshToken: vi.fn(),
     getMe: vi.fn(),
   },
@@ -283,6 +298,128 @@ describe('useResendOTP', () => {
 
     result.current.mutate({
       email: 'test@example.com',
+    })
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+
+    expect(result.current.error).toBe(mockError)
+  })
+})
+
+describe('useRequestPasswordResetOTP', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    AsyncStorage.clear()
+  })
+
+  it('should successfully request password reset OTP', async () => {
+    const mockResponse: PasswordResetOtpRequest = {
+      email: 'test@example.com',
+    }
+
+    ;vi.mocked(authService.requestPasswordResetOTP).mockResolvedValue(mockResponse)
+
+    const { result } = renderHook(() => useRequestPasswordResetOTP(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate({
+      email: 'test@example.com',
+    })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(authService.requestPasswordResetOTP).toHaveBeenCalledWith({
+      email: 'test@example.com',
+    })
+
+    expect(result.current.data).toEqual(mockResponse)
+  })
+
+  it('should handle request password reset OTP errors', async () => {
+    const mockError = new Error('Invalid email')
+    ;vi.mocked(authService.requestPasswordResetOTP).mockRejectedValue(mockError)
+
+    const { result } = renderHook(() => useRequestPasswordResetOTP(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate({
+      email: 'invalid-email',
+    })
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+
+    expect(result.current.error).toBe(mockError)
+  })
+})
+
+describe('useConfirmPasswordResetOTP', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    AsyncStorage.clear()
+  })
+
+  it('should successfully confirm password reset with OTP', async () => {
+    const mockResponse: PasswordResetOtpConfirm = {
+      email: 'test@example.com',
+      code: '123456',
+    }
+
+    ;vi.mocked(authService.confirmPasswordResetOTP).mockResolvedValue(mockResponse)
+
+    const { result } = renderHook(() => useConfirmPasswordResetOTP(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate({
+      email: 'test@example.com',
+      code: '123456',
+      password: 'NewPassword123!',
+    })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(authService.confirmPasswordResetOTP).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      code: '123456',
+      password: 'NewPassword123!',
+    })
+
+    expect(result.current.data).toEqual(mockResponse)
+  })
+
+  it('should handle invalid OTP code errors', async () => {
+    const mockError = new Error('Invalid or expired OTP code')
+    ;vi.mocked(authService.confirmPasswordResetOTP).mockRejectedValue(mockError)
+
+    const { result } = renderHook(() => useConfirmPasswordResetOTP(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate({
+      email: 'test@example.com',
+      code: 'wrong-code',
+      password: 'NewPassword123!',
+    })
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+
+    expect(result.current.error).toBe(mockError)
+  })
+
+  it('should handle weak password errors', async () => {
+    const mockError = new Error('Password is too weak')
+    ;vi.mocked(authService.confirmPasswordResetOTP).mockRejectedValue(mockError)
+
+    const { result } = renderHook(() => useConfirmPasswordResetOTP(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate({
+      email: 'test@example.com',
+      code: '123456',
+      password: 'weak',
     })
 
     await waitFor(() => expect(result.current.isError).toBe(true))

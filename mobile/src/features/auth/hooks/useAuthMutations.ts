@@ -14,6 +14,10 @@ import type {
   OtpVerification,
   ResendOtpRequest,
   ResendOtp,
+  PasswordResetOtpRequestRequest,
+  PasswordResetOtpRequest,
+  PasswordResetOtpConfirmRequestWritable,
+  PasswordResetOtpConfirm,
 } from '@/api/types.gen'
 
 // Type aliases for better naming
@@ -25,6 +29,10 @@ type VerifyOTPRequest = OtpVerificationRequest
 type VerifyOTPResponse = OtpVerification
 type ResendOTPRequest = ResendOtpRequest
 type ResendOTPResponse = ResendOtp
+type RequestPasswordResetOTPRequest = PasswordResetOtpRequestRequest
+type RequestPasswordResetOTPResponse = PasswordResetOtpRequest
+type ConfirmPasswordResetOTPRequest = PasswordResetOtpConfirmRequestWritable
+type ConfirmPasswordResetOTPResponse = PasswordResetOtpConfirm
 
 /**
  * Hook for user login
@@ -124,5 +132,57 @@ export function useResendOTP(): UseMutationResult<
 > {
   return useMutation({
     mutationFn: (data: ResendOTPRequest) => authService.resendOTP(data),
+  })
+}
+
+/**
+ * Hook for requesting password reset OTP
+ * Sends OTP code to user's email for password reset
+ *
+ * @example
+ * ```tsx
+ * const requestPasswordResetOTPMutation = useRequestPasswordResetOTP()
+ *
+ * requestPasswordResetOTPMutation.mutate({
+ *   email: 'user@example.com',
+ * })
+ * ```
+ */
+export function useRequestPasswordResetOTP(): UseMutationResult<
+  RequestPasswordResetOTPResponse,
+  Error,
+  RequestPasswordResetOTPRequest,
+  unknown
+> {
+  return useMutation({
+    mutationFn: (data: RequestPasswordResetOTPRequest) =>
+      authService.requestPasswordResetOTP(data),
+  })
+}
+
+/**
+ * Hook for confirming password reset with OTP
+ * Resets password using OTP code sent to email
+ *
+ * @example
+ * ```tsx
+ * const confirmPasswordResetOTPMutation = useConfirmPasswordResetOTP()
+ *
+ * confirmPasswordResetOTPMutation.mutate({
+ *   email: 'user@example.com',
+ *   code: '123456',
+ *   password: 'NewPassword123!',
+ * })
+ * ```
+ */
+export function useConfirmPasswordResetOTP(): UseMutationResult<
+  ConfirmPasswordResetOTPResponse,
+  Error,
+  ConfirmPasswordResetOTPRequest,
+  unknown
+> {
+  return useMutation({
+    mutationFn: (data: ConfirmPasswordResetOTPRequest) =>
+      authService.confirmPasswordResetOTP(data),
   })
 }

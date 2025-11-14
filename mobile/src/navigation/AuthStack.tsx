@@ -6,7 +6,13 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import type { AuthStackParamList } from './types'
-import { LoginScreen, RegisterScreen, OTPVerificationScreen } from '@/features/auth/screens'
+import {
+  LoginScreen,
+  RegisterScreen,
+  OTPVerificationScreen,
+  ForgotPasswordScreen,
+  ResetPasswordScreen,
+} from '@/features/auth/screens'
 
 const Stack = createNativeStackNavigator<AuthStackParamList>()
 
@@ -26,6 +32,14 @@ export function AuthStack(): React.ReactElement {
         component={OTPVerificationScreen}
         options={{
           gestureEnabled: false, // Prevent swipe back during OTP verification
+        }}
+      />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
+        options={{
+          gestureEnabled: false, // Prevent swipe back during password reset
         }}
       />
     </Stack.Navigator>

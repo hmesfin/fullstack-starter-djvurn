@@ -28,6 +28,28 @@ export type OtpVerificationRequest = {
     code: string;
 };
 
+export type PaginatedProjectList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Project>;
+};
+
+export type PaginatedUserList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<User>;
+};
+
+/**
+ * Serializer for changing password (authenticated users).
+ */
+export type PasswordChangeRequest = {
+    old_password: string;
+    new_password: string;
+};
+
 /**
  * Serializer for password reset confirmation.
  */
@@ -40,6 +62,36 @@ export type PasswordResetConfirm = {
  */
 export type PasswordResetConfirmRequest = {
     token: string;
+};
+
+/**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirm = {
+    email: string;
+    code: string;
+};
+
+/**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirmRequest = {
+    email: string;
+    code: string;
+};
+
+/**
+ * Serializer for OTP-based password reset request.
+ */
+export type PasswordResetOtpRequest = {
+    email: string;
+};
+
+/**
+ * Serializer for OTP-based password reset request.
+ */
+export type PasswordResetOtpRequestRequest = {
+    email: string;
 };
 
 /**
@@ -72,6 +124,7 @@ export type PatchedUserRequest = {
      * Email address
      */
     email?: string;
+    avatar?: Blob | File | null;
 };
 
 /**
@@ -180,6 +233,7 @@ export type User = {
      */
     email: string;
     readonly url: string;
+    avatar?: string | null;
 };
 
 /**
@@ -213,6 +267,21 @@ export type UserRequest = {
      * Email address
      */
     email: string;
+    avatar?: Blob | File | null;
+};
+
+export type PaginatedProjectListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<ProjectWritable>;
+};
+
+export type PaginatedUserListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<UserWritable>;
 };
 
 /**
@@ -220,6 +289,15 @@ export type UserRequest = {
  */
 export type PasswordResetConfirmRequestWritable = {
     token: string;
+    password: string;
+};
+
+/**
+ * Serializer for OTP-based password reset confirmation.
+ */
+export type PasswordResetOtpConfirmRequestWritable = {
+    email: string;
+    code: string;
     password: string;
 };
 
@@ -255,6 +333,7 @@ export type UserWritable = {
      * Email address
      */
     email: string;
+    avatar?: string | null;
 };
 
 /**
@@ -269,6 +348,32 @@ export type UserRegistrationRequestWritable = {
     first_name: string;
     last_name: string;
 };
+
+export type ApiAuthPasswordResetOtpConfirmCreateData = {
+    body: PasswordResetOtpConfirmRequestWritable;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset-otp/confirm/';
+};
+
+export type ApiAuthPasswordResetOtpConfirmCreateResponses = {
+    200: PasswordResetOtpConfirm;
+};
+
+export type ApiAuthPasswordResetOtpConfirmCreateResponse = ApiAuthPasswordResetOtpConfirmCreateResponses[keyof ApiAuthPasswordResetOtpConfirmCreateResponses];
+
+export type ApiAuthPasswordResetOtpRequestCreateData = {
+    body: PasswordResetOtpRequestRequest;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password-reset-otp/request/';
+};
+
+export type ApiAuthPasswordResetOtpRequestCreateResponses = {
+    200: PasswordResetOtpRequest;
+};
+
+export type ApiAuthPasswordResetOtpRequestCreateResponse = ApiAuthPasswordResetOtpRequestCreateResponses[keyof ApiAuthPasswordResetOtpRequestCreateResponses];
 
 export type ApiAuthPasswordResetConfirmCreateData = {
     body: PasswordResetConfirmRequestWritable;
@@ -361,15 +466,126 @@ export type ApiAuthVerifyOtpCreateResponses = {
 
 export type ApiAuthVerifyOtpCreateResponse = ApiAuthVerifyOtpCreateResponses[keyof ApiAuthVerifyOtpCreateResponses];
 
+export type ApiProjectsListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: number;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * Filter by project status
+         */
+        status?: 'active' | 'archived' | 'completed' | 'draft';
+    };
+    url: '/api/projects/';
+};
+
+export type ApiProjectsListResponses = {
+    200: PaginatedProjectList;
+};
+
+export type ApiProjectsListResponse = ApiProjectsListResponses[keyof ApiProjectsListResponses];
+
+export type ApiProjectsCreateData = {
+    body: ProjectCreateRequest;
+    path?: never;
+    query?: never;
+    url: '/api/projects/';
+};
+
+export type ApiProjectsCreateResponses = {
+    201: ProjectCreate;
+};
+
+export type ApiProjectsCreateResponse = ApiProjectsCreateResponses[keyof ApiProjectsCreateResponses];
+
+export type ApiProjectsDestroyData = {
+    body?: never;
+    path: {
+        uuid: string;
+    };
+    query?: never;
+    url: '/api/projects/{uuid}/';
+};
+
+export type ApiProjectsDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type ApiProjectsDestroyResponse = ApiProjectsDestroyResponses[keyof ApiProjectsDestroyResponses];
+
+export type ApiProjectsRetrieveData = {
+    body?: never;
+    path: {
+        uuid: string;
+    };
+    query?: never;
+    url: '/api/projects/{uuid}/';
+};
+
+export type ApiProjectsRetrieveResponses = {
+    200: Project;
+};
+
+export type ApiProjectsRetrieveResponse = ApiProjectsRetrieveResponses[keyof ApiProjectsRetrieveResponses];
+
+export type ApiProjectsPartialUpdateData = {
+    body?: PatchedProjectRequest;
+    path: {
+        uuid: string;
+    };
+    query?: never;
+    url: '/api/projects/{uuid}/';
+};
+
+export type ApiProjectsPartialUpdateResponses = {
+    200: Project;
+};
+
+export type ApiProjectsPartialUpdateResponse = ApiProjectsPartialUpdateResponses[keyof ApiProjectsPartialUpdateResponses];
+
+export type ApiProjectsUpdateData = {
+    body: ProjectRequest;
+    path: {
+        uuid: string;
+    };
+    query?: never;
+    url: '/api/projects/{uuid}/';
+};
+
+export type ApiProjectsUpdateResponses = {
+    200: Project;
+};
+
+export type ApiProjectsUpdateResponse = ApiProjectsUpdateResponses[keyof ApiProjectsUpdateResponses];
+
 export type ApiUsersListData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: number;
+    };
     url: '/api/users/';
 };
 
 export type ApiUsersListResponses = {
-    200: Array<User>;
+    200: PaginatedUserList;
 };
 
 export type ApiUsersListResponse = ApiUsersListResponses[keyof ApiUsersListResponses];
@@ -428,6 +644,20 @@ export type ApiUsersUpdateResponses = {
 
 export type ApiUsersUpdateResponse = ApiUsersUpdateResponses[keyof ApiUsersUpdateResponses];
 
+export type ApiUsersChangePasswordCreateData = {
+    body: PasswordChangeRequest;
+    path?: never;
+    query?: never;
+    url: '/api/users/change-password/';
+};
+
+export type ApiUsersChangePasswordCreateResponses = {
+    /**
+     * No response body
+     */
+    200: unknown;
+};
+
 export type ApiUsersMeRetrieveData = {
     body?: never;
     path?: never;
@@ -441,104 +671,15 @@ export type ApiUsersMeRetrieveResponses = {
 
 export type ApiUsersMeRetrieveResponse = ApiUsersMeRetrieveResponses[keyof ApiUsersMeRetrieveResponses];
 
-export type ProjectsListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A search term.
-         */
-        search?: string;
-        /**
-         * Filter by project status
-         */
-        status?: 'active' | 'archived' | 'completed' | 'draft';
-    };
-    url: '/api/projects/';
-};
-
-export type ProjectsListResponses = {
-    200: Array<Project>;
-};
-
-export type ProjectsListResponse = ProjectsListResponses[keyof ProjectsListResponses];
-
-export type ProjectsCreateData = {
-    body: ProjectCreateRequest;
+export type ApiUsersMePartialUpdateData = {
+    body?: PatchedUserRequest;
     path?: never;
     query?: never;
-    url: '/api/projects/';
+    url: '/api/users/me/';
 };
 
-export type ProjectsCreateResponses = {
-    201: ProjectCreate;
+export type ApiUsersMePartialUpdateResponses = {
+    200: User;
 };
 
-export type ProjectsCreateResponse = ProjectsCreateResponses[keyof ProjectsCreateResponses];
-
-export type ProjectsDestroyData = {
-    body?: never;
-    path: {
-        uuid: string;
-    };
-    query?: never;
-    url: '/api/projects/{uuid}/';
-};
-
-export type ProjectsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
-};
-
-export type ProjectsDestroyResponse = ProjectsDestroyResponses[keyof ProjectsDestroyResponses];
-
-export type ProjectsRetrieveData = {
-    body?: never;
-    path: {
-        uuid: string;
-    };
-    query?: never;
-    url: '/api/projects/{uuid}/';
-};
-
-export type ProjectsRetrieveResponses = {
-    200: Project;
-};
-
-export type ProjectsRetrieveResponse = ProjectsRetrieveResponses[keyof ProjectsRetrieveResponses];
-
-export type ProjectsPartialUpdateData = {
-    body?: PatchedProjectRequest;
-    path: {
-        uuid: string;
-    };
-    query?: never;
-    url: '/api/projects/{uuid}/';
-};
-
-export type ProjectsPartialUpdateResponses = {
-    200: Project;
-};
-
-export type ProjectsPartialUpdateResponse = ProjectsPartialUpdateResponses[keyof ProjectsPartialUpdateResponses];
-
-export type ProjectsUpdateData = {
-    body: ProjectRequest;
-    path: {
-        uuid: string;
-    };
-    query?: never;
-    url: '/api/projects/{uuid}/';
-};
-
-export type ProjectsUpdateResponses = {
-    200: Project;
-};
-
-export type ProjectsUpdateResponse = ProjectsUpdateResponses[keyof ProjectsUpdateResponses];
+export type ApiUsersMePartialUpdateResponse = ApiUsersMePartialUpdateResponses[keyof ApiUsersMePartialUpdateResponses];

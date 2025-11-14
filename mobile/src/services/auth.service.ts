@@ -11,6 +11,10 @@ import type {
   ResendOtp,
   TokenRefreshRequest,
   TokenRefresh,
+  PasswordResetOtpRequestRequest,
+  PasswordResetOtpRequest,
+  PasswordResetOtpConfirmRequestWritable,
+  PasswordResetOtpConfirm,
 } from '@/api/types.gen';
 
 /**
@@ -96,6 +100,36 @@ export const authService = {
    */
   getMe: async (): Promise<User> => {
     const response = await apiClient.get<User>(API_ENDPOINTS.USERS.ME);
+    return response.data;
+  },
+
+  /**
+   * Request password reset OTP
+   * @param data - User email
+   * @returns Success message
+   */
+  requestPasswordResetOTP: async (
+    data: PasswordResetOtpRequestRequest
+  ): Promise<PasswordResetOtpRequest> => {
+    const response = await apiClient.post<PasswordResetOtpRequest>(
+      API_ENDPOINTS.AUTH.PASSWORD_RESET_OTP_REQUEST,
+      data
+    );
+    return response.data;
+  },
+
+  /**
+   * Confirm password reset with OTP code
+   * @param data - Email, OTP code, and new password
+   * @returns Success message
+   */
+  confirmPasswordResetOTP: async (
+    data: PasswordResetOtpConfirmRequestWritable
+  ): Promise<PasswordResetOtpConfirm> => {
+    const response = await apiClient.post<PasswordResetOtpConfirm>(
+      API_ENDPOINTS.AUTH.PASSWORD_RESET_OTP_CONFIRM,
+      data
+    );
     return response.data;
   },
 };

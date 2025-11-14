@@ -24,6 +24,8 @@ from .serializers import EmailTokenObtainPairSerializer
 from .serializers import OTPVerificationSerializer
 from .serializers import PasswordChangeSerializer
 from .serializers import PasswordResetConfirmSerializer
+from .serializers import PasswordResetOTPConfirmSerializer
+from .serializers import PasswordResetOTPRequestSerializer
 from .serializers import PasswordResetRequestSerializer
 from .serializers import ResendOTPSerializer
 from .serializers import UserRegistrationSerializer
@@ -241,6 +243,52 @@ class PasswordChangeView(GenericAPIView):
         return Response(
             {
                 "message": "Password changed successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetOTPRequestView(GenericAPIView):
+    """API endpoint for requesting OTP-based password reset."""
+
+    serializer_class = PasswordResetOTPRequestSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Request password reset and send OTP code via email."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {
+                "message": (
+                    "If an account exists with this email, "
+                    "you will receive a verification code to reset your password."
+                ),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetOTPConfirmView(GenericAPIView):
+    """API endpoint for confirming password reset with OTP code."""
+
+    serializer_class = PasswordResetOTPConfirmSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Reset password using valid OTP code."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {
+                "message": (
+                    "Password reset successful. "
+                    "You can now log in with your new password."
+                ),
             },
             status=status.HTTP_200_OK,
         )

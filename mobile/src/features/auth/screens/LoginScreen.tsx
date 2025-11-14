@@ -143,6 +143,17 @@ export function LoginScreen({ navigation }: Props): React.ReactElement {
             {loginMutation.isPending ? 'Logging in...' : 'Login'}
           </Button>
 
+          {/* Forgot Password Link */}
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate('ForgotPassword')}
+            style={styles.button}
+            testID="login-forgot-password-link"
+            disabled={loginMutation.isPending}
+          >
+            Forgot Password?
+          </Button>
+
           {/* Register Link */}
           <Button
             mode="text"

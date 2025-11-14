@@ -60,7 +60,7 @@ def send_otp_email(user_id: int, otp_code: str) -> None:
 @shared_task()
 def send_password_reset_email(user_id: int, reset_token: str) -> None:
     """
-    Send password reset email to user.
+    Send password reset email to user (token-based).
 
     Args:
         user_id: ID of the user to send email to
@@ -98,6 +98,50 @@ def send_password_reset_email(user_id: int, reset_token: str) -> None:
 
     # Create email
     subject = "Reset Your Password"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = user.email
+
+    # Create email with both plain text and HTML versions
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=from_email,
+        to=[to_email],
+    )
+    email.attach_alternative(html_content, "text/html")
+
+    # Send email
+    email.send()
+
+
+@shared_task()
+def send_password_reset_otp_email(user_id: int, otp_code: str) -> None:
+    """
+    Send password reset OTP email to user.
+
+    Args:
+        user_id: ID of the user to send email to
+        otp_code: 6-digit OTP code for password reset
+
+    Raises:
+        User.DoesNotExist: If user with given ID doesn't exist
+    """
+    # Get user (will raise User.DoesNotExist if not found)
+    user = User.objects.get(id=user_id)
+
+    # Prepare email context
+    context = {
+        "user": user,
+        "otp_code": otp_code,
+        "year": timezone.now().year,
+    }
+
+    # Render email templates
+    text_content = render_to_string("email/password_reset_otp.txt", context)
+    html_content = render_to_string("email/password_reset_otp.html", context)
+
+    # Create email
+    subject = "Password Reset - OTP Code"
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = user.email
 

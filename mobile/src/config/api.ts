@@ -58,8 +58,8 @@ export const API_ENDPOINTS = {
     REFRESH: '/api/auth/token/refresh/',
     VERIFY_OTP: '/api/auth/verify-otp/',
     RESEND_OTP: '/api/auth/resend-otp/',
-    FORGOT_PASSWORD: '/api/auth/password/forgot/',
-    RESET_PASSWORD: '/api/auth/password/reset/',
+    PASSWORD_RESET_OTP_REQUEST: '/api/auth/password-reset-otp/request/',
+    PASSWORD_RESET_OTP_CONFIRM: '/api/auth/password-reset-otp/confirm/',
   },
   USERS: {
     ME: '/api/users/me/',
