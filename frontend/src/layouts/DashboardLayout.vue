@@ -29,7 +29,7 @@ function toggleSidebar(): void {
 // Navigation items
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, route: 'dashboard' },
-  { name: 'Projects', icon: FolderKanban, route: 'dashboard' },
+  { name: 'Projects', icon: FolderKanban, route: 'projects' },
   { name: 'Profile', icon: User, route: 'profile' },
   { name: 'Settings', icon: Settings, route: 'dashboard' },
 ]
@@ -56,7 +56,7 @@ const navItems = [
         <div class="flex items-center justify-between p-4 border-b border-border">
           <RouterLink :to="{ name: 'home' }" class="flex items-center gap-2">
             <span class="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
-              ProjectHub
+              djvurn
             </span>
           </RouterLink>
           <button
@@ -128,7 +128,7 @@ const navItems = [
       <!-- Main Content -->
       <main class="flex-1 overflow-auto">
         <div class="p-4 lg:p-6">
-          <slot />
+          <router-view />
         </div>
       </main>
     </div>

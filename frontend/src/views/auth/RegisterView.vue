@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthLayout from '@/layouts/AuthLayout.vue'
 import RegisterForm from '@/components/auth/RegisterForm.vue'
 import OTPVerificationForm from '@/components/auth/OTPVerificationForm.vue'
 
@@ -24,16 +23,14 @@ function handleBackToRegister(): void {
 </script>
 
 <template>
-  <AuthLayout>
-    <template v-if="!showOTPForm">
-      <RegisterForm @success="handleRegisterSuccess" />
-    </template>
-    <template v-else>
-      <OTPVerificationForm
-        :email="registeredEmail"
-        @success="handleOTPVerified"
-        @back="handleBackToRegister"
-      />
-    </template>
-  </AuthLayout>
+  <template v-if="!showOTPForm">
+    <RegisterForm @success="handleRegisterSuccess" />
+  </template>
+  <template v-else>
+    <OTPVerificationForm
+      :email="registeredEmail"
+      @success="handleOTPVerified"
+      @back="handleBackToRegister"
+    />
+  </template>
 </template>

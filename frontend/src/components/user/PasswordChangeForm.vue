@@ -6,7 +6,7 @@ import type { ZodIssue } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import PasswordInput from '@/components/PasswordInput.vue'
+import PasswordInput from '@/components/ui/input/PasswordInput.vue'
 
 // Form data interface
 interface PasswordChangeFormData {

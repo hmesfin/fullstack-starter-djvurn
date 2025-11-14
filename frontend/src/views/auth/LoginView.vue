@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthLayout from '@/layouts/AuthLayout.vue'
 import LoginForm from '@/components/auth/LoginForm.vue'
 import OTPVerificationForm from '@/components/auth/OTPVerificationForm.vue'
 
@@ -33,19 +32,17 @@ function handleBackToLogin(): void {
 </script>
 
 <template>
-  <AuthLayout>
-    <template v-if="!showOTPForm">
-      <LoginForm
-        @success="handleLoginSuccess"
-        @email-verification-required="handleEmailVerificationRequired"
-      />
-    </template>
-    <template v-else>
-      <OTPVerificationForm
-        :email="loginEmail"
-        @success="handleOTPVerified"
-        @back="handleBackToLogin"
-      />
-    </template>
-  </AuthLayout>
+  <template v-if="!showOTPForm">
+    <LoginForm
+      @success="handleLoginSuccess"
+      @email-verification-required="handleEmailVerificationRequired"
+    />
+  </template>
+  <template v-else>
+    <OTPVerificationForm
+      :email="loginEmail"
+      @success="handleOTPVerified"
+      @back="handleBackToLogin"
+    />
+  </template>
 </template>

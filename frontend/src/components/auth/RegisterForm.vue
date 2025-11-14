@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import PasswordInput from '@/components/PasswordInput.vue'
+import PasswordInput from '@/components/ui/input/PasswordInput.vue'
 
 // Emits
 const emit = defineEmits<{

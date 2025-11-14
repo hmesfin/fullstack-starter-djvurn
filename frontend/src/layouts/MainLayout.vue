@@ -16,7 +16,7 @@ const { isAuthenticated } = useAuth()
           <!-- Logo -->
           <RouterLink :to="{ name: 'home' }" class="flex items-center gap-2">
             <span class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
-              ProjectHub
+              djvurn
             </span>
           </RouterLink>
 
@@ -61,7 +61,7 @@ const { isAuthenticated } = useAuth()
 
     <!-- Main Content -->
     <main class="flex-1">
-      <slot />
+      <router-view />
     </main>
 
     <!-- Footer -->
@@ -72,7 +72,7 @@ const { isAuthenticated } = useAuth()
           <div>
             <h3 class="text-sm font-semibold mb-3">About</h3>
             <p class="text-sm text-muted-foreground">
-              ProjectHub is a modern project management platform built with Django and Vue.js.
+              djvurn is a modern project management platform built with Django and Vue.js.
             </p>
           </div>
 
@@ -113,7 +113,7 @@ const { isAuthenticated } = useAuth()
         </div>
 
         <div class="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {{ new Date().getFullYear() }} ProjectHub. All rights reserved.</p>
+          <p>&copy; {{ new Date().getFullYear() }} djvurn. All rights reserved.</p>
         </div>
       </div>
     </footer>

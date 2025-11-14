@@ -2,7 +2,6 @@
 import { RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { Button } from '@/components/ui/button'
-import MainLayout from '@/layouts/MainLayout.vue'
 import { CheckCircle2, Zap, Shield, Users } from 'lucide-vue-next'
 
 const { isAuthenticated } = useAuth()
@@ -32,9 +31,8 @@ const features = [
 </script>
 
 <template>
-  <MainLayout>
-    <!-- Hero Section -->
-    <section class="relative py-20 lg:py-32">
+  <!-- Hero Section -->
+  <section class="relative py-20 lg:py-32">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
@@ -120,5 +118,4 @@ const features = [
         </template>
       </div>
     </section>
-  </MainLayout>
 </template>
