@@ -31,7 +31,7 @@ const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, route: 'dashboard' },
   { name: 'Projects', icon: FolderKanban, route: 'projects' },
   { name: 'Profile', icon: User, route: 'profile' },
-  { name: 'Settings', icon: Settings, route: 'dashboard' },
+  { name: 'Settings', icon: Settings, route: 'settings' },
 ]
 </script>
 
@@ -55,7 +55,7 @@ const navItems = [
         <!-- Sidebar Header -->
         <div class="flex items-center justify-between p-4 border-b border-border">
           <RouterLink :to="{ name: 'home' }" class="flex items-center gap-2">
-            <span class="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
+            <span class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
               djvurn
             </span>
           </RouterLink>

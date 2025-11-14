@@ -15,7 +15,7 @@ const { isAuthenticated } = useAuth()
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <RouterLink :to="{ name: 'home' }" class="flex items-center gap-2">
-            <span class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
+            <span class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
               djvurn
             </span>
           </RouterLink>
