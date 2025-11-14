@@ -3,10 +3,10 @@ name: django-vue-react-native
 description: |
   Comprehensive guide for developing full-stack applications using the Django + Vue.js + React Native starter template.
   Use this skill when creating new projects from the fullstack-starter-djvurn template, or when working on projects that follow this architecture.
-  
-  Covers: Django app creation, DRF API development, Vue.js components, React Native mobile development, database migrations, 
+
+  Covers: Django app creation, DRF API development, Vue.js components, React Native mobile development, database migrations,
   API client generation, testing (TDD), type safety (mypy, TypeScript), code quality enforcement, and Docker-based workflows.
-  
+
   Trigger patterns: "create new Django app", "add API endpoint", "build Vue component", "setup React Native feature",
   "write tests for", "run migrations", "generate API client", "type check", "follow TDD"
 ---
@@ -49,13 +49,13 @@ This skill guides development with the fullstack-starter-djvurn template: a Dock
   2. **GREEN**: Write minimal code to pass
   3. **REFACTOR**: Improve code while keeping tests green
 - **No production code without tests**: Every function, view, component gets tests
-- **Test files co-located**: 
+- **Test files co-located**:
   - Backend: `apps/<app>/tests.py` or `apps/<app>/tests/`
   - Frontend: `src/<feature>/__tests__/<component>.test.ts`
   - Mobile: `src/<feature>/__tests__/<component>.test.tsx`
 
 ### 3. Strict Typing
-- **Backend (Python)**: 
+- **Backend (Python)**:
   - Type hints for all functions/methods
   - Run `docker compose run --rm django mypy apps` before commits
   - Configure in `backend/pyproject.toml`
@@ -100,7 +100,7 @@ See `references/PROJECT_STRUCTURE.md` for complete directory layout and file org
    ```python
    import pytest
    from apps.<app_name>.models import ModelName
-   
+
    @pytest.mark.django_db
    class TestModelName:
        def test_create_instance(self):
@@ -114,13 +114,13 @@ See `references/PROJECT_STRUCTURE.md` for complete directory layout and file org
    import uuid
    from django.db import models
    from typing import Optional  # Type hints
-   
+
    class ModelName(models.Model):
        id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
        name: str = models.CharField(max_length=255)  # Type annotation
        created = models.DateTimeField(auto_now_add=True)
        modified = models.DateTimeField(auto_now=True)
-       
+
        def __str__(self) -> str:
            return self.name
    ```
@@ -308,7 +308,7 @@ export function useProjects() {
 
 ### Linting & Formatting
 
-**Backend (Ruff)**: 
+**Backend (Ruff)**:
 - Check: `docker compose run --rm django ruff check apps`
 - Fix: `docker compose run --rm django ruff check apps --fix`
 
