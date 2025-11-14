@@ -12,6 +12,14 @@ import userEvent from '@testing-library/user-event'
 import ProjectList from '../ProjectList.vue'
 import type { Project } from '@/api/types.gen'
 
+// Mock Vue Router
+const mockRouterPush = vi.fn()
+vi.mock('vue-router', () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}))
+
 // Mock child components
 vi.mock('../ProjectCard.vue', () => ({
   default: {
@@ -65,6 +73,7 @@ const mockRefetch = vi.fn()
 
 const mockUseProjects = {
   projects: ref<Project[]>([]),
+  totalCount: ref(0),
   isLoading: ref(false),
   error: ref<Error | null>(null),
   createProject: mockCreateProject,
@@ -115,11 +124,13 @@ describe('ProjectList.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseProjects.projects.value = []
+    mockUseProjects.totalCount.value = 0
     mockUseProjects.isLoading.value = false
     mockUseProjects.error.value = null
     mockUseProjects.isCreating.value = false
     mockUseProjects.isUpdating.value = false
     mockUseProjects.isDeleting.value = false
+    mockRouterPush.mockClear()
   })
 
   describe('Component Rendering - Initial State', () => {
@@ -500,9 +511,8 @@ describe('ProjectList.vue', () => {
   })
 
   describe('Project Click Interaction', () => {
-    it('logs project uuid when card is clicked', async () => {
+    it('navigates to project detail when card is clicked', async () => {
       const user = userEvent.setup()
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       mockUseProjects.projects.value = mockProjects
 
       render(ProjectList)
@@ -511,10 +521,11 @@ describe('ProjectList.vue', () => {
       await user.click(viewButtons[0]!)
 
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith('Navigate to project:', mockProjects[0]!.uuid)
+        expect(mockRouterPush).toHaveBeenCalledWith({
+          name: 'project-detail',
+          params: { uuid: mockProjects[0]!.uuid },
+        })
       })
-
-      consoleSpy.mockRestore()
     })
   })
 
