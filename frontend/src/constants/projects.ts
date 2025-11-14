@@ -117,3 +117,34 @@ export function getStatusConfig(status: ProjectStatus | undefined): StatusConfig
 export function getPriorityConfig(priority: ProjectPriority | undefined): PriorityConfig {
   return PRIORITY_CONFIG[priority || PROJECT_PRIORITIES.MEDIUM]
 }
+
+/**
+ * Convenience exports for badge variants and labels
+ */
+export const STATUS_BADGES: Record<ProjectStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  draft: 'secondary',
+  active: 'default',
+  completed: 'outline',
+  archived: 'destructive',
+}
+
+export const PRIORITY_BADGES: Record<ProjectPriority, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  1: 'secondary',
+  2: 'default',
+  3: 'destructive',
+  4: 'destructive',
+}
+
+export const STATUS_LABELS: Record<ProjectStatus, string> = {
+  draft: 'Draft',
+  active: 'Active',
+  completed: 'Completed',
+  archived: 'Archived',
+}
+
+export const PRIORITY_LABELS: Record<ProjectPriority, string> = {
+  1: 'Low',
+  2: 'Medium',
+  3: 'High',
+  4: 'Critical',
+}

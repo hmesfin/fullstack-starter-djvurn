@@ -22,11 +22,19 @@ import type {
   ProjectCreateRequest,
   ProjectRequest,
   PatchedProjectRequest,
-  ApiProjectsListData,
+  PaginatedProjectList,
 } from '@/api/types.gen'
 import type { AxiosError } from 'axios'
 
-export const useProjects = (filters?: ApiProjectsListData['query']) => {
+interface UseProjectsFilters {
+  status?: 'draft' | 'active' | 'completed' | 'archived'
+  priority?: 1 | 2 | 3 | 4
+  search?: string
+  ordering?: string
+  page?: number
+}
+
+export const useProjects = (filters?: UseProjectsFilters) => {
   const queryClient = useQueryClient()
 
   // List projects with filters
@@ -36,7 +44,7 @@ export const useProjects = (filters?: ApiProjectsListData['query']) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.projects.list(filters),
+    queryKey: queryKeys.projects.list(filters as Record<string, unknown>),
     queryFn: async () => {
       const response = await apiProjectsList({
         client: apiClient,
@@ -45,7 +53,7 @@ export const useProjects = (filters?: ApiProjectsListData['query']) => {
 
       // The response has a data property with the actual response
       if (response.data) {
-        return response.data
+        return response.data as PaginatedProjectList
       }
       throw new Error('Failed to fetch projects')
     },
@@ -187,34 +195,38 @@ export const useProjects = (filters?: ApiProjectsListData['query']) => {
 
   // Type-safe computed properties
   const projects = computed<Project[]>(() => {
-    const response = projectsResponse.value;
+    const response = projectsResponse.value
     if (!response) {
-      return [];
+      return []
     }
-    // Check if it's paginated or not
-    if (typeof response === 'object' && 'results' in response && Array.isArray(response.results)) {
-      return response.results;
+    // Paginated response
+    if ('results' in response && Array.isArray(response.results)) {
+      return response.results
     }
-    if (Array.isArray(response)) {
-      return response;
-    }
-    return [];
-  });
+    return []
+  })
 
   const totalCount = computed(() => {
     if (projectsResponse.value && 'count' in projectsResponse.value) {
-      return projectsResponse.value.count || 0;
+      return projectsResponse.value.count || 0
     }
-    return projects.value.length;
-  });
+    return 0
+  })
 
-  const activeProjects = computed(() =>
-    projects.value.filter(p => p.status === 'active')
-  );
+  const hasNext = computed(() => {
+    return projectsResponse.value?.next !== null && projectsResponse.value?.next !== undefined
+  })
 
-  const overdueProjects = computed(() =>
-    projects.value.filter(p => p.is_overdue === true)
-  );
+  const hasPrevious = computed(() => {
+    return (
+      projectsResponse.value?.previous !== null &&
+      projectsResponse.value?.previous !== undefined
+    )
+  })
+
+  const activeProjects = computed(() => projects.value.filter((p) => p.status === 'active'))
+
+  const overdueProjects = computed(() => projects.value.filter((p) => p.is_overdue === true))
 
   return {
     // Data
@@ -222,6 +234,12 @@ export const useProjects = (filters?: ApiProjectsListData['query']) => {
     totalCount,
     activeProjects,
     overdueProjects,
+
+    // Pagination
+    hasNext,
+    hasPrevious,
+    next: computed(() => projectsResponse.value?.next || null),
+    previous: computed(() => projectsResponse.value?.previous || null),
 
     // Status
     isLoading,

@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProjects } from '@/composables/useProjects'
 import ProjectCard from './ProjectCard.vue'
 import ProjectFilters from './ProjectFilters.vue'
 import ProjectForm from './ProjectForm.vue'
+import { Pagination } from '@/components/ui/pagination'
 import type { Project } from '@/api/types.gen'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, Loader2 } from 'lucide-vue-next'
 
+const router = useRouter()
+
 // State
+const currentPage = ref(1)
 const filters = ref<{
   status?: 'draft' | 'active' | 'completed' | 'archived'
   search?: string
@@ -21,9 +26,16 @@ const filters = ref<{
 const showCreateForm = ref(false)
 const editingProject = ref<Project | null>(null)
 
-// Use projects composable (pass ref value, not ref itself)
+// Computed filters with pagination
+const filtersWithPage = computed(() => ({
+  ...filters.value,
+  page: currentPage.value,
+}))
+
+// Use projects composable with pagination
 const {
   projects,
+  totalCount,
   isLoading,
   error,
   createProject,
@@ -33,7 +45,20 @@ const {
   isUpdating,
   isDeleting,
   refetch,
-} = useProjects(filters.value)
+} = useProjects(filtersWithPage.value)
+
+// Reset to page 1 when filters change
+watch(
+  () => filters.value,
+  () => {
+    currentPage.value = 1
+  },
+  { deep: true }
+)
+
+// Pagination constants
+const PAGE_SIZE = 10
+const totalPages = computed(() => Math.ceil(totalCount.value / PAGE_SIZE))
 
 // Computed
 const hasProjects = computed(() => (projects.value?.length ?? 0) > 0)
@@ -73,9 +98,13 @@ function handleFormCancel(): void {
 }
 
 function handleProjectClick(project: Project): void {
-  // Navigate to project detail view
-  console.log('Navigate to project:', project.uuid)
-  // You can emit this event or use Vue Router here
+  router.push({ name: 'project-detail', params: { uuid: project.uuid } })
+}
+
+function handlePageChange(page: number): void {
+  currentPage.value = page
+  // Scroll to top when changing pages
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>
 
@@ -155,16 +184,28 @@ function handleProjectClick(project: Project): void {
     </div>
 
     <!-- Projects Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      <ProjectCard
-        v-for="project in projects"
-        :key="project.uuid"
-        :project="project"
-        :is-deleting="isDeleting"
-        data-testid="project-card"
-        @edit="handleEditProject"
-        @delete="handleDeleteProject"
-        @click="handleProjectClick"
+    <div v-else>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <ProjectCard
+          v-for="project in projects"
+          :key="project.uuid"
+          :project="project"
+          :is-deleting="isDeleting"
+          data-testid="project-card"
+          @edit="handleEditProject"
+          @delete="handleDeleteProject"
+          @click="handleProjectClick"
+        />
+      </div>
+
+      <!-- Pagination -->
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :total-count="totalCount"
+        :page-size="PAGE_SIZE"
+        :is-loading="isLoading"
+        @update:page="handlePageChange"
       />
     </div>
   </div>

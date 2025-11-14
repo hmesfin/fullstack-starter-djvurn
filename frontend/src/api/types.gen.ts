@@ -28,6 +28,20 @@ export type OtpVerificationRequest = {
     code: string;
 };
 
+export type PaginatedProjectList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Project>;
+};
+
+export type PaginatedUserList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<User>;
+};
+
 /**
  * Serializer for changing password (authenticated users).
  */
@@ -382,6 +396,10 @@ export type ApiProjectsListData = {
          */
         ordering?: string;
         /**
+         * A page number within the paginated result set.
+         */
+        page?: number;
+        /**
          * A search term.
          */
         search?: string;
@@ -394,7 +412,7 @@ export type ApiProjectsListData = {
 };
 
 export type ApiProjectsListResponses = {
-    200: Array<Project>;
+    200: PaginatedProjectList;
 };
 
 export type ApiProjectsListResponse = ApiProjectsListResponses[keyof ApiProjectsListResponses];
@@ -478,12 +496,17 @@ export type ApiProjectsUpdateResponse = ApiProjectsUpdateResponses[keyof ApiProj
 export type ApiUsersListData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: number;
+    };
     url: '/api/users/';
 };
 
 export type ApiUsersListResponses = {
-    200: Array<User>;
+    200: PaginatedUserList;
 };
 
 export type ApiUsersListResponse = ApiUsersListResponses[keyof ApiUsersListResponses];
