@@ -25,12 +25,29 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up environment files for CI
+        run: |
+          mkdir -p .envs/.local
+          cp .envs/.testing/.django .envs/.local/.django
+          cp .envs/.testing/.postgres .envs/.local/.postgres
+          cp .envs/.testing/.frontend .envs/.local/.frontend
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and cache Django image for linting
+        uses: docker/bake-action@v6
         with:
-          python-version-file: '.python-version'
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+          push: false
+          load: true
+          files: docker-compose.yml
+          targets: django
+          set: |
+            django.cache-from=type=gha,scope=django-cached-lint
+            django.cache-to=type=gha,scope=django-cached-lint,mode=max
+
+      - name: Run pre-commit in Docker
+        run: docker compose run --rm django pre-commit run --all-files --show-diff-on-failure
 
   # With no caching at all the entire ci process takes 3m to complete!
   pytest:
