@@ -42,7 +42,7 @@ jobs:
           COMPOSE_DOCKER_CLI_BUILD: 1
 
       - name: Run pre-commit in Docker
-        run: docker compose run --rm django bash -c "cd /app && pwd && ls -la .git && git status && pre-commit run --all-files --show-diff-on-failure"
+        run: docker compose run --rm django bash -c "git config --global --add safe.directory /app && cd /app && pre-commit run --all-files --show-diff-on-failure"
 
   # With no caching at all the entire ci process takes 3m to complete!
   pytest:
