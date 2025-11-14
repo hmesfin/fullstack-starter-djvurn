@@ -41,6 +41,13 @@ jobs:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
 
+      - name: Debug git in Docker
+        run: |
+          docker compose run --rm django pwd
+          docker compose run --rm django ls -la
+          docker compose run --rm django git --version
+          docker compose run --rm django git status || echo "Git status failed"
+
       - name: Run pre-commit in Docker
         run: docker compose run --rm django pre-commit run --all-files --show-diff-on-failure
 
