@@ -35,7 +35,7 @@ from .throttles import ResendOTPThrottle
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("-created")
     lookup_field = "pk"
 
     def get_queryset(self, *args, **kwargs):

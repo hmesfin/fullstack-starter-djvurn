@@ -52,8 +52,9 @@ class TestUserViewSet:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
-        assert response.data[0]["email"] == authenticated_user.email
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["email"] == authenticated_user.email
 
     def test_retrieve_user_requires_authentication(self, api_client: APIClient) -> None:
         """Test that retrieving a user requires authentication."""
@@ -236,10 +237,11 @@ class TestUserViewSet:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
 
         # Ensure it's the authenticated user
-        returned_emails = [user["email"] for user in response.data]
+        returned_emails = [user["email"] for user in response.data["results"]]
         assert authenticated_user.email in returned_emails
 
         # Ensure other users are not in response
