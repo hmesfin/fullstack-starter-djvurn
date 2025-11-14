@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import type { AuthStackParamList } from '@/navigation/types'
 import { userRegistrationSchema, type UserRegistrationInput } from '@/schemas/auth.schema'
 import { useRegister } from '@/features/auth/hooks/useAuthMutations'
+import { PasswordInput } from '@/features/auth/components'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>
 
@@ -150,13 +151,12 @@ export function RegisterScreen({ navigation }: Props): React.ReactElement {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={styles.inputContainer}>
-                <TextInput
+                <PasswordInput
                   label="Password"
                   mode="outlined"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password-new"
                   error={!!errors.password}

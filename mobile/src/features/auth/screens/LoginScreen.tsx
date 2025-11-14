@@ -13,6 +13,7 @@ import type { AuthStackParamList } from '@/navigation/types'
 import { emailTokenObtainPairSchema, type EmailTokenObtainPairInput } from '@/schemas/auth.schema'
 import { useLogin } from '@/features/auth/hooks/useAuthMutations'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { PasswordInput } from '@/features/auth/components'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>
 
@@ -102,13 +103,12 @@ export function LoginScreen({ navigation }: Props): React.ReactElement {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={styles.inputContainer}>
-                <TextInput
+                <PasswordInput
                   label="Password"
                   mode="outlined"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password"
                   error={!!errors.password}
