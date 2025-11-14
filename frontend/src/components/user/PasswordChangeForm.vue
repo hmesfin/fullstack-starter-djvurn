@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUser } from '@/composables/useUser'
 import { passwordChangeRequestSchema } from '@/schemas'
 import type { ZodIssue } from 'zod'
@@ -45,10 +45,23 @@ const fieldErrors = ref<PasswordChangeFieldErrors>({})
 // Success message
 const successMessage = ref<string | null>(null)
 
+// Track if form has been submitted (to prevent showing errors before submission)
+const hasSubmitted = ref(false)
+
+/**
+ * Clear any stale errors when component mounts
+ */
+onMounted(() => {
+  resetPasswordChangeError()
+})
+
 /**
  * Validate form and submit password change
  */
 async function handleSubmit(): Promise<void> {
+  // Mark that form has been submitted
+  hasSubmitted.value = true
+
   // Clear previous errors and success message
   fieldErrors.value = {}
   successMessage.value = null
@@ -158,7 +171,7 @@ function clearFieldError(field: keyof PasswordChangeFieldErrors): void {
     </div>
 
     <!-- General Error Alert -->
-    <Alert v-if="passwordChangeError && !passwordChangeError.details" variant="destructive">
+    <Alert v-if="hasSubmitted && passwordChangeError && !passwordChangeError.details" variant="destructive">
       <AlertDescription>{{ passwordChangeError.message }}</AlertDescription>
     </Alert>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUser } from '@/composables/useUser'
 import { patchedUserRequestSchema } from '@/schemas'
@@ -48,6 +48,9 @@ const fieldErrors = ref<ProfileFieldErrors>({})
 // Success message
 const successMessage = ref<string | null>(null)
 
+// Track if form has been submitted (to prevent showing errors before submission)
+const hasSubmitted = ref(false)
+
 /**
  * Computed user initials for avatar fallback
  */
@@ -63,6 +66,31 @@ const userInitials = computed(() => {
 const avatarUrl = computed(() => {
   if (avatarPreview.value) return avatarPreview.value
   return authStore.user?.avatar || ''
+})
+
+/**
+ * Watch for changes to authStore.user and update form data
+ * This ensures form populates when user data loads (e.g., after page refresh)
+ */
+watch(
+  () => authStore.user,
+  (newUser) => {
+    if (newUser) {
+      formData.value = {
+        first_name: newUser.first_name || '',
+        last_name: newUser.last_name || '',
+        email: newUser.email || '',
+      }
+    }
+  },
+  { immediate: true }
+)
+
+/**
+ * Clear any stale errors when component mounts
+ */
+onMounted(() => {
+  resetProfileUpdateError()
 })
 
 /**
@@ -103,6 +131,9 @@ function handleAvatarChange(event: Event): void {
  * Validate form and submit profile update
  */
 async function handleSubmit(): Promise<void> {
+  // Mark that form has been submitted
+  hasSubmitted.value = true
+
   // Clear previous errors and success message
   fieldErrors.value = {}
   successMessage.value = null
@@ -264,7 +295,7 @@ function handlePasswordChangeSuccess(): void {
             </div>
 
             <!-- General Error Alert -->
-            <Alert v-if="profileUpdateError && !profileUpdateError.details" variant="destructive">
+            <Alert v-if="hasSubmitted && profileUpdateError && !profileUpdateError.details" variant="destructive">
               <AlertDescription>{{ profileUpdateError.message }}</AlertDescription>
             </Alert>
 
