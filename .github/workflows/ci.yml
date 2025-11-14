@@ -130,3 +130,37 @@ jobs:
 
       - name: Tear down the Stack
         run: docker compose down
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v5
+
+      - name: Set up environment files for CI
+        run: |
+          mkdir -p .envs/.local
+          cp .envs/.testing/.django .envs/.local/.django
+          cp .envs/.testing/.postgres .envs/.local/.postgres
+          cp .envs/.testing/.frontend .envs/.local/.frontend
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and cache frontend
+        uses: docker/bake-action@v6
+        with:
+          push: false
+          load: true
+          files: docker-compose.yml
+          targets: frontend
+          set: |
+            frontend.cache-from=type=gha,scope=frontend-cached-tests
+            frontend.cache-to=type=gha,scope=frontend-cached-tests,mode=max
+
+      - name: Run Frontend Tests
+        run: docker compose run --rm frontend npm run test:run
+
+      - name: Tear down the Stack
+        run: docker compose down
