@@ -49,6 +49,54 @@ Your CI runs **6 jobs** on every push to `main` or PR:
 
 **Total CI time**: ~3-4 minutes (jobs run in parallel)
 
+## Skipping CI (When Appropriate)
+
+CI automatically skips when you only change documentation or non-code files.
+
+### Automatic Skips (Path Filters)
+
+CI **will not run** when you only modify:
+- `**.md` - All markdown files (CLAUDE.md, GREEN_CICD.md, etc.)
+- `docs/**` - Documentation directory
+- `.gitignore` - Git ignore file
+- `LICENSE` - License file
+- `.editorconfig` - Editor configuration
+
+**Example**: Your last commit (adding GREEN_CICD.md) would have been automatically skipped with this configuration.
+
+### Manual Skip Keywords (Fallback)
+
+If you need to skip CI for other non-code changes, add to commit message:
+
+```bash
+git commit -m "chore: Update comment formatting [skip ci]"
+```
+
+**Recognized keywords** (case-insensitive):
+- `[skip ci]`
+- `[ci skip]`
+- `[no ci]`
+- `[skip actions]`
+- `[actions skip]`
+
+### When to Skip CI
+
+**✅ SAFE to skip**:
+- Documentation-only changes (already auto-skipped)
+- Comment updates (if verified code still works locally)
+- Whitespace/formatting fixes (if linters pass locally)
+- Non-functional file changes (`.gitignore`, etc.)
+
+**❌ NEVER skip**:
+- Any Python/TypeScript/JavaScript code changes
+- Dependency updates (`package.json`, `pyproject.toml`, `uv.lock`)
+- Configuration affecting runtime (`.env` templates, Docker configs)
+- Database migrations
+- Test file changes
+- CI workflow changes (`.github/workflows/`)
+
+**Rule of thumb**: If it affects what runs in production, don't skip CI.
+
 ## Local Testing Workflows
 
 ### Backend Development
