@@ -87,43 +87,61 @@ const sessionDetails = parseSessionFromPlan(planPath, session_number)
 const reqPath = `project-plans/${state.project_name}/REQUIREMENTS.md`
 const requirements = readFile(reqPath)
 
-// Determine executor type (backend vs frontend vs mobile)
+// Determine executor type (backend vs frontend vs mobile vs e2e)
 const executorType = determineExecutorType(phase, session)
 
 /**
  * Determine which executor to use for this session
  */
-function determineExecutorType(phase: Phase, session: Session): 'backend' | 'frontend' | 'mobile' {
+function determineExecutorType(phase: Phase, session: Session): 'backend' | 'frontend' | 'mobile' | 'e2e' {
   // Check phase name first
   const phaseName = phase.name.toLowerCase()
   if (phaseName.includes('backend')) return 'backend'
   if (phaseName.includes('frontend')) return 'frontend'
   if (phaseName.includes('mobile')) return 'mobile'
+  if (phaseName.includes('e2e') || phaseName.includes('integration') || phaseName.includes('testing')) {
+    return 'e2e'
+  }
 
   // Check session title as fallback
   const sessionTitle = session.title.toLowerCase()
+
+  // E2E detection (most specific, check first)
+  if (sessionTitle.includes('e2e') || sessionTitle.includes('integration') ||
+      sessionTitle.includes('playwright') || sessionTitle.includes('performance')) {
+    return 'e2e'
+  }
+
+  // Backend detection
   if (sessionTitle.includes('model') || sessionTitle.includes('serializer') ||
       sessionTitle.includes('viewset') || sessionTitle.includes('permission')) {
     return 'backend'
   }
+
+  // Frontend detection
   if (sessionTitle.includes('component') || sessionTitle.includes('composable') ||
       sessionTitle.includes('view') || sessionTitle.includes('schema')) {
     return 'frontend'
   }
-  if (sessionTitle.includes('screen') || sessionTitle.includes('navigation')) {
+
+  // Mobile detection
+  if (sessionTitle.includes('screen') || sessionTitle.includes('navigation') ||
+      sessionTitle.includes('react native') || sessionTitle.includes('expo')) {
     return 'mobile'
   }
 
-  // Default based on session number (sessions 1-4 usually backend, 5-8 frontend)
+  // Default based on session number (sessions 1-4 usually backend, 5-8 frontend, 11+ E2E)
   if (session.number <= 4) return 'backend'
   if (session.number <= 8) return 'frontend'
+  if (session.number >= 11) return 'e2e'
   return 'backend'
 }
 
 // Instantiate appropriate executor
 const executor = executorType === 'backend' ? new BackendExecutor() :
                  executorType === 'frontend' ? new FrontendExecutor() :
-                 new MobileExecutor() // Phase 3.5
+                 executorType === 'mobile' ? new MobileExecutor() :
+                 new E2EExecutor() // Phase 3.4
 ```
 
 ### Step 3: Execute RED Phase (Write Tests)
@@ -366,7 +384,11 @@ If any phase fails:
 ## Success Criteria
 
 - All tests passing
-- Coverage >= 90% (backend) or >= 85% (frontend)
+- Coverage targets:
+  - Backend: >= 90%
+  - Frontend: >= 85%
+  - Mobile: >= 85%
+  - E2E: N/A (focuses on workflow validation)
 - Type checking passes
 - Git commit created
 - State updated

@@ -626,16 +626,50 @@ Identifies potential issues:
   - Frontend executor ready with detailed prompts
   - Next: End-to-end test with actual Session 5 execution
 
-**Phase 3.4: Orchestration** (Week 4) - Pending
-- [ ] Create orchestrator (manages multiple agents)
+**Phase 3.4: Mobile & E2E Agents** (Week 4) ✅ COMPLETED
+- ✅ Create mobile-builder.md agent
+  - Created `.claude/agents/mobile-builder.md` - Complete React Native + TypeScript specification
+  - Session types: Mobile Setup, Screen Implementation, Mobile-Specific Features
+  - Test standards for Jest + React Native Testing Library
+  - Navigation with React Navigation, UI with React Native Paper
+  - Platform-specific code patterns (iOS vs Android)
+- ✅ Create e2e-tester.md agent
+  - Created `.claude/agents/e2e-tester.md` - Complete Playwright E2E testing specification
+  - Tests complete user workflows (authentication, core features, performance)
+  - Real browser testing with real database (not mocks)
+  - Integration debugging across backend + frontend
+  - Performance validation targets
+- ✅ Create mobile-executor.ts
+  - Created `.claude/infrastructure/mobile-executor.ts` - SessionExecutor implementation
+  - Builds prompts for React Native screens, components, hooks
+  - Handles Jest tests, platform-specific optimizations
+  - Coverage target: 85% (same as frontend)
+- ✅ Create e2e-executor.ts
+  - Created `.claude/infrastructure/e2e-executor.ts` - SessionExecutor implementation
+  - Builds prompts for E2E workflow testing
+  - Different from other executors: tests may pass in RED phase
+  - GREEN phase fixes integration bugs across layers
+  - No coverage target (focuses on workflow validation)
+- ✅ Update session detection
+  - Updated `/execute-session` to detect mobile and E2E sessions
+  - Routes to MobileExecutor or E2EExecutor appropriately
+  - Detection logic: phase name, session title, session number
+- ✅ Documentation
+  - Updated QUICKSTART_AGENT_EXECUTION.md with mobile Session 9 example
+  - Added E2E Session 11 complete walkthrough
+  - Updated comparison table to include mobile and E2E
+  - Complete examples for all 4 executor types
+- ⏳ Test with complex template - READY FOR TESTING
+  - All 4 executors complete (backend, frontend, mobile, E2E)
+  - All infrastructure ready for end-to-end testing
+  - Next: Test with blog or e-commerce template
+
+**Phase 3.5: Orchestration** (Week 5) - Pending
+- [ ] Create orchestrator (manages multiple agents in parallel)
 - [ ] Create `/execute-phase` slash commands
 - [ ] Create `/resume-session` recovery
+- [ ] Dependency-aware execution (parallel sessions when possible)
 - [ ] End-to-end testing (complete phase execution)
-
-**Phase 3.5: Mobile & E2E Agents** (Week 5) - Pending
-- [ ] Create mobile-builder.md agent
-- [ ] Create integration-tester.md agent
-- [ ] Test with complex template (e-commerce full plan)
 
 ### Key Features
 

@@ -707,6 +707,352 @@ What would you like to do?
 3. 📊 Show overall progress
 ```
 
+## Example: Mobile Session (Screens)
+
+For projects with mobile apps, here's what a mobile session looks like:
+
+### Session 9: Post List Screen (React Native)
+
+```bash
+/execute-session my-blog 9
+```
+
+**What happens**:
+
+#### Checkpoint 1: BEFORE_START
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ CHECKPOINT: BEFORE START                                    │
+│ Session 9: Post List Screen                                 │
+└─────────────────────────────────────────────────────────────┘
+
+I will now:
+1. Write tests for PostListScreen component
+2. Test rendering, navigation, loading states
+3. Use Jest + React Native Testing Library
+
+Estimated time: ~45 minutes (RED phase)
+
+What would you like to do?
+
+1. ✅ Start Session
+2. ⏭️  Skip Session
+3. ⏸️  Pause
+```
+
+**You type**: `1` (Start Session)
+
+#### RED Phase - Mobile Tests
+
+```
+🔴 RED PHASE - Writing mobile screen tests...
+
+[Agent launches mobile-builder]
+[Agent reads REQUIREMENTS.md for screens]
+[Agent writes comprehensive screen tests]
+[Agent runs tests - they all FAIL]
+
+✓ RED phase complete
+```
+
+#### Checkpoint 2: AFTER_RED
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ RED PHASE COMPLETE                                        │
+│                                                              │
+│ Tests written: 25                                            │
+│ Tests failing: 25 (expected!)                                │
+│                                                              │
+│ Files created:                                               │
+│   - mobile/src/screens/PostListScreen.test.tsx              │
+│   - mobile/src/components/PostCard.test.tsx                 │
+│   - mobile/src/hooks/usePosts.test.ts                       │
+│                                                              │
+│ Sample tests:                                                │
+│   - test_renders_list_of_posts                              │
+│   - test_navigates_to_detail_on_tap                         │
+│   - test_shows_loading_indicator                            │
+│   - test_shows_error_message                                │
+│   - test_pull_to_refresh                                    │
+└─────────────────────────────────────────────────────────────┘
+
+All tests are FAILING (as expected in RED phase!)
+
+What would you like to do?
+
+1. ✅ Proceed to GREEN phase (implement screens)
+2. 🔄 Revise tests
+3. ⏭️  Skip this session
+```
+
+**You type**: `1` (Proceed)
+
+#### GREEN Phase - Implementation
+
+```
+🟢 GREEN PHASE - Implementing React Native screens...
+
+[Agent launches mobile-builder]
+[Agent reads failing tests]
+[Agent implements screens with React Native Paper]
+[Agent sets up navigation with React Navigation]
+[Agent runs tests - they all PASS]
+[Agent measures coverage]
+
+✓ GREEN phase complete
+```
+
+#### Checkpoint 3: AFTER_GREEN
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ GREEN PHASE COMPLETE                                      │
+│                                                              │
+│ Tests: 25/25 passing ✓                                      │
+│ Coverage: 87%                                                │
+│ Type checking: PASS ✓                                       │
+│                                                              │
+│ Files created/modified:                                      │
+│   - mobile/src/screens/PostListScreen.tsx                   │
+│   - mobile/src/components/PostCard.tsx                      │
+│   - mobile/src/hooks/usePosts.ts                            │
+│   - mobile/src/navigation/AppNavigator.tsx                  │
+│                                                              │
+│ Key features:                                                │
+│   ✓ FlatList with optimized rendering                       │
+│   ✓ Pull-to-refresh functionality                           │
+│   ✓ Error handling with retry                               │
+│   ✓ Navigation integration                                  │
+│   ✓ Platform-specific styling (iOS/Android)                 │
+└─────────────────────────────────────────────────────────────┘
+
+All tests PASSING! Ready to refactor.
+```
+
+#### REFACTOR Phase
+
+```
+🔵 REFACTOR PHASE - Optimizing mobile code...
+
+[Agent extracts platform-specific code]
+[Agent optimizes FlatList performance]
+[Agent adds accessibility labels]
+[Agent runs tests - still PASS]
+
+✓ REFACTOR phase complete
+```
+
+#### Git Commit
+
+```
+Creating git commit...
+
+git add mobile/src/
+git commit -m "feat(mobile): implement post list screen
+
+Completed Session 9: Post List Screen
+
+Phase: Mobile Development
+Tests: 25/25 passing
+Coverage: 88%
+Time: 1.8h (estimated: 2h)
+
+Mobile stack:
+- React Native + Expo
+- TypeScript strict mode
+- Jest + React Native Testing Library
+- React Navigation
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+✓ Commit created: m1a2b3c
+```
+
+## Example: E2E Integration Testing Session
+
+The final session is typically E2E testing that validates the entire stack:
+
+### Session 11: E2E Integration Testing + Performance
+
+```bash
+/execute-session my-blog 11
+```
+
+**What happens**:
+
+#### Checkpoint 1: BEFORE_START
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ CHECKPOINT: BEFORE START                                    │
+│ Session 11: E2E Integration Testing + Performance           │
+└─────────────────────────────────────────────────────────────┘
+
+I will now:
+1. Write E2E tests for complete user workflows
+2. Test authentication, post creation, commenting flows
+3. Validate performance targets
+4. Use Playwright for cross-browser testing
+
+Estimated time: ~60 minutes (RED phase)
+
+What would you like to do?
+
+1. ✅ Start Session
+2. ⏭️  Skip Session
+3. ⏸️  Pause
+```
+
+**You type**: `1` (Start Session)
+
+#### RED Phase - E2E Tests
+
+```
+🔴 RED PHASE - Writing E2E workflow tests...
+
+[Agent launches e2e-tester]
+[Agent reads REQUIREMENTS.md for workflows]
+[Agent writes complete workflow tests]
+[Agent runs tests - some may PASS, some may FAIL]
+
+✓ RED phase complete
+```
+
+#### Checkpoint 2: AFTER_RED
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ RED PHASE COMPLETE                                        │
+│                                                              │
+│ Tests written: 30                                            │
+│ Tests passing: 18 (some workflows already work!)             │
+│ Tests failing: 12 (integration issues found)                 │
+│                                                              │
+│ Files created:                                               │
+│   - frontend/e2e/auth.spec.ts                               │
+│   - frontend/e2e/blog-post-workflow.spec.ts                 │
+│   - frontend/e2e/performance.spec.ts                        │
+│   - frontend/e2e/helpers/auth.ts                            │
+│                                                              │
+│ Critical workflows tested:                                   │
+│   ✓ User signup → OTP → Login → Dashboard                  │
+│   ✓ Create draft → Publish → View on list                  │
+│   ✓ View post → Add comment → Comment appears              │
+│   ⚠️  Filter posts by category (failing)                    │
+│   ⚠️  Upload post image (failing)                           │
+└─────────────────────────────────────────────────────────────┘
+
+What would you like to do?
+
+1. ✅ Proceed to GREEN phase (fix integration issues)
+2. 🔄 Revise tests
+3. ⏭️  Skip this session
+```
+
+**You type**: `1` (Proceed)
+
+#### GREEN Phase - Fix Integration Issues
+
+```
+🟢 GREEN PHASE - Fixing integration bugs...
+
+[Agent launches e2e-tester]
+[Agent debugs failing tests]
+[Agent fixes backend API issues]
+[Agent fixes frontend routing issues]
+[Agent runs tests - they all PASS]
+
+✓ GREEN phase complete
+```
+
+#### Checkpoint 3: AFTER_GREEN
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ GREEN PHASE COMPLETE                                      │
+│                                                              │
+│ Tests: 30/30 passing ✓                                      │
+│ Performance: All targets met ✓                              │
+│                                                              │
+│ Issues fixed:                                                │
+│   ✓ Category filtering API returned wrong status code      │
+│   ✓ Image upload missing CORS headers                      │
+│   ✓ Comment form didn't clear after submit                 │
+│                                                              │
+│ Performance metrics:                                         │
+│   ✓ Homepage load: 1.2s (target: <2s)                      │
+│   ✓ Post list API: 180ms (target: <300ms)                  │
+│   ✓ Post detail page: 1.4s (target: <2s)                   │
+└─────────────────────────────────────────────────────────────┘
+
+All tests PASSING! Ready to refactor.
+```
+
+#### REFACTOR Phase
+
+```
+🔵 REFACTOR PHASE - Improving E2E test quality...
+
+[Agent extracts common helpers]
+[Agent adds page object models]
+[Agent reduces test flakiness]
+[Agent runs tests - still PASS]
+
+✓ REFACTOR phase complete
+```
+
+#### Git Commit
+
+```
+Creating git commit...
+
+git add frontend/e2e/ backend/apps/
+git commit -m "test: add E2E integration tests + performance validation
+
+Completed Session 11: E2E Integration Testing + Performance
+
+Phase: Integration & Testing
+Tests: 30/30 passing
+Performance: All targets met
+Time: 2.5h (estimated: 3h)
+
+Critical workflows validated:
+- Authentication flows
+- Post creation and publishing
+- Commenting system
+- Performance targets
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+✓ Commit created: e2e1a2b
+```
+
+#### Session Complete
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ SESSION 11 COMPLETE: E2E Testing + Performance           │
+│                                                              │
+│ Tests: 30/30 passing ✓                                      │
+│ All workflows validated ✓                                   │
+│ All performance targets met ✓                               │
+│ Commit: e2e1a2b                                              │
+│                                                              │
+│ 🎉 PROJECT COMPLETE: 11/11 sessions done (100%)            │
+│    Total tests: 437/437 passing                             │
+│    Average coverage: 89%                                     │
+│    Total time: 24.5h (estimated: 30h) - 18% faster!        │
+└─────────────────────────────────────────────────────────────┘
+
+Congratulations! Your blog app is fully built, tested, and ready to deploy! 🚀
+```
+
 ## Next Steps
 
 After completing all sessions:
@@ -714,20 +1060,21 @@ After completing all sessions:
 - **Customize**: Add optional enhancements from PROJECT_PLAN.md
 - **Extend**: Use the same system to build additional features
 
-## Key Differences: Backend vs Frontend Sessions
+## Key Differences: Session Types Comparison
 
-| Aspect | Backend (Django) | Frontend (Vue) |
-|--------|------------------|----------------|
-| **Test Framework** | pytest + Django Test Utils | Vitest + Vue Test Utils |
-| **Coverage Target** | 90% | 85% |
-| **Key Tests** | Models, Serializers, ViewSets, Permissions | Components, Composables, Views, Schemas |
-| **Tech Stack** | Django, DRF, PostgreSQL | Vue 3, TypeScript, Shadcn-vue, TanStack Query |
-| **Validation** | Django validators | Zod schemas |
-| **Type Safety** | Type hints + mypy | TypeScript strict mode (no `any`) |
-| **Common Patterns** | select_related, prefetch_related | Vue Query caching, optimistic updates |
+| Aspect | Backend (Django) | Frontend (Vue) | Mobile (React Native) | E2E (Playwright) |
+|--------|------------------|----------------|----------------------|------------------|
+| **Test Framework** | pytest + Django Test Utils | Vitest + Vue Test Utils | Jest + React Native Testing Library | Playwright |
+| **Coverage Target** | 90% | 85% | 85% | N/A (workflow validation) |
+| **Key Tests** | Models, Serializers, ViewSets, Permissions | Components, Composables, Views, Schemas | Screens, Components, Hooks, Navigation | Complete user workflows, Integration |
+| **Tech Stack** | Django, DRF, PostgreSQL | Vue 3, TypeScript, Shadcn-vue, TanStack Query | React Native, Expo, React Navigation, React Native Paper | Playwright, Real browser, Real database |
+| **Validation** | Django validators | Zod schemas | TypeScript types + prop validation | End-to-end flow validation |
+| **Type Safety** | Type hints + mypy | TypeScript strict mode (no `any`) | TypeScript strict mode (no `any`) | TypeScript for test code |
+| **Common Patterns** | select_related, prefetch_related | Vue Query caching, optimistic updates | FlatList optimization, Platform.select | Page object models, test helpers |
+| **Unique Aspects** | Database migrations, Admin | Composables, reactive refs | Platform-specific code (iOS/Android) | Tests entire stack together |
 
 ---
 
-**That's it!** The agent handles all the TDD workflow for both backend and frontend, you just approve at checkpoints and review the code. 🚀
+**That's it!** The agent handles all the TDD workflow for backend, frontend, mobile, and E2E testing. You just approve at checkpoints and review the code. 🚀
 
 Happy building!
