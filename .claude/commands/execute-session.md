@@ -71,7 +71,7 @@ if (session.status === 'completed') {
 }
 ```
 
-### Step 2: Determine Phase and Session Context
+### Step 2: Determine Phase, Session Context, and Executor Type
 
 ```typescript
 // Identify which phase this session belongs to
@@ -86,6 +86,44 @@ const sessionDetails = parseSessionFromPlan(planPath, session_number)
 // Read technical requirements
 const reqPath = `project-plans/${state.project_name}/REQUIREMENTS.md`
 const requirements = readFile(reqPath)
+
+// Determine executor type (backend vs frontend vs mobile)
+const executorType = determineExecutorType(phase, session)
+
+/**
+ * Determine which executor to use for this session
+ */
+function determineExecutorType(phase: Phase, session: Session): 'backend' | 'frontend' | 'mobile' {
+  // Check phase name first
+  const phaseName = phase.name.toLowerCase()
+  if (phaseName.includes('backend')) return 'backend'
+  if (phaseName.includes('frontend')) return 'frontend'
+  if (phaseName.includes('mobile')) return 'mobile'
+
+  // Check session title as fallback
+  const sessionTitle = session.title.toLowerCase()
+  if (sessionTitle.includes('model') || sessionTitle.includes('serializer') ||
+      sessionTitle.includes('viewset') || sessionTitle.includes('permission')) {
+    return 'backend'
+  }
+  if (sessionTitle.includes('component') || sessionTitle.includes('composable') ||
+      sessionTitle.includes('view') || sessionTitle.includes('schema')) {
+    return 'frontend'
+  }
+  if (sessionTitle.includes('screen') || sessionTitle.includes('navigation')) {
+    return 'mobile'
+  }
+
+  // Default based on session number (sessions 1-4 usually backend, 5-8 frontend)
+  if (session.number <= 4) return 'backend'
+  if (session.number <= 8) return 'frontend'
+  return 'backend'
+}
+
+// Instantiate appropriate executor
+const executor = executorType === 'backend' ? new BackendExecutor() :
+                 executorType === 'frontend' ? new FrontendExecutor() :
+                 new MobileExecutor() // Phase 3.5
 ```
 
 ### Step 3: Execute RED Phase (Write Tests)

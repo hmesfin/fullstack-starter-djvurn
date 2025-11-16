@@ -489,6 +489,224 @@ And a git commit:
 a1b2c3d feat: implement blog models + admin
 ```
 
+## Example: Frontend Session (Composables)
+
+After backend sessions complete, let's see what a frontend session looks like:
+
+### Session 6: Post Composables + Stores
+
+```bash
+/execute-session my-blog 6
+```
+
+**What happens**:
+
+#### Checkpoint 1: BEFORE_START
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ CHECKPOINT: BEFORE START                                    │
+│ Session 6: Post Composables + Stores                        │
+└─────────────────────────────────────────────────────────────┘
+
+I will now:
+1. Write tests for usePost, usePosts, useCategories composables
+2. Test data fetching, mutations, error handling
+3. Use Vue Test Utils + Vitest
+
+Estimated time: ~50 minutes (RED phase)
+
+What would you like to do?
+
+1. ✅ Start Session
+2. ⏭️  Skip Session
+3. ⏸️  Pause
+```
+
+**You type**: `1` (Start Session)
+
+#### RED Phase - Frontend Tests
+
+```
+🔴 RED PHASE - Writing composable tests...
+
+[Agent launches frontend-builder]
+[Agent reads REQUIREMENTS.md for API endpoints]
+[Agent writes comprehensive composable tests]
+[Agent runs tests - they all FAIL]
+
+✓ RED phase complete
+```
+
+#### Checkpoint 2: AFTER_RED
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ RED PHASE COMPLETE                                        │
+│                                                              │
+│ Tests written: 50                                            │
+│ Tests failing: 50 (expected!)                                │
+│                                                              │
+│ Files created:                                               │
+│   - frontend/src/composables/usePost.test.ts                 │
+│   - frontend/src/composables/usePosts.test.ts                │
+│   - frontend/src/composables/useCategories.test.ts           │
+│                                                              │
+│ Sample tests:                                                │
+│   - test_usePost_fetches_post_by_uuid                        │
+│   - test_usePost_handles_errors                              │
+│   - test_usePosts_filters_by_category                        │
+│   - test_useCreatePost_creates_post                          │
+│   - test_useCreatePost_invalidates_cache                     │
+└─────────────────────────────────────────────────────────────┘
+
+All tests are FAILING (as expected in RED phase!)
+
+What would you like to do?
+
+1. ✅ Proceed to GREEN phase (implement composables)
+2. 🔄 Revise tests
+3. ⏭️  Skip this session
+```
+
+**You type**: `1` (Proceed)
+
+#### GREEN Phase - Implementation
+
+```
+🟢 GREEN PHASE - Implementing composables...
+
+[Agent launches frontend-builder]
+[Agent reads failing tests]
+[Agent implements composables with Vue Query]
+[Agent validates API responses with Zod]
+[Agent runs tests - they all PASS]
+[Agent measures coverage]
+
+✓ GREEN phase complete
+```
+
+#### Checkpoint 3: AFTER_GREEN
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ GREEN PHASE COMPLETE                                      │
+│                                                              │
+│ Tests: 50/50 passing ✓                                      │
+│ Coverage: 87%                                                │
+│ Type checking: PASS ✓                                       │
+│                                                              │
+│ Files created/modified:                                      │
+│   - frontend/src/composables/usePost.ts                      │
+│   - frontend/src/composables/usePosts.ts                     │
+│   - frontend/src/composables/useCategories.ts                │
+│                                                              │
+│ Key features:                                                │
+│   ✓ Data fetching with TanStack Query                       │
+│   ✓ Zod validation for all API responses                    │
+│   ✓ Error handling with retry logic                         │
+│   ✓ Cache invalidation on mutations                         │
+│   ✓ Optimistic updates for better UX                        │
+└─────────────────────────────────────────────────────────────┘
+
+All tests PASSING! Ready to refactor.
+
+What would you like to do?
+
+1. ✅ Proceed to REFACTOR phase
+2. ✅ Skip refactor
+3. 🔄 Modify implementation
+```
+
+**You type**: `1` (Proceed to REFACTOR)
+
+#### REFACTOR Phase
+
+```
+🔵 REFACTOR PHASE - Improving code quality...
+
+[Agent adds JSDoc comments]
+[Agent extracts common API query pattern]
+[Agent improves TypeScript types]
+[Agent runs tests - still PASS]
+
+✓ REFACTOR phase complete
+```
+
+#### Checkpoint 4: AFTER_REFACTOR
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ REFACTOR PHASE COMPLETE                                   │
+│                                                              │
+│ Improvements made:                                           │
+│   ✓ Added JSDoc comments to all composables                 │
+│   ✓ Extracted common useApiQuery pattern                    │
+│   ✓ Added explicit return types everywhere                  │
+│   ✓ Improved error messages                                 │
+│                                                              │
+│ Tests: 50/50 passing ✓                                      │
+│ Coverage: 88% (improved!)                                    │
+│ Type checking: PASS ✓                                       │
+└─────────────────────────────────────────────────────────────┘
+
+Ready to commit!
+
+1. ✅ Commit & Continue
+2. 🔄 Further refactoring
+```
+
+**You type**: `1` (Commit)
+
+#### Git Commit
+
+```
+Creating git commit...
+
+git add frontend/src/composables/
+git commit -m "feat: implement post composables
+
+Completed Session 6: Post Composables + Stores
+
+Phase: Frontend Foundation
+Tests: 50/50 passing
+Coverage: 88%
+Time: 2.1h (estimated: 2.5h)
+
+Files modified:
+- frontend/src/composables/usePost.ts
+- frontend/src/composables/usePosts.ts
+- frontend/src/composables/useCategories.ts
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+✓ Commit created: f1a2b3c
+```
+
+#### Session Complete
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ SESSION 6 COMPLETE: Post Composables + Stores            │
+│                                                              │
+│ Tests: 50/50 passing ✓                                      │
+│ Coverage: 88%                                                │
+│ Time: 2.1h (estimated: 2.5h) - 16% faster! 🎉             │
+│ Commit: f1a2b3c                                              │
+│                                                              │
+│ Overall Progress: 6/11 sessions complete (55%)               │
+│                  Phase 2: 2/4 complete (50%)                 │
+└─────────────────────────────────────────────────────────────┘
+
+What would you like to do?
+
+1. ✅ Continue to Session 7 (Post UI Components)
+2. ⏸️  Pause execution
+3. 📊 Show overall progress
+```
+
 ## Next Steps
 
 After completing all sessions:
@@ -496,8 +714,20 @@ After completing all sessions:
 - **Customize**: Add optional enhancements from PROJECT_PLAN.md
 - **Extend**: Use the same system to build additional features
 
+## Key Differences: Backend vs Frontend Sessions
+
+| Aspect | Backend (Django) | Frontend (Vue) |
+|--------|------------------|----------------|
+| **Test Framework** | pytest + Django Test Utils | Vitest + Vue Test Utils |
+| **Coverage Target** | 90% | 85% |
+| **Key Tests** | Models, Serializers, ViewSets, Permissions | Components, Composables, Views, Schemas |
+| **Tech Stack** | Django, DRF, PostgreSQL | Vue 3, TypeScript, Shadcn-vue, TanStack Query |
+| **Validation** | Django validators | Zod schemas |
+| **Type Safety** | Type hints + mypy | TypeScript strict mode (no `any`) |
+| **Common Patterns** | select_related, prefetch_related | Vue Query caching, optimistic updates |
+
 ---
 
-**That's it!** The agent handles all the TDD workflow, you just approve at checkpoints and review the code. 🚀
+**That's it!** The agent handles all the TDD workflow for both backend and frontend, you just approve at checkpoints and review the code. 🚀
 
 Happy building!
