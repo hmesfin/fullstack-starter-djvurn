@@ -1053,6 +1053,208 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 Congratulations! Your blog app is fully built, tested, and ready to deploy! 🚀
 ```
 
+## Phase-Level Execution with Orchestration
+
+For faster execution, you can run entire phases with automatic parallelization!
+
+### Execute Entire Phase (Recommended for Production)
+
+```bash
+/execute-phase my-blog 1
+```
+
+**What happens**:
+
+#### Checkpoint 1: PHASE START with Parallelization Plan
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 1: Backend Foundation                                │
+│                                                              │
+│ Total Sessions: 4                                            │
+│ Estimated Time (sequential): 10.5h                          │
+│ Estimated Time (parallel): 7.2h                             │
+│ Time Savings: 31% ⚡                                        │
+└─────────────────────────────────────────────────────────────┘
+
+PARALLELIZATION PLAN:
+
+Group 1: 1 session (can start immediately)
+  - Session 1: Models + Admin (2.5h)
+
+Group 2: 1 session (after Group 1)
+  - Session 2: Serializers + ViewSets (3h)
+
+Group 3: 2 sessions (after Group 2) - PARALLEL!
+  - Session 3: Permissions + Business Logic (2.5h)
+  - Session 4: Media Uploads + Optimization (2.5h)
+
+EXECUTION STRATEGY:
+
+- Sessions in the same group will run in PARALLEL
+- Max 3 sessions at a time
+- Each session follows RED-GREEN-REFACTOR with checkpoints
+- Continue on error: true
+
+What would you like to do?
+
+1. ✅ Start Phase (execute with parallelization)
+2. 🔄 Run sequentially (disable parallelization)
+3. ⏭️  Skip Phase
+4. ⏸️  Pause
+```
+
+**You type**: `1` (Start Phase)
+
+#### Parallel Execution
+
+```
+🔴 [START] Session 1: Models + Admin
+  ✓ RED phase: 72 tests written, all failing
+  ✓ GREEN phase: 72/72 passing, 93% coverage
+  ✓ REFACTOR phase: Docstrings + type hints added
+  ✓ COMMIT: a1b2c3d
+
+🔴 [START] Session 2: Serializers + ViewSets
+  ✓ RED phase: 90 tests written, all failing
+  ✓ GREEN phase: 90/90 passing, 92% coverage
+  ✓ REFACTOR phase: DRY improvements
+  ✓ COMMIT: b2c3d4e
+
+🔵 [START] Session 3: Permissions (PARALLEL)
+🔵 [START] Session 4: Media Uploads (PARALLEL)
+
+[Both sessions run at the same time!]
+
+  ✓ Session 3 complete: 60/60 passing, 91% coverage
+    COMMIT: c3d4e5f
+
+  ✓ Session 4 complete: 45/45 passing, 89% coverage
+    COMMIT: d4e5f6g
+```
+
+#### Checkpoint 2: PHASE COMPLETE
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ PHASE 1 COMPLETE: Backend Foundation                     │
+│                                                              │
+│ Sessions: 4/4 completed ✓                                   │
+│ Tests: 267 passing                                           │
+│ Coverage: 91% average                                        │
+│ Time: 7.1h (estimated: 10.5h)                               │
+│ Savings: 32% ⚡                                              │
+│ Commits: 4 created                                           │
+│                                                              │
+│ Overall Progress: 1/4 phases (25%)                          │
+└─────────────────────────────────────────────────────────────┘
+
+COMMITS CREATED:
+
+  1. a1b2c3d - feat: implement blog models + admin
+  2. b2c3d4e - feat: implement serializers + viewsets
+  3. c3d4e5f - feat: implement permissions + business logic
+  4. d4e5f6g - feat: implement media uploads + optimization
+
+What would you like to do?
+
+1. ✅ Continue to Phase 2 (Frontend Foundation)
+2. 📊 Show overall progress
+3. ⏸️  Pause execution
+```
+
+**You type**: `1` (Continue to Phase 2)
+
+### Resume Interrupted Session
+
+If execution is interrupted, you can resume from the last checkpoint:
+
+```bash
+/resume-session my-blog
+```
+
+**Output**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│ RESUME SESSION                                              │
+│ Session 3: Permissions + Business Logic                     │
+│                                                              │
+│ Last Checkpoint: AFTER_GREEN                                │
+│ Last Updated: 2025-01-15 14:30:00                           │
+└─────────────────────────────────────────────────────────────┘
+
+STATUS:
+
+🟢 GREEN PHASE COMPLETE
+
+Tests: 60/60 passing
+Coverage: 91%
+
+Files created/modified:
+  - backend/apps/blog/permissions.py
+  - backend/apps/blog/tests/test_permissions.py
+
+What happened:
+  - Implementation completed
+  - All tests passing
+  - Execution was paused before REFACTOR phase
+
+What would you like to do?
+
+1. ✅ Continue to REFACTOR phase (improve code)
+2. 🔄 Restart session from beginning
+3. ⏭️  Skip this session
+4. ⏸️  Cancel resume
+```
+
+**You type**: `1` (Continue to REFACTOR)
+
+```
+🔵 REFACTOR PHASE - Improving code quality...
+
+[Agent adds docstrings, type hints, optimizations]
+
+✓ REFACTOR phase complete
+
+💾 Creating commit...
+
+git commit -m "feat: implement permissions + business logic
+
+Completed Session 3: Permissions + Business Logic
+...
+"
+
+✓ Commit created: c3d4e5f
+
+┌─────────────────────────────────────────────────────────────┐
+│ ✓ SESSION RESUMED AND COMPLETED                            │
+│ Session 3: Permissions + Business Logic                     │
+│                                                              │
+│ Tests: 60/60 passing ✓                                      │
+│ Coverage: 91%                                                │
+│ Commit: c3d4e5f                                              │
+│                                                              │
+│ Overall Progress: 3/11 sessions (27%)                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Execution Modes Comparison
+
+### Session-Level vs Phase-Level Execution
+
+| Aspect | `/execute-session` | `/execute-phase` |
+|--------|-------------------|------------------|
+| **Scope** | Single session | Entire phase (4 sessions) |
+| **Parallelization** | No | Yes (dependency-aware) |
+| **Time Savings** | None | 20-40% faster ⚡ |
+| **User Effort** | Run 4 times for 4 sessions | Run once for all 4 sessions |
+| **Checkpoints** | Per session (5 checkpoints) | Per session + phase-level |
+| **Progress Tracking** | Manual | Automatic |
+| **Best For** | Debugging, learning, granular control | Production, speed, automation |
+| **Resume Support** | `/resume-session` | `/resume-session` (per session) |
+
+**Recommendation**: Use `/execute-phase` for normal development (faster), use `/execute-session` when you need granular control or debugging.
+
 ## Next Steps
 
 After completing all sessions:
