@@ -184,6 +184,8 @@ After discovery, create a comprehensive technical requirements document (`projec
 
 #### Data Models
 
+For each model, document:
+
 ```markdown
 ### User Model (extends apps.users.User)
 - email (EmailField, unique, required)
@@ -205,6 +207,74 @@ After discovery, create a comprehensive technical requirements document (`projec
 - Email must be valid format
 - Password min 8 chars, must contain uppercase, lowercase, number
 ```
+
+#### Visual Enhancement: ERD Diagram
+
+**IMPORTANT**: After documenting all models, generate a Mermaid Entity Relationship Diagram showing all models and their relationships. Add this section to REQUIREMENTS.md:
+
+```markdown
+## Data Model Visualization
+
+```mermaid
+erDiagram
+    USER ||--o{ POST : creates
+    USER ||--o{ COMMENT : writes
+    POST ||--o{ COMMENT : has
+    POST }o--o{ TAG : tagged
+    POST }o--|| CATEGORY : belongs_to
+
+    USER {
+        uuid id PK
+        string email UK
+        string first_name
+        string last_name
+        boolean is_verified
+        datetime created_at
+        datetime updated_at
+    }
+
+    POST {
+        uuid id PK
+        uuid user_id FK
+        string title
+        text content
+        enum status
+        datetime published_at
+        datetime created_at
+    }
+
+    COMMENT {
+        uuid id PK
+        uuid post_id FK
+        uuid user_id FK
+        uuid parent_id FK "nullable"
+        text content
+        datetime created_at
+    }
+
+    CATEGORY {
+        int id PK
+        string name UK
+        string slug UK
+    }
+
+    TAG {
+        int id PK
+        string name UK
+        string slug UK
+    }
+```
+```
+
+**ERD Generation Rules**:
+1. Use `||--o{` for one-to-many (one user has many posts)
+2. Use `}o--o{` for many-to-many (posts have many tags)
+3. Use `||--||` for one-to-one
+4. Use `}o--||` for many-to-one (many posts belong to one category)
+5. Show all key fields with types (uuid, string, text, enum, datetime, boolean, int)
+6. Mark primary keys with `PK`, foreign keys with `FK`, unique keys with `UK`
+7. Use ALL_CAPS for entity names (USER, POST, COMMENT)
+8. For self-referential relationships (like Comment.parent), add `"nullable"` annotation
 
 #### API Endpoints
 
@@ -253,6 +323,110 @@ export const postSchema = z.object({
 })
 ```
 
+```
+
+#### Visual Enhancement: Key Workflow Diagrams
+
+**IMPORTANT**: For complex apps, add Mermaid sequence diagrams for 2-3 critical workflows. Add this section to REQUIREMENTS.md:
+
+```markdown
+## Key Workflow Visualizations
+
+### User Registration Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend
+    participant Email
+    participant Database
+
+    User->>Frontend: Enter email/password
+    Frontend->>Frontend: Validate form (Zod)
+    Frontend->>Backend: POST /api/auth/register/
+    Backend->>Backend: Validate email format
+    Backend->>Backend: Hash password
+    Backend->>Database: Create user (is_verified=false)
+    Database-->>Backend: User created
+    Backend->>Backend: Generate OTP (6 digits)
+    Backend->>Email: Send OTP email (Celery async)
+    Backend-->>Frontend: 201 Created
+    Frontend->>User: "Check your email for OTP"
+
+    User->>Frontend: Enter OTP
+    Frontend->>Backend: POST /api/auth/verify-otp/
+    Backend->>Backend: Validate OTP
+    Backend->>Database: Update user (is_verified=true)
+    Backend->>Backend: Generate JWT tokens
+    Backend-->>Frontend: 200 OK + JWT tokens
+    Frontend->>Frontend: Store tokens in localStorage
+    Frontend->>User: Redirect to dashboard
+```
+```
+
+### E-Commerce Checkout Flow
+
+```mermaid
+sequenceDiagram
+    actor Customer
+    participant Frontend
+    participant Backend
+    participant Database
+    participant Stripe
+
+    Customer->>Frontend: Click "Checkout"
+    Frontend->>Backend: POST /api/store/orders/ {cart_items, address}
+    Backend->>Backend: Validate cart items exist
+    Backend->>Backend: Calculate total
+    Backend->>Database: Create Order (status=pending)
+    Backend-->>Frontend: 201 Created {order_uuid}
+
+    Frontend->>Backend: POST /api/store/checkout/create-payment-intent/ {order_uuid}
+    Backend->>Stripe: Create PaymentIntent {amount, currency}
+    Stripe-->>Backend: {client_secret, payment_intent_id}
+    Backend->>Database: Create PaymentIntent record
+    Backend-->>Frontend: {client_secret}
+
+    Frontend->>Customer: Show Stripe payment form
+    Customer->>Frontend: Enter card details
+    Frontend->>Stripe: Confirm payment (Stripe.js)
+    Stripe->>Backend: Webhook: payment_intent.succeeded
+    Backend->>Database: Update Order (payment_status=paid)
+    Backend->>Database: Deduct stock quantities (atomic)
+    Stripe-->>Frontend: Payment confirmed
+    Frontend->>Customer: Show order confirmation
+```
+```
+
+**Sequence Diagram Generation Rules**:
+1. **When to add**: Add for complex multi-step workflows (auth, checkout, payment, multi-step forms)
+2. **Actors**: Use `actor` for real users, `participant` for systems
+3. **Annotations**: Add notes with `Note over Frontend,Backend: Important detail` for critical steps
+4. **Async operations**: Mark with comment like `Send OTP email (Celery async)`
+5. **Database operations**: Show critical DB operations (Create, Update)
+6. **External services**: Always show (Stripe, SendGrid, S3, etc.)
+7. **Validation**: Show validation steps (Zod, backend validation)
+8. **Error paths**: Optionally add `alt` blocks for error handling if workflow is critical:
+
+```mermaid
+sequenceDiagram
+    Frontend->>Backend: POST /api/auth/login/
+    alt valid credentials
+        Backend-->>Frontend: 200 OK + tokens
+    else invalid credentials
+        Backend-->>Frontend: 401 Unauthorized
+    else account not verified
+        Backend-->>Frontend: 403 Forbidden + error message
+    end
+```
+
+**Which workflows to diagram**:
+- **Auth**: Registration, login, password reset (always)
+- **E-Commerce**: Checkout + payment flow (if payment involved)
+- **SaaS**: Organization creation + member invitation (if multi-tenant)
+- **Social**: Post creation + notification flow (if real-time)
+- **PM Tools**: Task creation + assignment notification (if complex workflow)
 ```
 
 #### Platform Feature Matrix (NEW - if mobile app selected!)
@@ -384,6 +558,131 @@ Create `project-plans/<app-name>/PROJECT_PLAN.md`:
 - Type-safe (no `any` types)
 - OpenAPI schema accurate
 - Docker deployment working
+```
+
+#### Visual Enhancement: Session Dependency Graph
+
+**IMPORTANT**: After documenting all phases and sessions, add a Mermaid flowchart showing session dependencies and the critical path. Add this section to PROJECT_PLAN.md:
+
+```markdown
+## Session Dependency Graph
+
+This diagram shows which sessions must be completed before others can begin, helping identify the critical path and opportunities for parallel work.
+
+```mermaid
+flowchart TD
+    S1[Session 1: Models + Admin]
+    S2[Session 2: Serializers + ViewSets]
+    S3[Session 3: Business Logic]
+    S4[Session 4: Permissions]
+    S5[Session 5: API Client Generation]
+    S6[Session 6: Composables]
+    S7[Session 7: UI Components]
+    S8[Session 8: Views + Routing]
+    S9[Session 9: E2E Testing]
+    S10[Session 10: Deployment]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S4 --> S5
+    S5 --> S6
+    S6 --> S7
+    S7 --> S8
+    S8 --> S9
+    S9 --> S10
+
+    %% Critical path highlighting
+    style S1 fill:#ff6b6b
+    style S2 fill:#ff6b6b
+    style S3 fill:#ff6b6b
+    style S5 fill:#ff6b6b
+    style S6 fill:#ff6b6b
+    style S7 fill:#ff6b6b
+    style S8 fill:#ff6b6b
+    style S9 fill:#ff6b6b
+    style S10 fill:#ff6b6b
+
+    %% Parallel-safe sessions (can run concurrently)
+    style S4 fill:#51cf66
+```
+```
+
+**Dependency Graph Generation Rules**:
+1. **Use flowchart TD** (top-down) for session dependencies
+2. **Node format**: `S1[Session 1: Short Title]`
+3. **Arrow format**: `S1 --> S2` (S1 must complete before S2 can start)
+4. **Critical path**: Highlight in red (#ff6b6b) - sessions that block all future work
+5. **Parallelizable sessions**: Highlight in green (#51cf66) - can run concurrently with others
+6. **Key dependencies**:
+   - Session 1 (Models) → Session 2 (Serializers) - ALWAYS
+   - Session 2 → Session 5 (API Client) - ALWAYS (need OpenAPI schema)
+   - Session 5 → Session 6 (Composables) - ALWAYS (need generated client)
+   - Permissions (S4) can often run parallel to Business Logic (S3)
+   - Mobile sessions can start after Session 5 (API client ready)
+
+**Example for complex app with mobile**:
+
+```mermaid
+flowchart TD
+    S1[Session 1: Models]
+    S2[Session 2: Serializers]
+    S3[Session 3: Business Logic]
+    S4[Session 4: Permissions]
+    S5[Session 5: API Client]
+    S6[Session 6: Web Composables]
+    S7[Session 7: Web UI]
+    S8[Session 8: Web Views]
+    S9[Session 9: Mobile Setup]
+    S10[Session 10: Mobile Screens]
+    S11[Session 11: E2E Testing]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S4 --> S5
+
+    %% Web path
+    S5 --> S6
+    S6 --> S7
+    S7 --> S8
+
+    %% Mobile path (can start after API client)
+    S5 --> S9
+    S9 --> S10
+
+    %% Both converge to E2E
+    S8 --> S11
+    S10 --> S11
+
+    %% Critical path (web)
+    style S1 fill:#ff6b6b
+    style S2 fill:#ff6b6b
+    style S3 fill:#ff6b6b
+    style S5 fill:#ff6b6b
+    style S6 fill:#ff6b6b
+    style S7 fill:#ff6b6b
+    style S8 fill:#ff6b6b
+    style S11 fill:#ff6b6b
+
+    %% Parallel opportunities
+    style S4 fill:#51cf66
+    style S9 fill:#51cf66
+    style S10 fill:#51cf66
+```
+
+**Legend**:
+- 🔴 Red nodes: Critical path (must complete sequentially)
+- 🟢 Green nodes: Can run in parallel with other work
+- Arrows: Dependencies (A → B means "A must complete before B starts")
+
+**Benefits**:
+1. **Identify bottlenecks**: See which sessions block the most work
+2. **Parallelize work**: Green nodes can be worked on concurrently (e.g., separate developers)
+3. **Estimate timeline**: Critical path determines minimum project duration
+4. **Plan sprints**: Group non-dependent sessions into same sprint
 ```
 
 ### Phase 4: Detailed Phase Task Documents

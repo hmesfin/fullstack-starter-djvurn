@@ -153,6 +153,67 @@
 
 ---
 
+## Data Model Visualization
+
+```mermaid
+erDiagram
+    USER ||--o{ POST : creates
+    USER ||--o{ COMMENT : writes
+    POST ||--o{ COMMENT : has
+    POST }o--o{ CATEGORY : categorized_by
+    POST }o--o{ TAG : tagged_with
+
+    USER {
+        int id PK
+        uuid uuid UK
+        string email UK
+        string first_name
+        string last_name
+        datetime created_at
+    }
+
+    POST {
+        int id PK
+        uuid uuid UK
+        int author_id FK
+        string title
+        string slug UK
+        text content
+        text excerpt
+        enum status
+        string featured_image
+        datetime published_at
+        int view_count
+        datetime created_at
+    }
+
+    COMMENT {
+        int id PK
+        uuid uuid UK
+        int post_id FK
+        int author_id FK
+        int parent_id FK "nullable"
+        text content
+        boolean is_approved
+        datetime created_at
+    }
+
+    CATEGORY {
+        int id PK
+        string name UK
+        string slug UK
+        text description
+    }
+
+    TAG {
+        int id PK
+        string name UK
+        string slug UK
+    }
+```
+
+---
+
 ## API Endpoints
 
 ### Posts Endpoints
@@ -401,6 +462,72 @@ export const commentSchema = z.object({
   content: z.string().min(3).max(1000),
   parent_id: z.number().optional()
 })
+```
+
+---
+
+## Key Workflow Visualizations
+
+### Post Creation & Publishing Flow
+
+```mermaid
+sequenceDiagram
+    actor Author
+    participant Frontend
+    participant Backend
+    participant Database
+    participant Cache
+
+    Author->>Frontend: Fill post form (title, content, categories)
+    Frontend->>Frontend: Validate (Zod schema)
+    Frontend->>Backend: POST /api/blog/posts/ {title, content, status: "draft"}
+    Backend->>Backend: Validate data
+    Backend->>Backend: Auto-generate slug from title
+    Backend->>Database: Create Post (status=draft, published_at=null)
+    Database-->>Backend: Post created (id, uuid)
+    Backend-->>Frontend: 201 Created {post}
+    Frontend->>Author: "Draft saved successfully"
+
+    Note over Author,Frontend: Author reviews draft, then publishes
+
+    Author->>Frontend: Click "Publish"
+    Frontend->>Backend: POST /api/blog/posts/{uuid}/publish/
+    Backend->>Backend: Validate post has title + content
+    Backend->>Database: Update Post (status=published, published_at=now())
+    Backend->>Cache: Invalidate feed cache
+    Database-->>Backend: Post updated
+    Backend-->>Frontend: 200 OK {post}
+    Frontend->>Author: "Post published!"
+```
+
+### Comment Creation with Notification Flow
+
+```mermaid
+sequenceDiagram
+    actor Reader
+    participant Frontend
+    participant Backend
+    participant Database
+    participant Cache
+    participant Celery
+    participant Email
+
+    Reader->>Frontend: Type comment on post
+    Frontend->>Frontend: Validate (min 3 chars)
+    Frontend->>Backend: POST /api/blog/posts/{post_uuid}/comments/ {content}
+    Backend->>Backend: Validate user authenticated
+    Backend->>Database: Create Comment (post, author, content)
+    Database-->>Backend: Comment created
+    Backend->>Cache: Invalidate post detail cache
+    Backend->>Celery: Queue notification task (async)
+    Backend-->>Frontend: 201 Created {comment}
+    Frontend->>Frontend: Add comment to UI (optimistic update)
+
+    Note over Celery,Email: Async notification processing
+
+    Celery->>Database: Get post author email
+    Celery->>Email: Send "New comment on your post" email
+    Email-->>Celery: Email sent
 ```
 
 ---

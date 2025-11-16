@@ -151,6 +151,63 @@ A modern blog platform with post authoring, commenting, categorization, and tagg
 **Backend Coverage Target**: 90%
 **Frontend Coverage Target**: 85%
 
+## Session Dependency Graph
+
+This diagram shows which sessions must be completed before others can begin, helping identify the critical path and opportunities for parallel work.
+
+```mermaid
+flowchart TD
+    S1[Session 1: Models + Admin]
+    S2[Session 2: Serializers + ViewSets]
+    S3[Session 3: Permissions + Logic]
+    S4[Session 4: Media + Optimization]
+    S5[Session 5: API Client + Schemas]
+    S6[Session 6: Post Composables]
+    S7[Session 7: Post UI Components]
+    S8[Session 8: Post Views]
+    S9[Session 9: Comment System]
+    S10[Session 10: Rich Editor]
+    S11[Session 11: E2E + Performance]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S4 --> S5
+    S5 --> S6
+    S6 --> S7
+    S7 --> S8
+    S8 --> S9
+    S9 --> S10
+    S10 --> S11
+
+    %% Critical path highlighting
+    style S1 fill:#ff6b6b
+    style S2 fill:#ff6b6b
+    style S3 fill:#ff6b6b
+    style S5 fill:#ff6b6b
+    style S6 fill:#ff6b6b
+    style S7 fill:#ff6b6b
+    style S8 fill:#ff6b6b
+    style S9 fill:#ff6b6b
+    style S10 fill:#ff6b6b
+    style S11 fill:#ff6b6b
+
+    %% Parallel-safe sessions
+    style S4 fill:#51cf66
+```
+
+**Legend**:
+- 🔴 Red nodes: Critical path (must complete sequentially) - 10 sessions
+- 🟢 Green nodes: Can run in parallel with Session 3 (Permissions)
+- Arrows: Dependencies (A → B means "A must complete before B starts")
+
+**Key Insights**:
+1. **Media Uploads (S4)** can run in parallel with Permissions (S3) - potential 2.5 hour time save if working with multiple developers
+2. **Critical path**: S1 → S2 → S3 → S5 → S6 → S7 → S8 → S9 → S10 → S11 (27.5 hours minimum)
+3. **Earliest finish**: 27.5 hours (if S4 runs parallel with S3), 30 hours (if sequential)
+4. **Frontend work** can begin after Session 5 (API client generation)
+
 ## Data Models Summary
 
 | Model    | Fields | Relationships        | Indexes |

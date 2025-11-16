@@ -483,12 +483,13 @@ Identifies potential issues:
 ### Week 2-4: Enhanced Planning Capabilities
 
 - **Week 2**: Pre-built app templates (5 templates) ✅ COMPLETED
-  - ✅ Blog Platform template
-  - ✅ E-Commerce Store template
-  - ✅ SaaS Multi-Tenant template
-  - ✅ Social Network template
-  - ✅ Project Management template
+  - ✅ Blog Platform template (README + REQUIREMENTS + PROJECT_PLAN)
+  - ✅ E-Commerce Store template (README + REQUIREMENTS + PROJECT_PLAN)
+  - ✅ SaaS Multi-Tenant template (README + REQUIREMENTS + PROJECT_PLAN)
+  - ✅ Social Network template (README + REQUIREMENTS + PROJECT_PLAN)
+  - ✅ Project Management template (README + REQUIREMENTS + PROJECT_PLAN)
   - ✅ Template selection flow implementation
+  - ✅ All templates fully documented and ready for use
 
 - **Week 3**: Platform-Specific Feature Selection ✅ COMPLETED
   - ✅ Implemented 4-option mobile strategy (web-only, full parity, selective, mobile-first)
@@ -501,19 +502,139 @@ Identifies potential issues:
   - ✅ Updated plan-app.md with Phase 1.5
   - ✅ Updated PLANNING_GUIDE.md with examples
 
-- **Week 4**: Visual Enhancements (NEXT)
-  - Mermaid ERD diagrams for data models
-  - Sequence diagrams for workflows
-  - Dependency graphs for sessions
-  - Test rendering in markdown viewers
+- **Week 4**: Visual Enhancements ✅ COMPLETED
+  - ✅ Mermaid ERD diagrams for data models (auto-generated from model relationships)
+  - ✅ Sequence diagrams for key workflows (auth, checkout, publishing, etc.)
+  - ✅ Session dependency graphs with critical path highlighting
+  - ✅ Added generation instructions to plan-app.md
+  - ✅ Created example diagrams in blog template (REQUIREMENTS.md + PROJECT_PLAN.md)
+  - ✅ Color-coded dependency graphs (red=critical path, green=parallelizable)
 
 ### Future: Agent Integration
-- Design agent architecture
-- Implement backend-builder agent
-- Implement frontend-builder agent
-- Implement mobile-builder agent
-- Test agent execution
-- Human-in-the-loop workflows
+
+## Phase 3: Agent Integration (Design Complete ✅, Implementation In Progress - Phase 3.1 ✅)
+
+**Philosophy**: "Good plans enable agent execution" - Transform planning tool from generator to executor
+
+### Architecture Overview ✅ COMPLETED
+
+**Key Components**:
+1. **Executor Agents**: Specialized agents that read plans and execute sessions
+   - backend-builder (Django models, serializers, viewsets)
+   - frontend-builder (Vue components, composables, views)
+   - mobile-builder (React Native screens, navigation)
+   - integration-tester (E2E workflows)
+
+2. **Session State Tracker**: `.agent-state.json` - Tracks progress, current session, blockers
+
+3. **Checkpoint System**: Human-in-the-loop approvals at 4 points per session
+   - Before session start
+   - After RED phase (tests written)
+   - After GREEN phase (implementation done)
+   - After REFACTOR phase (ready to commit)
+
+4. **Plan Parser**: Extract structured tasks from markdown plans
+
+5. **Error Recovery**: Handle test failures, dependency issues, merge conflicts
+
+**Documentation**:
+- `.claude/AGENT_INTEGRATION_ARCHITECTURE.md` - Complete architecture design
+- `.claude/agents/backend-builder.md` - Backend agent specification (complete)
+
+### Implementation Roadmap
+
+**Phase 3.1: Core Infrastructure** (Week 1) ✅ COMPLETED
+- ✅ Create `.agent-state.json` schema and persistence
+  - Created `.claude/infrastructure/types.ts` - Complete TypeScript types (AgentState, Phase, Session, etc.)
+  - Created `.claude/infrastructure/agent-state-schema.md` - Comprehensive schema documentation
+  - Created `.claude/templates/blog/.agent-state.example.json` - Example state file
+- ✅ Create plan parser (markdown → structured data)
+  - Created `.claude/infrastructure/plan-parser.ts` - Multi-pass parser with validation
+  - Parses phases, sessions, estimated hours, test counts
+  - Parses Mermaid dependency graphs to build depends_on/blocks arrays
+  - Validates for missing sessions, circular dependencies, invalid references
+- ✅ Create checkpoint system (prompts, user input handling)
+  - Created `.claude/infrastructure/checkpoint-manager.ts` - Complete checkpoint system
+  - Implements all 5 checkpoint types (BEFORE_START, AFTER_RED, AFTER_GREEN, AFTER_REFACTOR, SESSION_COMPLETE)
+  - Checkpoint data structures with test metrics, code samples, user options
+  - State machine for checkpoint transitions and user actions
+- ✅ Create state save/load functions
+  - Created `.claude/infrastructure/state-manager.ts` - Complete state management utilities
+  - Functions: initializeState, loadState, saveState, updateSession, markSessionComplete
+  - Session lifecycle: startSession, setCheckpoint, resumeFromCheckpoint
+  - Blocker management: addBlocker, resolveBlocker
+  - Error tracking: recordError with retry counting
+  - Query helpers: getCurrentSession, getProgress, getPhaseSessions
+- ✅ Create execution orchestrator foundation
+  - Created `.claude/infrastructure/execution-orchestrator.ts` - Orchestration framework
+  - Implements Template Method pattern for session execution
+  - Coordinates RED-GREEN-REFACTOR cycle with checkpoints
+  - SessionExecutor interface for backend/frontend/mobile builders
+  - Resume capability, progress tracking, error handling
+
+**Phase 3.2: Backend Builder Agent** (Week 2) - Pending
+- [ ] Implement backend-builder agent (use Task tool)
+- [ ] Implement TDD workflow execution (RED-GREEN-REFACTOR)
+- [ ] Implement checkpoint approval system
+- [ ] Test with blog template Session 1 (Models + Admin)
+
+**Phase 3.3: Frontend Builder Agent** (Week 3) - Pending
+- [ ] Create frontend-builder.md agent prompt
+- [ ] Implement component generation logic
+- [ ] Implement Zod schema generation
+- [ ] Test with blog template Sessions 5-8
+
+**Phase 3.4: Orchestration** (Week 4) - Pending
+- [ ] Create orchestrator (manages multiple agents)
+- [ ] Create `/execute-phase` slash commands
+- [ ] Create `/resume-session` recovery
+- [ ] End-to-end testing (complete phase execution)
+
+**Phase 3.5: Mobile & E2E Agents** (Week 5) - Pending
+- [ ] Create mobile-builder.md agent
+- [ ] Create integration-tester.md agent
+- [ ] Test with complex template (e-commerce full plan)
+
+### Key Features
+
+**TDD Enforcement**:
+- Agents MUST follow RED-GREEN-REFACTOR
+- Tests written first, always
+- Implementation follows tests
+- Refactor with tests still passing
+
+**Human-in-the-Loop Checkpoints**:
+- User approves before each major action
+- User can modify, cancel, or pause at any checkpoint
+- Clear visibility into what agent will do / did
+
+**Error Recovery**:
+- Auto-retry test failures (max 2 attempts)
+- Rollback on session failure (git reset)
+- Block on dependency errors until resolved
+- Graceful handling of merge conflicts
+
+**State Persistence**:
+- Resume from interruption
+- Track progress (which sessions done, current, blocked)
+- Audit trail (commit hashes, timestamps, coverage %)
+
+### Success Metrics
+
+Phase 3 succeeds when:
+- [ ] Agent executes complete backend phase (4 sessions) without errors
+- [ ] All checkpoints work (user can approve/cancel/modify)
+- [ ] State persists and resumes correctly
+- [ ] Test coverage meets targets (>90% backend, >85% frontend)
+- [ ] Generated code matches plan specifications
+- [ ] TDD workflow strictly followed
+- [ ] User can review each step before commit
+
+### Ultimate Goal
+
+**Before**: User runs `/plan-app` → gets plan → implements manually (days/weeks)
+
+**After**: User runs `/plan-app` → approves plan → runs `/execute-plan` → reviews at checkpoints → gets working app (hours)
 
 ---
 
