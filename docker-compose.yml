@@ -20,6 +20,12 @@ services:
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
+    environment:
+      # Docker Desktop runs the WSL2 kernel, which makes watchfiles (used by the
+      # uvicorn --reload and celery reloaders) auto-enable polling: ~70% of a core
+      # per watcher. inotify works for code on the WSL/Linux filesystem; set
+      # WATCHFILES_FORCE_POLLING=true if your checkout lives under /mnt/c.
+      WATCHFILES_FORCE_POLLING: ${WATCHFILES_FORCE_POLLING:-false}
     ports:
       - '127.0.0.1:8000:8000'
     command: /start
